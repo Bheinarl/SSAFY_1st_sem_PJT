@@ -16,11 +16,22 @@ class UserProfile(models.Model):
     def __str__(self):
         return self.user.username
 
+
 class CurrencyAlert(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, null=True, blank=True)  # null=True, blank=True 추가
     currency = models.CharField(max_length=10)
     target_rate = models.FloatField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.user.username} - {self.currency} Alert"
+        return f"{self.user.username if self.user else 'Anonymous'} - {self.currency} Alert"
+
+
+# class CurrencyAlert(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)  # null=True, blank=True 추가
+#     currency = models.CharField(max_length=10)
+#     target_rate = models.FloatField()
+#     created_at = models.DateTimeField(auto_now_add=True)
+
+#     def __str__(self):
+#         return f"{self.user.username if self.user else 'Anonymous'} - {self.currency} Alert"

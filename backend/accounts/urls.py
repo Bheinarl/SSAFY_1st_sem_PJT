@@ -9,4 +9,5 @@ urlpatterns = [
     path('profile_setup/', views.profile_setup, name='profile_setup'),
     path('investment_analysis/', views.investment_analysis, name='investment_analysis'),
     path('set_alert/', views.set_alert, name='set_alert'),
+    path('check_exchange_rate/', views.check_exchange_rate, name='check_exchange_rate'),
 ]

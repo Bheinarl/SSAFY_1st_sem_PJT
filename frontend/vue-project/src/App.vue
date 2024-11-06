@@ -1,28 +1,36 @@
 <script setup>
-import CurrencyAlert from './components/CurrencyAlert.vue'
-import ExchangeRate from './components/ExchangeRate.vue'
+import ExchangeRateAlert from './components/ExchangeRateAlert.vue';
+
+// export default {
+//   components: {
+//     ExchangeRateAlert,
+//   },
+// };
+// import CurrencyAlert from './components/CurrencyAlert.vue'
+// import ExchangeRate from './components/ExchangeRate.vue'
 </script>
 
 <template>
   <header>
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
   </header>
 
   <main>
-    <TheWelcome />
+    <section>
+      <!-- 기존 CurrencyAlert와 ExchangeRate 대신 통합된 컴포넌트로 변경 -->
+      <ExchangeRateAlert />
+    </section>
 
-    <!-- CurrencyAlert 및 ExchangeRate 컴포넌트 추가 -->
+    <!-- CurrencyAlert 및 ExchangeRate 컴포넌트 추가
     <section>
       <h2>환율 알림 설정</h2>
       <CurrencyAlert />
+      <h2>---------------</h2>
     </section>
 
     <section>
       <h2>현재 환율 정보</h2>
       <ExchangeRate />
-    </section>
+    </section> -->
   </main>
 </template>
 

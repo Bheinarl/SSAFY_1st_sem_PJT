@@ -22,21 +22,22 @@ export default {
   methods: {
     async setAlert() {
       try {
-        const response = await fetch('/accounts/set_alert/', {
-          method: 'POST',
+        const response = await fetch("http://127.0.0.1:8000/accounts/set_alert/", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            currency: this.currency,
-            target_rate: this.targetRate,
+            currency: this.currency,   // 사용자가 입력한 통화 정보
+            target_rate: this.targetRate,  // 사용자가 입력한 목표 환율
           }),
         });
-        if (response.ok) {
-          this.alertSet = true;
+        const data = await response.json();
+        if (data.status === 'success') {
+          alert("목표 환율이 설정되었습니다.");
         }
       } catch (error) {
-        console.error('Error setting alert:', error);
+        console.error("목표 환율 설정 중 오류가 발생했습니다.", error);
       }
     },
   },

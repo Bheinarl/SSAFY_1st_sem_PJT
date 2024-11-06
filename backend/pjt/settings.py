@@ -21,16 +21,22 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-70zv@k&!c!@(xref#j*oro+yf%m=owq4hj%ybvd87kh*wedlzr'
+# ????????????
+
+# 환율 API 키 설정
+EXCHANGE_RATE_API_KEY = 'TUwyZMxyTt6XP6rTujYY02UCuSPWDHDb'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
+CORS_ALLOW_ALL_ORIGINS = True  # 모든 도메인에서 요청 허용 (보안 고려 필요)
 # Application definition
 
 INSTALLED_APPS = [
+    'corsheaders',
+
     # APP
     'articles',
     'accounts',
@@ -45,6 +51,8 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -132,5 +140,5 @@ MEDIA_URL ='media/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# 사용자 수정
-AUTH_USER_MODEL = 'accounts.User'
+# # 사용자 수정
+# AUTH_USER_MODEL = 'accounts.User'

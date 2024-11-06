@@ -1,0 +1,17 @@
+<!-- accounts/templates/accounts/profile_setup.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>프로필 설정</title>
+</head>
+<body>
+  <h1>프로필 설정</h1>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">프로필 저장</button>
+  </form>
+</body>
+</html>

@@ -17,16 +17,16 @@
 </template>
 
 <script>
+import { ref } from 'vue';
+
 export default {
-  data() {
-    return {
-      targetRate: null,
-      exchangeRate: null,
-      showAlert: false,
-    };
-  },
-  methods: {
-    async setAlert() {
+  setup() {
+    const targetRate = ref(null);
+    const exchangeRate = ref(null);
+    const showAlert = ref(false);
+
+    // 목표 환율 설정 함수
+    const setAlert = async () => {
       // 목표 환율 설정 API 호출
       try {
         const response = await fetch("http://127.0.0.1:8000/accounts/set_alert/", {
@@ -36,28 +36,49 @@ export default {
           },
           body: JSON.stringify({
             currency: "KRW",
-            target_rate: this.targetRate,
+            target_rate: targetRate.value,
           }),
         });
         const data = await response.json();
-        if (data.status === 'success') {
+        if (response.ok && data.status === 'success') {
           alert("목표 환율이 설정되었습니다.");
+          console.log("알림 설정 성공:", data);
+        } else {
+          console.error("알림 설정 실패:", data);
         }
       } catch (error) {
         console.error("목표 환율 설정 중 오류가 발생했습니다.", error);
       }
-    },
-    async fetchExchangeRate() {
-      // 현재 환율 정보 및 알림 확인 API 호출
+    };
+
+    // 현재 환율 정보 및 알림 확인 함수
+    const fetchExchangeRate = async () => {
       try {
         const response = await fetch("http://127.0.0.1:8000/accounts/check_exchange_rate/");
         const data = await response.json();
-        this.exchangeRate = data.current_rate;
-        this.showAlert = data.alert;  // 목표 환율 이하라면 알림 표시
+        console.log("API 응답 데이터:", data); // 추가된 디버깅 로그
+        if (response.ok) {
+          exchangeRate.value = data.current_rate;
+          showAlert.value = data.alert; // 목표 환율 이하라면 알림 표시
+          console.log("현재 환율:", exchangeRate.value); // 디버그용 로그 추가
+          console.log("목표 환율 이하로 내려갔는가?", showAlert.value); // 디버그용 로그 추가
+        } else {
+          console.error("환율 정보 가져오기 실패:", data);
+          exchangeRate.value = null;
+        }
       } catch (error) {
-        console.error("환율 데이터를 가져오는 중 오류가 발생했습니다.", error);
+        console.error("환율 정보를 가져오는 중 오류가 발생했습니다.", error);
+        exchangeRate.value = null;
       }
-    },
+    };
+
+    return {
+      targetRate,
+      exchangeRate,
+      showAlert,
+      setAlert,
+      fetchExchangeRate,
+    };
   },
 };
 </script>

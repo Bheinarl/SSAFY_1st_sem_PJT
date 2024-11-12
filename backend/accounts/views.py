@@ -9,7 +9,7 @@ from .models import UserProfile, CurrencyAlert
 from .forms import UserProfileForm, SignUpForm
 from django.conf import settings
 import requests
-
+from datetime import datetime, timedelta
 
 def signup(request):
     if request.method == 'POST':
@@ -64,25 +64,31 @@ def set_alert(request):
 
 def check_exchange_rate(request):
     print("check_exchange_rate 함수 호출됨")
+    print(f'리퀘스트 : {request.GET}')
+    currency = request.GET.get('currency')
     api_url = f"https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey={settings.EXCHANGE_RATE_API_KEY}&data=AP01"
+    # 오전 11시 이전이라면 오늘을 기준으로 어제 데이터 사용
+    if datetime.now().hour < 11:
+        yesterday = datetime.now() - timedelta(days=1)
+        api_url += f"&searchdate={yesterday.strftime('%Y%m%d')}"
     
     try:
-        response = requests.get(api_url, verify=False)
+        response = requests.get(api_url, verify=True)
         response.raise_for_status()
         
         data = response.json()
-        
+        print(currency)
         # USD 환율 데이터 추출
-        usd_data = next((item for item in data if item['cur_unit'] == 'USD'), None)
-        if not usd_data:
+        currency_data = next((item for item in data if item['cur_unit'] == currency), None)
+        if not currency_data:
             return JsonResponse({'error': '환율 데이터를 찾을 수 없습니다.'}, status=500)
 
         # 현재 환율
-        current_rate = float(usd_data['deal_bas_r'].replace(',', ''))
-        print(f"현재 USD 환율: {current_rate}")
+        current_rate = float(currency_data['deal_bas_r'].replace(',', ''))
+        print(f"현재 {currency} 환율: {current_rate}")
 
         # 가장 최근에 설정된 알림을 기준으로 목표 환율 확인
-        alert = CurrencyAlert.objects.filter(currency="KRW").order_by('-created_at').first()
+        alert = CurrencyAlert.objects.filter(currency=currency).order_by('-created_at').first()
         print(f"알림 설정: {alert}")
 
         # 알림 설정이 있고, 현재 환율이 목표 환율 이하인 경우 알림 반환
@@ -143,7 +149,11 @@ def check_exchange_rate(request):
 def get_exchange_rate(request):
     # 환율 API URL 및 API 키 (예시: 한국 수출입은행 API 사용)
     api_url = f"https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey={settings.EXCHANGE_RATE_API_KEY}&data=AP01"
-
+    # 오전 11시 이전이라면 오늘을 기준으로 어제 데이터 사용
+    if datetime.now().hour < 11:
+        yesterday = datetime.now() - timedelta(days=1)
+        api_url += f"&searchdate={yesterday.strftime('%Y%m%d')}"
+    
     try:
         # API 호출
         response = requests.get(api_url)

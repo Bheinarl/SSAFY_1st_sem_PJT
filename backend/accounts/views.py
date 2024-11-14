@@ -73,7 +73,7 @@ def check_exchange_rate(request):
         api_url += f"&searchdate={yesterday.strftime('%Y%m%d')}"
     
     try:
-        response = requests.get(api_url, verify=True)
+        response = requests.get(api_url, verify=False)  # SSL 검증 비활성화
         response.raise_for_status()
         
         data = response.json()

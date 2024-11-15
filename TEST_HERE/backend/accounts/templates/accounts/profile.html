@@ -1,0 +1,15 @@
+<!-- 이거 파일 필요없어서 삭제하래 -->
+<h2>프로필 설정</h2>
+<form method="post">
+    {% csrf_token %}
+    <label for="nickname">별명:</label>
+    <input type="text" name="nickname" value="{{ user.nickname }}" required>
+    
+    <label for="age">나이:</label>
+    <input type="number" name="age" value="{{ user.age }}">
+    
+    <label for="interests">관심사:</label>
+    <textarea name="interests">{{ user.interests }}</textarea>
+    
+    <button type="submit">저장하기</button>
+</form>

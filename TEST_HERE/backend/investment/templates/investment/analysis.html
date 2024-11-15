@@ -1,0 +1,28 @@
+<!-- 이거 파일 삭제해도 됨 -->
+<h2>투자 성향 분석 결과</h2>
+
+{% if error %}
+<p>{{ error }}</p>
+{% else %}
+<p><strong>보수적 투자 비율:</strong> {{ analysis.conservative_ratio }}%</p>
+<p><strong>공격적 투자 비율:</strong> {{ analysis.aggressive_ratio }}%</p>
+
+<canvas id="analysisChart" width="400" height="400"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('analysisChart').getContext('2d');
+    const data = {
+        labels: ['보수적 투자', '공격적 투자'],
+        datasets: [{
+            label: '투자 성향',
+            data: [{{ analysis.conservative_ratio }}, {{ analysis.aggressive_ratio }}],
+            backgroundColor: ['blue', 'red'],
+        }]
+    };
+    new Chart(ctx, {
+        type: 'pie',
+        data: data,
+    });
+</script>
+{% endif %}

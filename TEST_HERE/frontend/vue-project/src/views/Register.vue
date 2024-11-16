@@ -14,6 +14,9 @@
           <label>Confirm Password:</label>
           <input v-model="password2" type="password" required />
 
+          <label>Age : </label>
+          <input v-model="age" type="number" /><br>
+
           <button type="submit">Register</button>
       </form>
       <p v-if="error" style="color: red;">{{ error }}</p>
@@ -30,6 +33,7 @@ export default {
           nickname: '',      // 별명
           password1: '',     // 비밀번호
           password2: '',     // 비밀번호 확인
+          age: null,           // 나이
           error: null,       // 오류 메시지
       };
   },
@@ -41,6 +45,7 @@ export default {
               nickname: this.nickname,
               password1: this.password1,
               password2: this.password2,
+              age: this.age,
           });
           console.log('Registration successful:', response.data);
           alert('Registration successful! Redirecting to login...');

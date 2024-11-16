@@ -1,10 +1,10 @@
 <template>
     <nav>
-        <router-link to="/">Home</router-link> |
-        <router-link v-if="!isAuthenticated" to="/register">Register</router-link> |
-        <router-link v-if="!isAuthenticated" to="/login">Login</router-link> |
-        <router-link v-if="isAuthenticated" to="/profile">Profile</router-link> |
-        <button v-if="isAuthenticated" @click="logout">Logout</button>
+      <router-link to="/">Home</router-link><span v-show="!isAuthenticated"> | </span>
+      <router-link v-show="!isAuthenticated" to="/register">Register</router-link><span v-show="!isAuthenticated"> | </span>
+      <router-link v-show="!isAuthenticated" to="/login">Login</router-link><span v-show="isAuthenticated"> | </span>
+      <router-link v-show="isAuthenticated" to="/profile">Profile</router-link><span v-show="isAuthenticated"> | </span>
+      <button v-show="isAuthenticated" @click="logout">Logout</button>
     </nav>
 </template>
 

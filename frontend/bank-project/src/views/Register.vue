@@ -3,16 +3,16 @@
       <h2>Sign Up</h2>
       <form @submit.prevent="register">
           <label>Username:</label>
-          <input v-model="username" type="text" required />
+          <input v-model="username" type="text" required /><br>
 
           <label>Nickname:</label>
-          <input v-model="nickname" type="text" required />
+          <input v-model="nickname" type="text" required /><br>
 
           <label>Password:</label>
-          <input v-model="password1" type="password" required />
+          <input v-model="password1" type="password" required /><br>
 
           <label>Confirm Password:</label>
-          <input v-model="password2" type="password" required />
+          <input v-model="password2" type="password" required /><br>
 
           <label>Age : </label>
           <input v-model="age" type="number" /><br>

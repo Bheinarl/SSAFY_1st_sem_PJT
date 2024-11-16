@@ -1,24 +1,10 @@
-# accounts/models.py
-
 from django.db import models
-from django.contrib.auth.models import User
-
-class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    age = models.IntegerField(null=True, blank=True)
-    job = models.CharField(max_length=50, null=True, blank=True)
-    investment_tendency = models.CharField(max_length=20, choices=[
-        ('stable', '안정형'),
-        ('aggressive', '공격형'),
-        ('balanced', '균형형')
-    ], null=True, blank=True)
-
-    def __str__(self):
-        return self.user.username
+from django.contrib.auth.models import AbstractUser
+from django.conf import settings
 
 
 class CurrencyAlert(models.Model):
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, null=True, blank=True)  # null=True, blank=True 추가
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)  # null=True, blank=True 추가
     currency = models.CharField(max_length=10)
     target_rate = models.FloatField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -26,12 +12,7 @@ class CurrencyAlert(models.Model):
     def __str__(self):
         return f"{self.user.username if self.user else 'Anonymous'} - {self.currency} Alert"
 
-
-# class CurrencyAlert(models.Model):
-#     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)  # null=True, blank=True 추가
-#     currency = models.CharField(max_length=10)
-#     target_rate = models.FloatField()
-#     created_at = models.DateTimeField(auto_now_add=True)
-
-#     def __str__(self):
-#         return f"{self.user.username if self.user else 'Anonymous'} - {self.currency} Alert"
+class CustomUser(AbstractUser):
+    nickname = models.CharField(max_length=50, unique=True, blank=True, null=True)  # nickname 필드 추가
+    age = models.PositiveIntegerField(null=True, blank=True)
+    interests = models.TextField(null=True, blank=True)

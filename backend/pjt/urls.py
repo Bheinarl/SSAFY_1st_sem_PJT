@@ -23,5 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('articles/', include('articles.urls')),
     path('accounts/', include('accounts.urls')),
-]
-# + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) 
+    path('api/auth/', include('accounts.urls')),  # accounts의 사용자 정보 URL 포함
+    path('api/auth/', include('dj_rest_auth.urls')),
+    path('api/auth/registration/', include('dj_rest_auth.registration.urls')),
+]  + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) 

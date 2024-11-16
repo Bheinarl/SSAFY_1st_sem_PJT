@@ -6,10 +6,11 @@ from .models import CustomUser
 class CustomRegisterSerializer(serializers.ModelSerializer):
     password1 = serializers.CharField(write_only=True)
     password2 = serializers.CharField(write_only=True)
+    age = serializers.IntegerField(required=False)
 
     class Meta:
         model = CustomUser
-        fields = ['username', 'nickname', 'password1', 'password2']
+        fields = ['username', 'nickname', 'password1', 'password2', 'age']
     
     def validate_nickname(self, value):
         if CustomUser.objects.filter(nickname=value).exists():
@@ -26,7 +27,8 @@ class CustomRegisterSerializer(serializers.ModelSerializer):
         user = CustomUser.objects.create_user(
             username=validated_data['username'],
             nickname=validated_data['nickname'],
-            password=validated_data['password1']
+            password=validated_data['password1'],
+            age=validated_data.get('age')
         )
         return user
 
@@ -35,10 +37,14 @@ class CustomRegisterSerializer(serializers.ModelSerializer):
 class CustomUserDetailsSerializer(serializers.ModelSerializer):
     username = serializers.CharField(read_only=True)
     nickname = serializers.CharField(read_only=True)
+    age = serializers.SerializerMethodField()
 
     class Meta:
         model = CustomUser
-        fields = ('username', 'nickname')  # 필요한 필드를 직접 지정
+        fields = ('username', 'nickname', 'age')  # 필요한 필드를 직접 지정
+
+    def get_age(self, obj):
+        return obj.age if obj.age is not None else '비공개'
 
     def to_representation(self, instance):
         """ 디버깅을 위해 출력해 봄 """

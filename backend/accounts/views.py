@@ -1,46 +1,11 @@
-# accounts/views.py
-
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth import login
 import json
-from .models import UserProfile, CurrencyAlert
-from .forms import UserProfileForm, SignUpForm
+from .models import CurrencyAlert
 from django.conf import settings
 import requests
 from datetime import datetime, timedelta
-
-def signup(request):
-    if request.method == 'POST':
-        form = SignUpForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)  # 회원가입 후 자동 로그인
-            return redirect('profile_setup')  # 회원가입 후 프로필 설정 페이지로 이동
-    else:
-        form = SignUpForm()
-    return render(request, 'accounts/signup.html', {'form': form})
-
-def profile_setup(request):
-    if request.method == 'POST':
-        form = UserProfileForm(request.POST)
-        if form.is_valid():
-            profile = form.save(commit=False)
-            profile.user = request.user
-            profile.save()
-            return redirect('investment_analysis')
-    else:
-        form = UserProfileForm()
-    return render(request, 'accounts/profile_setup.html', {'form': form})
-
-def investment_analysis(request):
-    profile = UserProfile.objects.get(user=request.user)
-    investment_tendency = profile.investment_tendency
-    recommended_strategy = "안정형 포트폴리오" if investment_tendency == "stable" else (
-        "공격형 포트폴리오" if investment_tendency == "aggressive" else "균형형 포트폴리오"
-    )
-    return render(request, 'accounts/investment_analysis.html', {'strategy': recommended_strategy})
 
 @csrf_exempt
 def set_alert(request):
@@ -66,7 +31,9 @@ def check_exchange_rate(request):
     print("check_exchange_rate 함수 호출됨")
     print(f'리퀘스트 : {request.GET}')
     currency = request.GET.get('currency')
-    api_url = f"https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey={settings.EXCHANGE_RATE_API_KEY}&data=AP01"
+    # api_url = f"https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey={settings.EXCHANGE_RATE_API_KEY}&data=AP01"
+    api_url = "https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey=TUwyZMxyTt6XP6rTujYY02UCuSPWDHDb&data=AP01&searchdate=20241115"
+
     # 오전 11시 이전이라면 오늘을 기준으로 어제 데이터 사용
     if datetime.now().hour < 11:
         yesterday = datetime.now() - timedelta(days=1)
@@ -162,3 +129,27 @@ def get_exchange_rate(request):
         return JsonResponse(data, safe=False)  # 리스트 형태일 수 있으므로 safe=False 추가
     except requests.exceptions.RequestException as e:
         return JsonResponse({'error': '환율 데이터를 가져오는 중 오류가 발생했습니다.'}, status=500)
+
+
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny  # 인증 없이 접근 가능하도록 권한 추가
+from .serializers import CustomRegisterSerializer, CustomUserDetailsSerializer
+from dj_rest_auth.views import UserDetailsView
+
+class CustomRegisterView(APIView):
+    permission_classes = [AllowAny]  # 인증 없이 접근 가능
+    # CustomRegisterView에 AllowAny 권한을 설정하여, 인증되지 않은 사용자도 접근할 수 있도록 합니다. 회원가입 엔드포인트는 누구나 접근할 수 있어야 하므로 이 설정이 필요합니다.
+
+    def post(self, request, *args, **kwargs):
+        serializer = CustomRegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Registration successful"}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CustomUserDetailsView(UserDetailsView):
+    serializer_class = CustomUserDetailsSerializer
+    # CustomUserDetailsSerializer를 사용하도록 설정했습니다. 이는 프로필 정보에 nickname 필드를 포함하기 위함입니다.

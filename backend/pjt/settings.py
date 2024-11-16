@@ -25,21 +25,27 @@ SECRET_KEY = 'django-insecure-70zv@k&!c!@(xref#j*oro+yf%m=owq4hj%ybvd87kh*wedlzr
 
 # 환율 API 키 설정
 EXCHANGE_RATE_API_KEY = 'TUwyZMxyTt6XP6rTujYY02UCuSPWDHDb'
+# 현주 API 키 = "TUwyZMxyTt6XP6rTujYY02UCuSPWDHDb"
+# 동연 API 키 = "etB20sfgNjlqWRXSwrActTWgwVjJnsWy"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# 사용자 수정
+AUTH_USER_MODEL = 'accounts.CustomUser'
+
 CORS_ALLOW_ALL_ORIGINS = True  # 모든 도메인에서 요청 허용 (보안 고려 필요)
 # Application definition
 
 INSTALLED_APPS = [
-    'corsheaders',
 
     # APP
     'articles',
     'accounts',
+    # 'investment',
+
 
     # Django contrib
     'django.contrib.admin',
@@ -48,10 +54,40 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+
+    'rest_framework',
+    'rest_framework.authtoken',
+    'dj_rest_auth',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'corsheaders',
 ]
+
+# 기본 설정 (필요 시 수정)
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+REST_AUTH_SERIALIZERS = {
+    'USER_DETAILS_SERIALIZER': 'accounts.serializers.CustomUserDetailsSerializer',
+}
+
+SITE_ID = 1
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -128,9 +164,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+# STATICFILES_DIRS = [BASE_DIR / 'static']
+# STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-MEDIA_ROOT = BASE_DIR /'media'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 MEDIA_URL ='media/'
 
@@ -139,6 +177,23 @@ MEDIA_URL ='media/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:5173',  # Vite 개발 서버 주소 # Vue.js 개발 서버 URL
+]
 
-# # 사용자 수정
-# AUTH_USER_MODEL = 'accounts.User'
+CORS_ALLOW_CREDENTIALS = True
+# CORS_ALLOW_CREDENTIALS = True 설정을 추가하여, 자격 증명(쿠키 또는 인증 정보)도 포함하도록 설정할 수 있습니다.
+
+CORS_ALLOW_HEADERS = [
+    'authorization',
+    'content-type',
+    'x-csrftoken',
+    'Access-Control-Allow-Credentials',  # 추가된 헤더
+]
+
+#####################################
+
+# 이메일 인증을 비활성화하고 싶다면 다음 설정을 추가
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_AUTHENTICATION_METHOD = 'username'
+ACCOUNT_EMAIL_REQUIRED = False

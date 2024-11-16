@@ -5,7 +5,8 @@
       <router-link v-show="!isAuthenticated" to="/login">Login</router-link><span v-show="isAuthenticated"> | </span>
       <router-link v-show="isAuthenticated" to="/profile">Profile</router-link><span v-show="isAuthenticated"> | </span>
       <button v-show="isAuthenticated" @click="logout">Logout</button><span v-show="isAuthenticated"> | </span>
-      <router-link to=""
+      <button v-show="isAuthenticated" @click="goExchangeRateAlert">ExchangeRateAlert</button><span v-show="isAuthenticated"> | </span>
+      
     </nav>
 </template>
 
@@ -21,6 +22,9 @@ export default {
             localStorage.removeItem('token');
             this.isAuthenticated = false;
             this.$router.push('/login');
+        },
+        goExchangeRateAlert() {
+            this.$router.push('/exchange-rate-alert');
         }
     },
     watch: {

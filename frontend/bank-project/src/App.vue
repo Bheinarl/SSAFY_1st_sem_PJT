@@ -1,6 +1,14 @@
 <script setup>
-import ExchangeRateAlert from './components/ExchangeRateAlert.vue';
+import ExchangeRateAlert from '@/components/ExchangeRateAlert.vue';
+import Navbar from '@/components/Navbar.vue';
+import { RouterView } from 'vue-router';
 
+// export default {
+//   components: {
+//     ExchangeRateAlert,
+//     Navbar,
+//   },
+// };
 // export default {
 //   components: {
 //     ExchangeRateAlert,
@@ -15,9 +23,14 @@ import ExchangeRateAlert from './components/ExchangeRateAlert.vue';
   </header>
 
   <main>
+    <div id="app">
+      <Navbar />
+      <RouterView />
+    </div>
+
     <section>
       <!-- 기존 CurrencyAlert와 ExchangeRate 대신 통합된 컴포넌트로 변경 -->
-      <ExchangeRateAlert />
+      <!-- <ExchangeRateAlert /> -->
     </section>
 
     <!-- CurrencyAlert 및 ExchangeRate 컴포넌트 추가

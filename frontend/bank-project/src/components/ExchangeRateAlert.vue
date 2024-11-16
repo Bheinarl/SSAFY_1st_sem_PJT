@@ -15,8 +15,8 @@
         <option value="EUR">EUR - 유로</option>
         <option value="GBP">GBP - 영국 파운드</option>
         <option value="HKD">HKD - 홍콩 달러</option>
-        <option value="IDR">IDR(100) - 인도네시아 루피아</option>
-        <option value="JPY">JPY(100) - 일본 옌</option>
+        <option value="IDR(100)">IDR(100) - 인도네시아 루피아</option>
+        <option value="JPY(100)">JPY(100) - 일본 옌</option>
         <option value="KWD">KWD - 쿠웨이트 디나르</option>
         <option value="MYR">MYR - 말레이시아 링기트</option>
         <option value="NOK">NOK - 노르웨이 크로네</option>

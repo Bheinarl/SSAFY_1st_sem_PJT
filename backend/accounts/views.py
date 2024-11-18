@@ -31,8 +31,8 @@ def check_exchange_rate(request):
     print("check_exchange_rate 함수 호출됨")
     print(f'리퀘스트 : {request.GET}')
     currency = request.GET.get('currency')
-    # api_url = f"https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey={settings.EXCHANGE_RATE_API_KEY}&data=AP01"
-    api_url = "https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey=TUwyZMxyTt6XP6rTujYY02UCuSPWDHDb&data=AP01&searchdate=20241115"
+    api_url = f"https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey={settings.EXCHANGE_RATE_API_KEY}&data=AP01"
+    # api_url = "https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey=TUwyZMxyTt6XP6rTujYY02UCuSPWDHDb&data=AP01&searchdate=20241115"
 
     # 오전 11시 이전이라면 오늘을 기준으로 어제 데이터 사용
     if datetime.now().hour < 11:

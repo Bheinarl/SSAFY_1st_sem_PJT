@@ -18,14 +18,14 @@ def stock_data(request, ticker):
                 ticker=ticker,
                 date=row['Date'],
                 defaults={
-                    # 'close_price': row['Close'],
                     'open_price': row['Open'],
-                    }
+                    'close_price': row['Close'],
+                }
             )
 
         # 데이터 조회
         stocks = Stock.objects.filter(ticker=ticker, date__range=[start_date, end_date])
-        data = list(stocks.values('date', 'open_price'))
+        data = list(stocks.values('date', 'open_price', 'close_price'))
         # print(data) // 디버깅 용도로 출력
 
         return JsonResponse({'status': 'success', 'data': data})

@@ -15,6 +15,7 @@
           <div class="balance-info">Cash: ₩<span>{{ cash.toFixed(2) }}</span></div>
           <div class="balance-info">Portfolio Value: ₩<span>{{ portfolioValue.toFixed(2) }}</span></div>
           <div class="balance-info">Total Value: ₩<span>{{ totalValue.toFixed(2) }}</span></div>
+          <h3 class="final-score" v-if="finalTotalValue !== 0">최종 금액은 {{ finalTotalValue }}원 입니다.</h3>
         </div>
 
         <div class="chart-section">
@@ -89,10 +90,11 @@ const stockData = ref({
   '롯데케미칼': [],
 });
 let chart;
+const finalTotalValue = ref(0);
 
 const portfolioValue = computed(() => {
   return Object.keys(portfolio.value).reduce((total, stock) => {
-    return total + (portfolio.value[stock] * (stockData.value[stock]?.[currentDay.value - 1] || 0));
+    return total + (portfolio.value[stock] * (stockData.value[stock]?.[currentDay.value - 1]?.open_price || 0));
   }, 0);
 });
 
@@ -101,7 +103,7 @@ const totalValue = computed(() => {
 });
 
 const currentPrice = computed(() => {
-  return stockData.value[selectedStock.value]?.[currentDay.value - 1] || 0;
+  return stockData.value[selectedStock.value]?.[currentDay.value - 1]?.open_price || 0;
 });
 
 function updateStockUrl() {
@@ -118,7 +120,10 @@ async function fetchStockData(apiUrl) {
     const response = await axios.get(apiUrl);
     console.log('API Response:', response); // 응답 데이터 확인
     if (response.data.status === 'success') {
-      stockData.value[selectedStock.value] = response.data.data.map(item => item.open_price);
+      stockData.value[selectedStock.value] = response.data.data.map(item => ({
+        open_price: item.open_price,
+        close_price: item.close_price
+      }));
       updateChart();
     } else {
       console.error('Error fetching stock data:', response.data.message);
@@ -152,10 +157,8 @@ function initializeChart() {
 }
 
 function updateChart() {
-  if (chart && stockData.value[selectedStock.value]) {
-    chart.data.datasets[0].data = stockData.value[selectedStock.value].slice(0, currentDay.value);
-    chart.update();
-  }
+  chart.data.datasets[0].data = stockData.value[selectedStock.value].map(item => item.open_price).slice(0, currentDay.value);
+  chart.update();
 }
 
 function executeTrade(type) {
@@ -183,8 +186,16 @@ function nextDay() {
     currentDay.value++;
     updateChart();
   } else {
-    console.log(totalValue.value);
-    alert(`Game over. Your total value is ₩${totalValue.value}`);
+    console.log('stockData는 이렇게 출력됩니다.', stockData.value);
+    const finalPortfolioValue = Object.keys(portfolio.value).reduce((total, stock) => {
+      const closePrice = stockData.value[stock]?.[9]?.close_price || 0; // 10일차 close_price 사용
+      return total + (portfolio.value[stock] * closePrice);
+    }, 0);
+    finalTotalValue.value = cash.value + finalPortfolioValue;
+    console.log('Cash:', cash.value);
+    console.log('Final Portfolio Value:', finalPortfolioValue);
+    console.log('Final Total Value:', finalTotalValue.value);
+    alert(`Game over. Your total value is ₩${finalTotalValue.value}`);
   }
 }
 
@@ -204,5 +215,9 @@ watch([cash, portfolio, currentDay, selectedStock], () => {
   width: 80%; /* Adjust the width as needed */
   height: 300px; /* Adjust the height as needed */
   margin: 0 auto; /* Center the chart */
+}
+.final-score {
+  margin-top: 20px;
+  color: red;
 }
 </style>

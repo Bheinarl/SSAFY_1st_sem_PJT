@@ -1,76 +1,71 @@
 <template>
   <div>
-    <canvas id="priceChart"></canvas>
-    <p v-if="!isDataReady">Loading chart data...</p> <!-- 데이터 로딩 중일 때 메시지 표시 -->
+    <h1>Stock Investment Game</h1>
+    <select v-model="selectedStock" @change="fetchStockData">
+      <option value="005930">Samsung Electronics</option>
+      <option value="000660">SK Hynix</option>
+      <option value="035420">Naver</option>
+    </select>
+    <canvas id="stockChart"></canvas>
   </div>
 </template>
 
 <script>
-import { useInvestmentStore } from '@/stores/investmentStore';
-import { onMounted, computed, ref } from 'vue';
-import Chart from 'chart.js/auto';
+import axios from "axios";
+import Chart from "chart.js/auto";
 
 export default {
-  setup() {
-    const store = useInvestmentStore();
-    const chart = ref(null);
-    const isDataReady = computed(() => {
-      return (
-        store.historicalData['AAPL'] &&
-        store.historicalData['AAPL'].length > 0
-      );
-    });
-
-    const initializeChart = () => {
-      const ctx = document.getElementById('priceChart').getContext('2d');
-      chart.value = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: store.historicalData['AAPL'].map(d => d.date),
-          datasets: Object.keys(store.historicalData).map(symbol => ({
-            label: symbol,
-            data: store.historicalData[symbol].map(d => d.price),
-            borderColor: getRandomColor(),
-            borderWidth: 1,
-            tension: 0.4,
-          })),
-        },
-        options: {
-          responsive: true,
-          scales: {
-            y: {
-              beginAtZero: false,
-            },
-          },
-        },
-      });
-    };
-
-    const getRandomColor = () => {
-      const letters = '0123456789ABCDEF';
-      let color = '#';
-      for (let i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
-      }
-      return color;
-    };
-
-    onMounted(() => {
-      if (isDataReady.value) {
-        initializeChart();
-      } else {
-        const interval = setInterval(() => {
-          if (isDataReady.value) {
-            initializeChart();
-            clearInterval(interval); // 데이터가 준비되면 반복 중지
-          }
-        }, 500); // 500ms 간격으로 데이터 준비 상태 확인
-      }
-    });
-
+  data() {
     return {
-      isDataReady,
+      selectedStock: "005930",
+      stockData: [],
+      chart: null,
     };
+  },
+  methods: {
+    async fetchStockData() {
+      try {
+        const response = await axios.get(
+          `http://127.0.0.1:8000/api/stocks/${this.selectedStock}/`,
+          { params: { start: "2023-01-01", end: "2023-12-31" } }
+        );
+        this.stockData = response.data.data;
+
+        // 차트 업데이트
+        this.updateChart();
+      } catch (error) {
+        console.error("Error fetching stock data:", error);
+      }
+    },
+    updateChart() {
+      const labels = this.stockData.map((item) => item.Date);
+      const prices = this.stockData.map((item) => item.Close);
+
+      if (!this.chart) {
+        const ctx = document.getElementById("stockChart").getContext("2d");
+        this.chart = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: "Stock Price",
+                data: prices,
+                borderColor: "rgb(75, 192, 192)",
+                tension: 0.1,
+              },
+            ],
+          },
+        });
+      } else {
+        this.chart.data.labels = labels;
+        this.chart.data.datasets[0].data = prices;
+        this.chart.update();
+      }
+    },
+  },
+  mounted() {
+    this.fetchStockData(); // 초기 데이터 가져오기
   },
 };
 </script>

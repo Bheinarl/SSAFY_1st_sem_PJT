@@ -12,9 +12,9 @@
       <div class="game-container">
         <div class="balance-panel">
           <h3>Account Balance</h3>
-          <div class="balance-info">Cash: $<span>{{ cash.toFixed(2) }}</span></div>
-          <div class="balance-info">Portfolio Value: $<span>{{ portfolioValue.toFixed(2) }}</span></div>
-          <div class="balance-info">Total Value: $<span>{{ totalValue.toFixed(2) }}</span></div>
+          <div class="balance-info">Cash: ₩<span>{{ cash.toFixed(2) }}</span></div>
+          <div class="balance-info">Portfolio Value: ₩<span>{{ portfolioValue.toFixed(2) }}</span></div>
+          <div class="balance-info">Total Value: ₩<span>{{ totalValue.toFixed(2) }}</span></div>
         </div>
 
         <div class="chart-section">
@@ -29,7 +29,7 @@
           </select>
 
           <div class="stock-info">
-            <h3>Current Price: $<span>{{ currentPrice.toFixed(2) }}</span></h3>
+            <h3>Current Price: ₩<span>{{ currentPrice.toFixed(2) }}</span></h3>
           </div>
 
           <input type="number" v-model.number="tradeVolume" placeholder="Enter quantity">
@@ -59,13 +59,18 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import axios from 'axios';
 import Chart from 'chart.js/auto';
+import api from '@/api';
 
 const currentDay = ref(1);
 const cash = ref(100000);
 const portfolio = ref({});
 const selectedStock = ref('AAPL');
 const tradeVolume = ref(0);
-const stockData = ref({});
+const stockData = ref({
+  'AAPL': [],
+  'MSFT': [285.30, 287.45, 284.90, 288.20, 290.15, 286.75, 289.30, 291.45, 288.90, 292.15],
+  'GOOGL': [2750.20, 2765.45, 2740.90, 2770.15, 2785.30, 2755.75, 2780.20, 2795.45, 2760.90, 2790.15]
+});
 let chart;
 
 const portfolioValue = computed(() => {
@@ -82,6 +87,23 @@ const currentPrice = computed(() => {
   return stockData.value[selectedStock.value]?.[currentDay.value - 1] || 0;
 });
 
+async function fetchStockData() {
+  try {
+    const response = await axios.get('http://127.0.0.1:8000/api/stocks/005930/');
+    console.log('API Response:', response); // 응답 데이터 확인
+    if (response.data.status === 'success') {
+      // console.log(response);
+      stockData.value['AAPL'] = response.data.data.map(item => item.open_price);
+      // console.log('Stock data fetched:', stockData.value);
+      updateChart();
+    } else {
+      console.error('Error fetching stock data:', response.data.message);
+    }
+  } catch (error) {
+    // console.error('Error fetching stock data:', error);
+  }
+}
+
 function initializeChart() {
   const ctx = document.getElementById('chart').getContext('2d');
   chart = new Chart(ctx, {
@@ -90,7 +112,7 @@ function initializeChart() {
       labels: Array.from({ length: 10 }, (_, i) => `Day ${i + 1}`),
       datasets: [{
         label: 'Stock Price',
-        data: stockData.value[selectedStock.value] || [],
+        data: stockData.value[selectedStock.value].slice(0, currentDay.value),
         borderColor: 'rgba(75, 192, 192, 1)',
         borderWidth: 1
       }]
@@ -98,7 +120,7 @@ function initializeChart() {
     options: {
       scales: {
         y: {
-          beginAtZero: false
+          beginAtZero: false  
         }
       }
     }
@@ -107,7 +129,7 @@ function initializeChart() {
 
 function updateChart() {
   if (chart && stockData.value[selectedStock.value]) {
-    chart.data.datasets[0].data = stockData.value[selectedStock.value];
+    chart.data.datasets[0].data = stockData.value[selectedStock.value].slice(0, currentDay.value);
     chart.update();
   }
 }
@@ -137,18 +159,14 @@ function nextDay() {
     currentDay.value++;
     updateChart();
   } else {
-    alert('Game over');
+    console.log(totalValue.value);
+    alert(`Game over. Your total value is ₩${totalValue.value}`);
   }
 }
 
-onMounted(async () => {
-  try {
-    const response = await axios.get('/stocks/api/stock-data/');
-    stockData.value = response.data;
-    initializeChart();
-  } catch (error) {
-    console.error('Error fetching stock data:', error);
-  }
+onMounted(() => {
+  fetchStockData();
+  initializeChart();
 });
 
 // Watchers to update the UI when values change

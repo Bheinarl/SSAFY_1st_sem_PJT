@@ -6,66 +6,53 @@
       <option value="000660">SK Hynix</option>
       <option value="035420">Naver</option>
     </select>
-    <canvas id="stockChart"></canvas>
+    <ChartComponent :stockData="stockData" :currentDay="currentDay" />
+    <button @click="nextDay">Next Day</button>
   </div>
 </template>
 
-<script>
-import axios from "axios";
-import Chart from "chart.js/auto";
+<script setup>
+import { ref, watch } from 'vue';
+import ChartComponent from './ChartComponent.vue';
+import axios from 'axios';
 
-export default {
-  data() {
-    return {
-      selectedStock: "005930",
-      stockData: [],
-      chart: null,
-    };
-  },
-  methods: {
-    async fetchStockData() {
-      try {
-        const response = await axios.get(
-          `http://127.0.0.1:8000/api/stocks/${this.selectedStock}/`,
-          { params: { start: "2023-01-01", end: "2023-12-31" } }
-        );
-        this.stockData = response.data.data;
+const selectedStock = ref("005930");
+const stockData = ref([]);
+const currentDay = ref(1);
 
-        // 차트 업데이트
-        this.updateChart();
-      } catch (error) {
-        console.error("Error fetching stock data:", error);
+const fetchStockData = async () => {
+  try {
+    console.log('Fetching stock data for:', selectedStock.value);
+    const response = await axios.get(`/api/stocks/${selectedStock.value}/`, {
+      params: {
+        start: '2024-07-01',
+        end: '2024-07-10'
       }
-    },
-    updateChart() {
-      const labels = this.stockData.map((item) => item.Date);
-      const prices = this.stockData.map((item) => item.Close);
-
-      if (!this.chart) {
-        const ctx = document.getElementById("stockChart").getContext("2d");
-        this.chart = new Chart(ctx, {
-          type: "line",
-          data: {
-            labels: labels,
-            datasets: [
-              {
-                label: "Stock Price",
-                data: prices,
-                borderColor: "rgb(75, 192, 192)",
-                tension: 0.1,
-              },
-            ],
-          },
-        });
-      } else {
-        this.chart.data.labels = labels;
-        this.chart.data.datasets[0].data = prices;
-        this.chart.update();
-      }
-    },
-  },
-  mounted() {
-    this.fetchStockData(); // 초기 데이터 가져오기
-  },
+    });
+    if (response.data.status === 'success') {
+      stockData.value = response.data.data;
+      console.log('Stock data fetched:', stockData.value);
+    } else {
+      console.error('Error:', response.data.message);
+    }
+  } catch (error) {
+    console.error('Error fetching stock data:', error.response ? error.response.data : error.message);
+  }
 };
+
+const nextDay = () => {
+  if (currentDay.value < 10) {
+    currentDay.value++;
+  } else {
+    alert('Game over');
+  }
+};
+
+watch(selectedStock, fetchStockData);
+
+fetchStockData(); // 초기 데이터 로드
 </script>
+
+<style scoped>
+/* 스타일 정의 */
+</style>

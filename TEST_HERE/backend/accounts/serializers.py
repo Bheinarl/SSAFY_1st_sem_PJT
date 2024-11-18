@@ -28,7 +28,7 @@ class CustomRegisterSerializer(serializers.ModelSerializer):
             username=validated_data['username'],
             nickname=validated_data['nickname'],
             password=validated_data['password1'],
-            age=validated_data.get('age')
+            age=validated_data.get('age', None)
         )
         return user
 

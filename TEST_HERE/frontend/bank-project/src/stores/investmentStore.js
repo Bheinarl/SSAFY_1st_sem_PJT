@@ -15,9 +15,9 @@ export const useInvestmentStore = defineStore('investment', {
   actions: {
     async fetchHistoricalData(symbol) {
       try {
-        const API_KEY = import.meta.env.VITE_ALPHA_VANTAGE_API_KEY;
+        const API_KEY = "HNL7DR6VPP1D77EH"
         const response = await axios.get(
-          `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&apikey="3TM6U5JJL7MICWYF"`
+          `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&apikey="HNL7DR6VPP1D77EH"`
         );
         console.log(`API Response for ${symbol}:`, response.data); // 응답 출력
         const timeSeriesData = response.data['Time Series (Daily)'];

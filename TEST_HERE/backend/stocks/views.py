@@ -27,3 +27,11 @@ def get_stock_data(request):
         stock_data[name] = df.to_dict(orient='records')
 
     return JsonResponse(stock_data)
+
+def get_stock_data(request):
+    simulated_data = {
+        'AAPL': [150.25, 152.30, 148.75, 151.20, 153.45, 149.90, 152.80, 154.20, 151.75, 153.90],
+        'MSFT': [285.30, 287.45, 284.90, 288.20, 290.15, 286.75, 289.30, 291.45, 288.90, 292.15],
+        'GOOGL': [2750.20, 2765.45, 2740.90, 2770.15, 2785.30, 2755.75, 2780.20, 2795.45, 2760.90, 2790.15]
+    }
+    return JsonResponse(simulated_data)

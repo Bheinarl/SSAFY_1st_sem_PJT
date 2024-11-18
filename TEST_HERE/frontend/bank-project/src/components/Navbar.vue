@@ -7,6 +7,7 @@
       <router-link to="/game">Game</router-link> <!-- Game 링크 추가 -->
       <button v-show="isAuthenticated" @click="logout">Logout</button><span v-show="isAuthenticated"> | </span>
       <button v-show="isAuthenticated" @click="goExchangeRateAlert">ExchangeRateAlert</button><span v-show="isAuthenticated"> | </span>
+      <button v-show="isAuthenticated" @click="goGame">goGameReal</button><span v-show="isAuthenticated"> | </span>
       
     </nav>
 </template>
@@ -26,7 +27,10 @@ export default {
         },
         goExchangeRateAlert() {
             this.$router.push('/exchange-rate-alert');
-        }
+        },
+        goGame() {
+            this.$router.push('/gamereal');
+        },
     },
     watch: {
         // 로그인 상태가 변경되면 Navbar 업데이트

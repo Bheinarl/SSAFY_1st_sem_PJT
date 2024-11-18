@@ -11,15 +11,15 @@
 <script>
 import Portfolio from '@/components/Portfolio.vue';
 import StockChart from '@/components/StockChart.vue';
-import { useInvestmentStore } from '@/stores/investmentStore';
+// import { useInvestmentStore } from '@/stores/StockStore';
 
 export default {
-  components: { Portfolio, StockChart },
-  setup() {
-    const store = useInvestmentStore();
-    const nextDay = store.nextDay;
+  // components: { Portfolio, StockChart },
+  // setup() {
+  //   const store = useInvestmentStore();
+  //   const nextDay = store.nextDay;
 
-    return { nextDay };
-  }
+  //   return { nextDay };
+  // }
 };
 </script>

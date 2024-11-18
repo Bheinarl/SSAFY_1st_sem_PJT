@@ -22,10 +22,17 @@
         </div>
 
         <div class="trading-panel">
-          <select v-model="selectedStock" @change="updateChart">
-            <option value="AAPL">Apple (AAPL)</option>
-            <option value="MSFT">Microsoft (MSFT)</option>
-            <option value="GOOGL">Google (GOOGL)</option>
+          <select v-model="selectedStock" @change="updateStockUrl">
+            <option value="삼성전자">삼성전자</option>
+            <option value="SK하이닉스">SK하이닉스</option>
+            <option value="현대차">현대차</option>
+            <option value="POSCO홀딩스">POSCO홀딩스</option>
+            <option value="두산에너빌리티">두산에너빌리티</option>
+            <option value="셀트리온">셀트리온</option>
+            <option value="NAVER">NAVER</option>
+            <option value="기아">기아</option>
+            <option value="LG에너지솔루션">LG에너지솔루션</option>
+            <option value="롯데케미칼">롯데케미칼</option>
           </select>
 
           <div class="stock-info">
@@ -57,19 +64,29 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
+import { useStockStore } from '@/stores/StockStore';
 import axios from 'axios';
 import Chart from 'chart.js/auto';
 import api from '@/api';
 
+const stockStore = useStockStore();
+
 const currentDay = ref(1);
-const cash = ref(100000);
+const cash = ref(10000000);
 const portfolio = ref({});
-const selectedStock = ref('AAPL');
+const selectedStock = ref('삼성전자');
 const tradeVolume = ref(0);
 const stockData = ref({
-  'AAPL': [],
-  'MSFT': [285.30, 287.45, 284.90, 288.20, 290.15, 286.75, 289.30, 291.45, 288.90, 292.15],
-  'GOOGL': [2750.20, 2765.45, 2740.90, 2770.15, 2785.30, 2755.75, 2780.20, 2795.45, 2760.90, 2790.15]
+  '삼성전자': [],
+  'SK하이닉스': [],
+  '현대차': [],
+  'POSCO홀딩스': [],
+  '두산에너빌리티': [],
+  '셀트리온': [],
+  'NAVER': [],
+  '기아': [],
+  'LG에너지솔루션': [],
+  '롯데케미칼': [],
 });
 let chart;
 
@@ -87,20 +104,27 @@ const currentPrice = computed(() => {
   return stockData.value[selectedStock.value]?.[currentDay.value - 1] || 0;
 });
 
-async function fetchStockData() {
+function updateStockUrl() {
+  const stockCode = stockStore.stockMapping[selectedStock.value];
+  if (stockCode) {
+    const apiUrl = `http://127.0.0.1:8000/api/stocks/${stockCode}/`;
+    console.log('API URL:', apiUrl);
+    fetchStockData(apiUrl);
+  }
+}
+
+async function fetchStockData(apiUrl) {
   try {
-    const response = await axios.get('http://127.0.0.1:8000/api/stocks/005930/');
+    const response = await axios.get(apiUrl);
     console.log('API Response:', response); // 응답 데이터 확인
     if (response.data.status === 'success') {
-      // console.log(response);
-      stockData.value['AAPL'] = response.data.data.map(item => item.open_price);
-      // console.log('Stock data fetched:', stockData.value);
+      stockData.value[selectedStock.value] = response.data.data.map(item => item.open_price);
       updateChart();
     } else {
       console.error('Error fetching stock data:', response.data.message);
     }
   } catch (error) {
-    // console.error('Error fetching stock data:', error);
+    console.error('Error fetching stock data:', error);
   }
 }
 
@@ -165,7 +189,7 @@ function nextDay() {
 }
 
 onMounted(() => {
-  fetchStockData();
+  updateStockUrl();
   initializeChart();
 });
 

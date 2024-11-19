@@ -79,8 +79,8 @@
 
                   <div class="trade-buttons">
                     <br>
-                    <button @click="executeTrade('buy')">Buy</button>
-                    <button @click="executeTrade('sell')">Sell</button>
+                    <button class="trade-button" @click="executeTrade('buy')">Buy</button>
+                    <button class="trade-button" @click="executeTrade('sell')">Sell</button>
                     <br>
                   </div>
                 </div>
@@ -273,7 +273,9 @@ function nextDay() {
 
 onMounted(() => {
   updateStockUrl();
+  fetchStockData();
   initializeChart();
+  updateChart();
 });
 
 // Watchers to update the UI when values change
@@ -283,16 +285,15 @@ watch([cash, portfolio, currentDay, selectedStock], () => {
 </script>
 
 <style scoped>
-/* .chart-section { 
+/* .chart-section {
   width: 80%;
   height: 300px;
   margin: 0 auto;
 } */
 
-/* canvas#chart {
-  width: 100% !important;
-  height: 300px !important;
-} */
+.trade-button {
+  margin-right: 10px;
+}
 
 .final-score {
   margin-top: 20px;

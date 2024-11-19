@@ -2,6 +2,7 @@ import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
 import { createPinia } from 'pinia'; // Pinia 가져오기
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const app = createApp(App);
 const pinia = createPinia(); // Pinia 인스턴스 생성

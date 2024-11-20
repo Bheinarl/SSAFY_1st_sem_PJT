@@ -127,6 +127,9 @@
                     <!-- 주식 정보 -->
                     <div class="stock-info">
                       <h3>Current Price: ₩<span>{{ currentPrice }}</span></h3>
+                      <h4 v-if="beforePrice > 0" class="color-red">▲ {{ beforePrice }}</h4>
+                      <h4 v-if="beforePrice === 0">---</h4>
+                      <h4 v-if="beforePrice < 0" class="color-blue">▼ {{ -beforePrice }}</h4>
                       <p v-if="currentDay < 11">Max Buyable Shares: {{ maxBuyableShares }}</p> <!-- 최대 매수 가능 수량 -->
                       <!-- <p>Max Sellable Shares: {{ maxSellableShares }}</p> 최대 매도 가능 수량 -->
                     </div>
@@ -162,9 +165,9 @@
                 <h3>Your Holdings</h3>
                 <div>
                   <!-- 0 shares 는 표시하지 않도록 변경 -->
-                  <template v-for="(quantity, stock) in portfolio" :key="stock">
-                    <div v-if="quantity > 0">
-                      {{ stock }}: {{ quantity }} shares
+                  <template v-for="key in Object.keys(portfolio)" :key="key">
+                    <div v-if="totalQuantity[key] > 0">
+                      {{ key }}: {{ totalQuantity[key] }} shares  <span v-if="keyBeforePrice[key] > 0" class="color-red">▲{{ keyBeforePrice[key] }}</span><span v-if="keyBeforePrice[key] === 0">--</span><span v-if="keyBeforePrice[key] < 0" class="color-blue">▼{{ -keyBeforePrice[key] }}</span>
                       <br>
                     </div>
                   </template>
@@ -262,7 +265,37 @@ const totalValue = computed(() => {
 
 const currentPrice = computed(() => {
   // 선택된 주식의 현재 가격
-  return stockData.value[selectedStock.value]?.[currentDay.value - 1]?.open_price || 0;
+  if (currentDay.value > 10) {
+    return stockData.value[selectedStock.value][9]?.close_price || 0;
+  } else {
+    return stockData.value[selectedStock.value]?.[currentDay.value - 1]?.open_price || 0;
+  }
+});
+
+const beforePrice = computed(() => {
+  // 선택된 주식의 현재 가격
+  if (currentDay.value === 1) {
+    return 0;
+  } else if (currentDay.value > 10) {
+  return stockData.value[selectedStock.value][9]?.close_price - stockData.value[selectedStock.value][9]?.open_price;
+  } else {
+    return stockData.value[selectedStock.value]?.[currentDay.value - 1]?.open_price - stockData.value[selectedStock.value][currentDay.value - 2]?.open_price;
+  }
+});
+
+const keyBeforePrice = computed(() => {
+  // 선택된 주식의 현재 가격
+  const result = {}
+  for (const key in portfolio.value) {
+    if (currentDay.value === 1) {
+      result[key] = 0;
+    } else if (currentDay.value > 10) {
+      result[key] = stockData.value[key][9]?.close_price - stockData.value[key][9]?.open_price;
+    } else {
+      result[key] = stockData.value[key]?.[currentDay.value - 1]?.open_price - stockData.value[key][currentDay.value - 2]?.open_price;
+    }
+  }
+  return result
 });
 
 const totalEarningRate = computed(() => {

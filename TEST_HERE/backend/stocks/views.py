@@ -73,6 +73,8 @@ def stock_list(request):
         if Stock.objects.exists():
             stocks = Stock.objects.all().values('ticker').distinct()
             return JsonResponse({'status': 'success', 'data': list(stocks)})
+        
+        # 데이터 수집
         tickers = [
             '018260', '225570', '035720', '035420', '097950', '004370', '000080',
             '389500', '017670', '030200', '207940', '068270', '002630', '085620',

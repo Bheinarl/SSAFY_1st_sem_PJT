@@ -10,13 +10,32 @@
       <div class="day-counter">Day <span>{{ currentDay }}</span> / 10</div>
       
         <div class="game-container">
-          <div class="balance-panel">
+          <!-- <div class="balance-panel">
             <h3>Account Balance</h3>
             <div class="balance-info">Cash: ₩<span>{{ cash }}</span></div>
             <div class="balance-info">Portfolio Value: ₩<span>{{ portfolioValue }}</span></div>
             <div class="balance-info">Total Value: ₩<span>{{ totalValue }}</span></div>
             <h3 class="final-score" v-if="finalTotalValue !== 0">최종 금액은 {{ finalTotalValue }}원 입니다.</h3>
-          </div>
+          </div> -->
+
+          <table class="table align-middle entire-earning-rate" style="margin: 10px;">
+            <tr>
+              <th>전체 수익률</th>
+              <th>평가 손익</th>
+              <th>잔고 평가</th>
+              <th>시드 머니</th>
+              <th>주문 가능</th>
+              <th>추정 자산</th>
+            </tr>
+            <tr>
+              <td>{{ totalEarningRate.toFixed(2) }}%</td>
+              <td>{{ totalEvaluationProfit }}</td>
+              <td>{{ portfolioValue }}</td>
+              <td>{{ seedMoney }}</td>
+              <td>{{ cash }}</td>
+              <td>{{ totalValue }}</td>
+            </tr>
+          </table>
           
           <div class="container">
             <div class="row">
@@ -119,7 +138,7 @@
                     />
 
                     <!-- 거래 버튼 -->
-                    <div class="trade-buttons">
+                    <div class="trade-buttons" style="margin-top: 5px;">
                       <button class="trade-button" @click="executeTrade('buy')">Buy</button>
                       <button class="trade-button" @click="executeTrade('sell')">Sell</button>
                     </div>
@@ -156,6 +175,31 @@
       </div>
     </div>
   </div>
+  <table class="table align-middle entire-earning-rate" style="margin: 10px;">
+    <thead>
+      <tr>
+        <th>종목</th>
+        <th>보유량</th>
+        <th>매입 단가</th>
+        <th>평가 금액</th>
+        <th>평가 손익</th>
+        <th>수익률</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <template v-for="key in Object.keys(portfolio)" :key="key">
+        <tr v-if="portfolio[key].transactions != []">
+          <td>{{ key }}</td>
+          <td>{{ totalQuantity[key] }}</td>
+          <td>{{ purchasePrice[key].toFixed(0) }}</td>
+          <td>{{ evaluationPrice[key].toFixed(0) }}</td>
+          <td>{{ evaluationProfit[key].toFixed(0) }}</td>
+          <td>{{ earningRate[key].toFixed(2) }}</td>
+        </tr>
+      </template>
+    </tbody>
+  </table>
 </template>
 
 <script setup>
@@ -170,6 +214,7 @@ const stockStore = useStockStore();
 
 // 상태 관리 변수
 const currentDay = ref(1);  // 현재 날짜 (1~10일)
+const seedMoney = 10000000
 const cash = ref(10000000); // 초기 현금 (₩10,000,000)
 const portfolio = ref({});  // 보유 주식 정보 (주식 이름: 수량)
 const selectedStock = ref('삼성에스디에스');  // 선택된 주식
@@ -177,46 +222,16 @@ const tradeVolume = ref(0); // 거래량 (사용자 입력)
 const startDate = ref(''); // 난수로 받을 시작 날짜
 const stockData = ref({
     // 각 주식에 대한 가격 데이터 저장
-    '삼성에스디에스' : [],
-    '넥슨게임즈' : [],
-    '카카오' : [],
-    'NAVER' : [],
-    'CJ제일제당' : [],
-    '농심' : [],
-    '하이트진로' : [],
-    '오뚜기' : [],
-    'SK텔레콤' : [],
-    'KT' : [],
-    '삼성바이오로직스' : [],
-    '셀트리온' : [],
-    '오리엔트바이오' : [],
-    '미래에셋생명' : [],
-    '삼보산업' : [],
-    '한화생명' : [],
-    '현대차' : [],
-    '기아' : [],
-    '한국전력' : [],
-    '삼성전자' : [],
-    'POSCO홀딩스' : [],
-    'SK하이닉스' : [],
-    'YG PLUS' : [],
-    'JYP Ent.' : [],
-    '에스엠' : [],
-    'CJ CGV' : [],
-    'GS건설' : [],
-    'KD' : [],
-    '대한항공' : [],
-    'CJ대한통운' : [],
-    '제주항공' : [],
-    'SK이노베이션' : [],
-    'S-Oil' : [],
-    '롯데케미칼' : [],
-    'LG화학' : [],
-    '에스에너지' : [],
-    '메가스터디교육' : [],
-    '웅진씽크빅' : [],
-    'KB금융' : [],
-    '우리금융지주' : [],
+    '삼성에스디에스' : [], '넥슨게임즈' : [], '카카오' : [], 'NAVER' : [],
+    'CJ제일제당' : [], '농심' : [], '하이트진로' : [], '오뚜기' : [],
+    'SK텔레콤' : [], 'KT' : [], '삼성바이오로직스' : [], '셀트리온' : [],
+    '오리엔트바이오' : [], '미래에셋생명' : [], '삼보산업' : [], '한화생명' : [],
+    '현대차' : [], '기아' : [], '한국전력' : [], '삼성전자' : [],
+    'POSCO홀딩스' : [], 'SK하이닉스' : [], 'YG PLUS' : [], 'JYP Ent.' : [],
+    '에스엠' : [], 'CJ CGV' : [], 'GS건설' : [], 'KD' : [],
+    '대한항공' : [], 'CJ대한통운' : [], '제주항공' : [], 'SK이노베이션' : [],
+    'S-Oil' : [], '롯데케미칼' : [], 'LG화학' : [], '에스에너지' : [],
+    '메가스터디교육' : [], '웅진씽크빅' : [], 'KB금융' : [], '우리금융지주' : [],
 });
 
 let chart; // 차트를 저장할 변수
@@ -225,8 +240,15 @@ const finalTotalValue = ref(0); // 게임 종료 후 최종 자산
 // 계산된 값
 const portfolioValue = computed(() => {
   // 포트폴리오의 총 가치를 계산 (보유 주식 * 현재 주가)
+  console.log('portfolio.value는 이렇게 출력됩니다.', portfolio.value);
+
   return Object.keys(portfolio.value).reduce((total, stock) => {
-    return total + (portfolio.value[stock] * (stockData.value[stock]?.[currentDay.value - 1]?.open_price || 0));
+    const totalQuantity = portfolio.value[stock].transactions.reduce((totalQuantity, transaction) => totalQuantity + transaction.quantity, 0); 
+
+    const currentPrice = stockData.value[stock]?.[currentDay.value - 1]?.open_price || 0;
+
+    // 포트폴리오 가치 계산: (현재 주가 * 보유 수량)
+    return total + (currentPrice * totalQuantity); // totalQuantity는 총 보유 수량
   }, 0);
 });
 
@@ -239,6 +261,104 @@ const currentPrice = computed(() => {
   // 선택된 주식의 현재 가격
   return stockData.value[selectedStock.value]?.[currentDay.value - 1]?.open_price || 0;
 });
+
+const totalEarningRate = computed(() => {
+  // 전체 수익률 계산
+  return ((totalValue.value / cash.value) - 1) * 100;
+});
+
+const totalEvaluationProfit = computed(() => {
+  // 평가 손익 = 평가 금액 - 총 매입 금액 (FIFO 방식 적용)
+  return portfolioValue.value - Object.keys(portfolio.value).reduce((total, stock) => {
+    const transactions = portfolio.value[stock].transactions; // 거래 내역
+    let remainingQuantity = portfolio.value[stock].transactions.reduce((totalQuantity, transaction) => totalQuantity + transaction.quantity, 0);  // 보유 수량을 따로 변수로 추적
+    let totalPurchaseAmount = 0; // 총 매입 금액
+
+    // FIFO 방식으로 매입 금액 계산
+    for (let i = 0; i < transactions.length; i++) {
+      const transaction = transactions[i];
+      if (remainingQuantity <= 0) break; // 남은 수량이 없으면 종료
+
+      const purchaseQuantity = Math.min(transaction.quantity, remainingQuantity); // 매도할 수 있는 수량만큼
+      totalPurchaseAmount += purchaseQuantity * transaction.price; // 매입 금액 누적
+      remainingQuantity -= purchaseQuantity; // 남은 수량 업데이트
+    }
+
+    return total + totalPurchaseAmount; // 총 매입 금액 계산
+  }, 0);
+});
+
+const totalQuantity = computed(() => {
+  // 해당 주식의 총 수량
+  const result = {}
+  for (const key in portfolio.value) {
+    result[key] = portfolio.value[key].transactions.reduce((totalQuantity, transaction) => totalQuantity + transaction.quantity, 0);
+  }
+  return result
+});
+
+const purchasePrice = computed(() => {
+  // 매입 단가 계산 = 총 매입 금액 / 보유 수량
+  const result = {}
+  for (const key in portfolio.value) {
+    const transactions = portfolio.value[key].transactions;  // 해당 종목의 거래 내역
+    let remainingQuantity = portfolio.value[key].transactions.reduce((totalQuantity, transaction) => totalQuantity + transaction.quantity, 0);  // 보유 수량
+    let totalPurchaseAmount = 0;  // 총 매입 금액
+
+    // FIFO 방식으로 매입 금액 계산
+    for (let i = 0; i < transactions.length; i++) {
+      const transaction = transactions[i];
+      if (remainingQuantity <= 0) break;  // 남은 수량이 없으면 종료
+
+      const purchaseQuantity = Math.min(transaction.quantity, remainingQuantity);  // 매도할 수 있는 수량만큼
+      totalPurchaseAmount += purchaseQuantity * transaction.price;  // 매입 금액 누적
+      remainingQuantity -= purchaseQuantity;  // 남은 수량 업데이트
+    }
+
+    // 매입단가는 총 매입 금액 / 보유 수량으로 계산
+    result[key] = totalPurchaseAmount / (portfolio.value[key].transactions.reduce((totalQuantity, transaction) => totalQuantity + transaction.quantity, 0));
+  }
+  return result
+});
+
+const evaluationPrice = computed(() => {
+  // 평가 금액 계산 = 현재 가격 * 보유 수량
+  const result = {}
+  for (const key in portfolio.value) {
+    const selectedQuantity = portfolio.value[key].transactions.reduce((totalQuantity, transaction) => totalQuantity + transaction.quantity, 0);  // 보유 수량
+    const selectedPrice = stockData.value[key]?.[currentDay.value - 1]?.open_price
+    result[key] = selectedQuantity * selectedPrice
+    console.log('evaluationPrice의 result[key]는 이렇게 출력됩니다.', result[key]);
+  }
+  return result
+})
+
+const evaluationProfit = computed(() => {
+  // 평가 손익 계산 = 평가 금액 - 총 매입 금액
+  const result = {}
+  for (const key in portfolio.value) {
+    const selectedQuantity = portfolio.value[key].transactions.reduce((totalQuantity, transaction) => totalQuantity + transaction.quantity, 0);  // 보유 수량
+    const selectedTransaction = portfolio.value[key].transactions.reduce((totalTransaction, transaction) => totalTransaction + (transaction.quantity * transaction.price), 0);
+    const selectedPrice = stockData.value[key]?.[currentDay.value - 1]?.open_price
+    result[key] = selectedQuantity * selectedPrice - selectedTransaction
+    console.log('evaluationProfit의 result[key]는 이렇게 출력됩니다.', result[key]);
+  }
+  return result
+})
+
+const earningRate = computed(() => {
+  // 수익률 계산 = 평가 금액 / 총 거래 금액 - 1
+  const result = {}
+  for (const key in portfolio.value) {
+    // const selectedQuantity = portfolio.value[key]?.quantity
+    const selectedQuantity = portfolio.value[key].transactions.reduce((totalQuantity, transaction) => totalQuantity + transaction.quantity, 0);
+    const selectedTransaction = portfolio.value[key].transactions.reduce((totalTransaction, transaction) => totalTransaction + (transaction.quantity * transaction.price), 0);
+    const selectedPrice = stockData.value[key]?.[currentDay.value - 1]?.open_price
+    result[key] = (selectedQuantity * selectedPrice) / selectedTransaction - 1
+    console.log('earningRate의 result[key]는 이렇게 출력됩니다.', result[key]);
+  }
+  return result
+})
 
 async function fetchRandomDate() {
   try {
@@ -381,21 +501,56 @@ function executeTrade(type) {
   const volume = tradeVolume.value; // 거래량
   const price = currentPrice.value; // 현재 주가
 
+  if (!portfolio.value[selectedStock.value]) {
+    portfolio.value[selectedStock.value] = { transactions: [] }; // 매입 내역 배열로 관리
+  }
+
   if (type === 'buy') {
     // 매수 조건: 현금이 충분하고, 거래량이 0보다 큼
     if (volume > 0 && cash.value >= price * volume) {
       cash.value -= price * volume; // 현금 감소
-      portfolio.value[selectedStock.value] = (portfolio.value[selectedStock.value] || 0) + volume; // 포트폴리오 업데이트
+
+      // 매수 거래 내역 추가 (FIFO 방식 적용을 위해 배열에 추가)
+      portfolio.value[selectedStock.value].transactions.push({
+        quantity: volume,
+        price: price
+      });
+
+      console.log(`매수 완료: ${volume}주, 가격: ${price}`);
     } else {
       alert('Not enough cash or invalid quantity for buying.'); // 에러 메시지
     }
   } else if (type === 'sell') {
     // 매도 조건: 보유 주식이 충분하고, 거래량이 0보다 큼
-    if (volume > 0 && (portfolio.value[selectedStock.value] || 0) >= volume) {
+    const totalQuantityAvailable = portfolio.value[selectedStock.value].transactions.reduce((totalQuantity, transaction) => totalQuantity + transaction.quantity, 0);
+
+    if (volume > 0 && totalQuantityAvailable >= volume) {
+      let remainingQuantity = volume;
+      let totalCost = 0;
+
+      // FIFO 방식으로 매도
+      while (remainingQuantity > 0) {
+        const firstTransaction = portfolio.value[selectedStock.value].transactions[0]; // 가장 오래된 거래 내역
+
+        if (firstTransaction.quantity <= remainingQuantity) {
+          // 매도 수량이 해당 거래 내역의 수량보다 작거나 같으면 해당 거래 내역을 모두 소진
+          totalCost += firstTransaction.quantity * firstTransaction.price;
+          remainingQuantity -= firstTransaction.quantity;
+          portfolio.value[selectedStock.value].transactions.shift(); // 해당 거래 내역 제거
+        } else {
+          // 매도 수량이 해당 거래 내역의 수량보다 크면 일부만 소진
+          totalCost += remainingQuantity * firstTransaction.price;
+          firstTransaction.quantity -= remainingQuantity;
+          remainingQuantity = 0;
+        }
+      }
+
+      // 매도 완료 후 현금 증가
       cash.value += price * volume; // 현금 증가
-      portfolio.value[selectedStock.value] -= volume; // 포트폴리오 업데이트
+
+      console.log(`매도 완료: ${volume}주, 가격: ${price}, 총 매도 금액: ${totalCost}`);
     } else {
-      alert('Not enough shares or invalid quantity for selling.'); // 에러 메시지
+      alert('Not enough shares to sell.'); // 보유 주식 수량이 부족함을 알리는 메시지
     }
   }
 

@@ -16,11 +16,26 @@
         {{ stockData[selectedStock][currentDay - 1].date }}
       </h3>
 
-      <ul> <!-- 있는 뉴스 다 출력, 최대 10개까지만-->
+
+
+      <!-- 기존 코드 -->
+      <!-- <ul>
         <li v-for="(title, index) in newsTitles" :key="index">
           {{ title }}
         </li>
+      </ul> -->
+
+      <ul>
+        <!-- 최대 10개까지만 출력 -->
+        <li v-for="(title, index) in newsTitles.slice(0, 10)" :key="index">
+          {{ title }}
+        </li>
+        <!-- 뉴스가 없을 경우에는 No news available for this date. 메시지가 표시 -->
+        <li v-if="newsTitles.length === 0">No news available for this date.</li>
       </ul>
+
+      
+
     </div>
 
     <!-- Game UI Section -->

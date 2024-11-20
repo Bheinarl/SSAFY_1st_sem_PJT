@@ -1,156 +1,141 @@
 <template>
   <div>
+    <!-- Header Section -->
     <div class="header">
       <div class="container">
         <h1>10-Day Stock Investment Game</h1>
       </div>
     </div>
 
-
-
-    <!-- 뉴스 있는 개수만큼 다 나오도록 -->
+    <!-- News Section -->
     <div class="news-container">
       <h3>Latest News</h3>
-      <h3>{{ formattedDate }}</h3> <!--디버깅용으로 날짜 출력하도록 했음. 추후 삭제-->
+      <h3>{{ formattedDate }}</h3> <!-- 디버깅용으로 날짜 출력. 추후 삭제 -->
       <ul>
-          <li v-for="(title, index) in newsTitles" :key="index">
-              {{ title }}
-          </li>
+        <li v-for="(title, index) in newsTitles" :key="index">
+          {{ title }}
+        </li>
       </ul>
     </div>
 
-
-
-
-
+    <!-- Game UI Section -->
     <div class="container">
       <div class="day-counter">Day <span>{{ currentDay }}</span> / 10</div>
-      
-        <div class="game-container">
-          <div class="balance-panel">
-            <h3>Account Balance</h3>
-            <div class="balance-info">Cash: ₩<span>{{ cash }}</span></div>
-            <div class="balance-info">Portfolio Value: ₩<span>{{ portfolioValue }}</span></div>
-            <div class="balance-info">Total Value: ₩<span>{{ totalValue }}</span></div>
-            <h3 class="final-score" v-if="finalTotalValue !== 0">최종 금액은 {{ finalTotalValue }}원 입니다.</h3>
-          </div>
-          
-          <div class="container">
-            <div class="row">
-              <div class="chart-section col-8">
-                <canvas id="chart"></canvas>
-              </div>
-              <div class="col-4">
-                <div class="trading-panel">
-                  <select v-model="selectedStock" @change="updateStockUrl">
-                    <option value='삼성에스디에스'>삼성에스디에스</option>
-                    <option value='넥슨게임즈'>넥슨게임즈</option>
-                    <option value='카카오'>카카오</option>
-                    <option value='NAVER'>NAVER</option>
-                    <option value='CJ제일제당'>CJ제일제당</option>
-                    <option value='농심'>농심</option>
-                    <option value='하이트진로'>하이트진로</option>
-                    <option value='오뚜기'>오뚜기</option>
-                    <option value='SK텔레콤'>SK텔레콤</option>
-                    <option value='KT'>KT</option>
-                    <option value='삼성바이오로직스'>삼성바이오로직스</option>
-                    <option value='셀트리온'>셀트리온</option>
-                    <option value='오리엔트바이오'>오리엔트바이오</option>
-                    <option value='미래에셋생명'>미래에셋생명</option>
-                    <option value='삼보산업'>삼보산업</option>
-                    <option value='한화생명'>한화생명</option>
-                    <option value='현대차'>현대차</option>
-                    <option value='기아'>기아</option>
-                    <option value='한국전력'>한국전력</option>
-                    <option value='POSCO홀딩스'>POSCO홀딩스</option>
-                    <option value='삼성전자'>삼성전자</option>
-                    <option value='SK하이닉스'>SK하이닉스</option>
-                    <option value='YG PLUS'>YG PLUS</option>
-                    <option value='JYP Ent.'>JYP Ent.</option>
-                    <option value='에스엠'>에스엠</option>
-                    <option value='CJ CGV'>CJ CGV</option>
-                    <option value='GS건설'>GS건설</option>
-                    <option value='KD'>KD</option>
-                    <option value='대한항공'>대한항공</option>
-                    <option value='CJ대한통운'>CJ대한통운</option>
-                    <option value='제주항공'>제주항공</option>
-                    <option value='SK이노베이션'>SK이노베이션</option>
-                    <option value='S-Oil'>S-Oil</option>
-                    <option value='롯데케미칼'>롯데케미칼</option>
-                    <option value='LG화학'>LG화학</option>
-                    <option value='에스에너지'>에스에너지</option>
-                    <option value='메가스터디교육'>메가스터디교육</option>
-                    <option value='웅진씽크빅'>웅진씽크빅</option>
-                    <option value='KB금융'>KB금융</option>
-                    <option value='우리금융지주'>우리금융지주</option>
-                  </select>
-                  
-                  <br>
+      <div class="game-container">
+        <div class="balance-panel">
+          <h3>Account Balance</h3>
+          <div class="balance-info">Cash: ₩<span>{{ cash }}</span></div>
+          <div class="balance-info">Portfolio Value: ₩<span>{{ portfolioValue }}</span></div>
+          <div class="balance-info">Total Value: ₩<span>{{ totalValue }}</span></div>
+          <h3 class="final-score" v-if="finalTotalValue !== 0">최종 금액은 {{ finalTotalValue }}원 입니다.</h3>
+        </div>
 
-                  <div>
-                    <!-- 주식 정보 -->
-                    <div class="stock-info">
-                      <h3>Current Price: ₩<span>{{ currentPrice }}</span></h3>
-                      <p>Max Buyable Shares: {{ maxBuyableShares }}</p> <!-- 최대 매수 가능 수량 -->
-                    </div>
+        <div class="container">
+          <div class="row">
+            <div class="chart-section col-8">
+              <canvas id="chart"></canvas>
+            </div>
+            <div class="col-4">
+              <!-- Trading Panel -->
+              <div class="trading-panel">
+                <select v-model="selectedStock" @change="updateStockUrl">
+                  <option value='삼성에스디에스'>삼성에스디에스</option>
+                  <option value='넥슨게임즈'>넥슨게임즈</option>
+                  <option value='카카오'>카카오</option>
+                  <option value='NAVER'>NAVER</option>
+                  <option value='CJ제일제당'>CJ제일제당</option>
+                  <option value='농심'>농심</option>
+                  <option value='하이트진로'>하이트진로</option>
+                  <option value='오뚜기'>오뚜기</option>
+                  <option value='SK텔레콤'>SK텔레콤</option>
+                  <option value='KT'>KT</option>
+                  <option value='삼성바이오로직스'>삼성바이오로직스</option>
+                  <option value='셀트리온'>셀트리온</option>
+                  <option value='오리엔트바이오'>오리엔트바이오</option>
+                  <option value='미래에셋생명'>미래에셋생명</option>
+                  <option value='삼보산업'>삼보산업</option>
+                  <option value='한화생명'>한화생명</option>
+                  <option value='현대차'>현대차</option>
+                  <option value='기아'>기아</option>
+                  <option value='한국전력'>한국전력</option>
+                  <option value='POSCO홀딩스'>POSCO홀딩스</option>
+                  <option value='삼성전자'>삼성전자</option>
+                  <option value='SK하이닉스'>SK하이닉스</option>
+                  <option value='YG PLUS'>YG PLUS</option>
+                  <option value='JYP Ent.'>JYP Ent.</option>
+                  <option value='에스엠'>에스엠</option>
+                  <option value='CJ CGV'>CJ CGV</option>
+                  <option value='GS건설'>GS건설</option>
+                  <option value='KD'>KD</option>
+                  <option value='대한항공'>대한항공</option>
+                  <option value='CJ대한통운'>CJ대한통운</option>
+                  <option value='제주항공'>제주항공</option>
+                  <option value='SK이노베이션'>SK이노베이션</option>
+                  <option value='S-Oil'>S-Oil</option>
+                  <option value='롯데케미칼'>롯데케미칼</option>
+                  <option value='LG화학'>LG화학</option>
+                  <option value='에스에너지'>에스에너지</option>
+                  <option value='메가스터디교육'>메가스터디교육</option>
+                  <option value='웅진씽크빅'>웅진씽크빅</option>
+                  <option value='KB금융'>KB금융</option>
+                  <option value='우리금융지주'>우리금융지주</option>
+                </select>
 
-                    <!-- 매수/매도량 입력 -->
-                    <input 
-                      type="number" 
-                      v-model.number="tradeVolume" 
-                      @input="validateInput"
-                      placeholder="Enter quantity"
-                    />
-
-                    <!-- 거래 버튼 -->
-                    <div class="trade-buttons">
-                      <button class="trade-button" @click="executeTrade('buy')">Buy</button>
-                      <button class="trade-button" @click="executeTrade('sell')">Sell</button>
-                    </div>
-                  </div>
-
+                <div class="stock-info">
+                  <h3>Current Price: ₩<span>{{ currentPrice }}</span></h3>
+                  <p>Max Buyable Shares: {{ maxBuyableShares }}</p>
                 </div>
 
-              <div class="portfolio">
-                <br>
-                <h3>Your Holdings</h3>
-                <div>
-                  <!-- 0 shares 는 표시하지 않도록 변경 -->
-                  <template v-for="(quantity, stock) in portfolio" :key="stock">
-                    <div v-if="quantity > 0">
-                      {{ stock }}: {{ quantity }} shares
-                      <br>
-                    </div>
-                  </template>
+                <input 
+                  type="number" 
+                  v-model.number="tradeVolume" 
+                  @input="validateInput"
+                  placeholder="Enter quantity"
+                />
+                <div class="trade-buttons">
+                  <button class="trade-button" @click="executeTrade('buy')">Buy</button>
+                  <button class="trade-button" @click="executeTrade('sell')">Sell</button>
                 </div>
               </div>
-
-              <button @click="nextDay">Next Day</button>
             </div>
           </div>
         </div>
+
+        <!-- Portfolio Section -->
+        <div class="portfolio">
+          <h3>Your Holdings</h3>
+          <div>
+            <template v-for="(quantity, stock) in portfolio" :key="stock">
+              <div v-if="quantity > 0">
+                {{ stock }}: {{ quantity }} shares
+              </div>
+            </template>
+          </div>
+        </div>
+        <button @click="nextDay">Next Day</button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
+/* --------------------------- Imports --------------------------- */
 import { ref, computed, onMounted, watch } from 'vue';
 import { useStockStore } from '@/stores/StockStore';
 import axios from 'axios';
 import Chart from 'chart.js/auto';
 // import api from '@/api';
 
-// 주식 데이터 저장소 사용
+/* --------------------------- State --------------------------- */
 const stockStore = useStockStore();
-
-// 상태 관리 변수
-const currentDay = ref(1);  // 현재 날짜 (1~10일)
-const cash = ref(10000000); // 초기 현금 (₩10,000,000)
-const portfolio = ref({});  // 보유 주식 정보 (주식 이름: 수량)
-const selectedStock = ref('삼성에스디에스');  // 선택된 주식
-const tradeVolume = ref(0); // 거래량 (사용자 입력)
-const startDate = ref(''); // 난수로 받을 시작 날짜
+const currentDay = ref(1);
+const cash = ref(10000000);
+const portfolio = ref({});
+const selectedStock = ref('삼성에스디에스');
+const tradeVolume = ref(0);
+const startDate = ref('');
+const finalTotalValue = ref(0);
+const newsTitles = ref([]);
 const stockData = ref({
     // 각 주식에 대한 가격 데이터 저장
     '삼성에스디에스' : [],
@@ -195,27 +180,24 @@ const stockData = ref({
     '우리금융지주' : [],
 });
 
-let chart; // 차트를 저장할 변수
-const finalTotalValue = ref(0); // 게임 종료 후 최종 자산
-
-// 계산된 값
+/* --------------------------- Computed Values --------------------------- */
+const formattedDate = computed(() => {
+  if (!startDate.value) return '';
+  const date = new Date(startDate.value);
+  date.setDate(date.getDate() + currentDay.value - 1);
+  return date.toISOString().split('T')[0];
+});
 const portfolioValue = computed(() => {
-  // 포트폴리오의 총 가치를 계산 (보유 주식 * 현재 주가)
   return Object.keys(portfolio.value).reduce((total, stock) => {
     return total + (portfolio.value[stock] * (stockData.value[stock]?.[currentDay.value - 1]?.open_price || 0));
   }, 0);
 });
+const totalValue = computed(() => cash.value + portfolioValue.value);
+const currentPrice = computed(() => stockData.value[selectedStock.value]?.[currentDay.value - 1]?.open_price || 0);
+const maxBuyableShares = computed(() => (currentPrice.value > 0 ? Math.floor(cash.value / currentPrice.value) : 0));
 
-const totalValue = computed(() => {
-  // 총 자산 = 현금 + 포트폴리오 가치
-  return cash.value + portfolioValue.value;
-});
-
-const currentPrice = computed(() => {
-  // 선택된 주식의 현재 가격
-  return stockData.value[selectedStock.value]?.[currentDay.value - 1]?.open_price || 0;
-});
-
+/* --------------------------- Functions --------------------------- */
+// Random Date Fetch
 async function fetchRandomDate() {
   try {
     const response = await axios.get('http://127.0.0.1:8000/api/stocks/generate_random_date/');
@@ -229,256 +211,25 @@ async function fetchRandomDate() {
   }
 }
 
-// 주식 데이터 업데이트 URL 설정
-function updateStockUrl() {
-  const stockCode = stockStore.stockMapping[selectedStock.value];  // 선택된 주식의 코드 가져오기
-  if (stockCode) {
-    const apiUrl = `http://127.0.0.1:8000/api/stocks/${stockCode}/?start_date=${startDate.value}`; // API URL 생성
-    console.log('API URL:', apiUrl); 
-    fetchStockData(apiUrl); // 주식 데이터 가져오기
-  }
-}
-
-// API에서 주식 데이터 가져오기
+// Stock API Fetch
 async function fetchStockData(apiUrl) {
   try {
-    const response = await axios.get(apiUrl); // Axios를 사용해 API 호출
-    console.log('API Response:', response); // 응답 데이터 확인(디버깅용)
+    const response = await axios.get(apiUrl);
     if (response.data.status === 'success') {
       stockData.value[selectedStock.value] = response.data.data.map(item => ({
         open_price: item.open_price,
-        close_price: item.close_price
-      })); // 주식 데이터 저장
-      updateChart(); // 차트 업데이트
+        close_price: item.close_price,
+      }));
+      updateChart();
     } else {
       console.error('Error fetching stock data:', response.data.message);
     }
   } catch (error) {
-    console.error('Error fetching stock data:', error); // 에러 처리
+    console.error('Error fetching stock data:', error);
   }
 }
 
-// 차트 초기화
-function initializeChart() {
-  const ctx = document.getElementById('chart').getContext('2d'); // 차트 캔버스 컨텍스트 가져오기
-  chart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: Array.from({ length: 10 }, (_, i) => `Day ${i + 1}`), // X축: Day 1 ~ 10
-      datasets: [{
-        label: 'Stock Price',
-        data: stockData.value[selectedStock.value].slice(0, currentDay.value), // 주가 데이터
-        borderColor: 'rgba(75, 192, 192, 1)',  // 선 색상
-        borderWidth: 1
-      }]
-    },
-    options: {
-      scales: {
-        y: {
-          beginAtZero: false  
-        }, // Y축 시작점 설정
-      }
-    }
-  });
-}
-
-// 차트 업데이트
-function updateChart() {
-  chart.data.datasets[0].data = stockData.value[selectedStock.value].map(item => item.open_price).slice(0, currentDay.value); // 차트에 데이터 반영
-  chart.update(); // 차트 업데이트
-}
-
-// // 원래 코드
-// // 다음 날짜로 진행
-// function nextDay() {
-//   if (currentDay.value < 10) {
-//     currentDay.value++;  // 날짜 증가
-//     updateChart(); // 차트 업데이트
-//   } else {
-//     // 게임 종료 및 최종 자산 계산
-//     console.log('stockData는 이렇게 출력됩니다.', stockData.value);
-//     const finalPortfolioValue = Object.keys(portfolio.value).reduce((total, stock) => {
-//       const closePrice = stockData.value[stock]?.[9]?.close_price || 0; // 10일차 close_price 사용
-//       return total + (portfolio.value[stock] * closePrice);
-//     }, 0);
-//     finalTotalValue.value = cash.value + finalPortfolioValue; // 최종 자산 계산
-//     console.log('Cash:', cash.value);
-//     console.log('Final Portfolio Value:', finalPortfolioValue);
-//     console.log('Final Total Value:', finalTotalValue.value);
-//     alert(`Game over. Your total value is ₩${finalTotalValue.value}`);
-//   }
-// }
-
-// // 시도 3에 따른 수정
-// function nextDay() {
-//   if (currentDay.value < 10) {
-//     currentDay.value++;
-//     const nextDate = new Date(startDate.value);
-//     nextDate.setDate(nextDate.getDate() + currentDay.value - 1);
-//     const formattedDate = nextDate.toISOString().split('T')[0];
-//     fetchNewsTitles(formattedDate);
-//     updateChart();
-//   } else {
-//     // 게임 종료 로직 (기존과 동일)
-//     console.log('stockData는 이렇게 출력됩니다.', stockData.value);
-//     const finalPortfolioValue = Object.keys(portfolio.value).reduce((total, stock) => {
-//       const closePrice = stockData.value[stock]?.[9]?.close_price || 0;
-//       return total + (portfolio.value[stock] * closePrice);
-//     }, 0);
-//     finalTotalValue.value = cash.value + finalPortfolioValue;
-//     console.log('Cash:', cash.value);
-//     console.log('Final Portfolio Value:', finalPortfolioValue);
-//     console.log('Final Total Value:', finalTotalValue.value);
-//     alert(`게임 종료. 최종 자산은 ₩${finalTotalValue.value}입니다.`);
-//   }
-// }
-
-
-
-
-
-// 컴포넌트 초기화 시 호출
-onMounted(async () => {
-  await fetchRandomDate();
-  updateStockUrl(); // 초기 데이터 가져오기
-  // fetchStockData(); // API 호출
-  initializeChart(); // 차트 초기화
-  updateChart(); // 차트 업데이트
-  // updateStockUrl();
-  // initializeChart();
-  // updateChart();
-});
-
-// onMounted(() => {
-// });
-
-
-// Watchers to update the UI when values change
-// 값 변경 감지 및 업데이트
-watch([cash, portfolio, currentDay, selectedStock], () => {
-  updateChart(); // 상태 변경 시 차트 업데이트
-});
-
-///////////////////////////
-// 계산된 값: 최대 매수 가능 수량
-const maxBuyableShares = computed(() => {
-  return currentPrice.value > 0 ? Math.floor(cash.value / currentPrice.value) : 0;
-});
-
-// 계산된 값: 최대 매도 가능 수량
-const maxSellableShares = computed(() => {
-  return portfolio.value[selectedStock.value] || 0; // 선택된 주식의 보유 수량 반환
-});
-
-// 입력값 검증 함수
-function validateInput(event) {
-  const value = Number(event.target.value); // 입력값을 숫자로 변환
-  if (isNaN(value) || value < 0) {
-    tradeVolume.value = 0; // 음수 또는 숫자가 아닌 경우 초기화
-  } else {
-    tradeVolume.value = value; // 유효한 값 반영
-  }
-}
-
-// 거래 실행 함수 (매수/매도)
-function executeTrade(type) {
-  const volume = tradeVolume.value; // 거래량
-  const price = currentPrice.value; // 현재 주가
-
-  if (type === 'buy') {
-    // 매수 조건: 현금이 충분하고, 거래량이 0보다 큼
-    if (volume > 0 && cash.value >= price * volume) {
-      cash.value -= price * volume; // 현금 감소
-      portfolio.value[selectedStock.value] = (portfolio.value[selectedStock.value] || 0) + volume; // 포트폴리오 업데이트
-    } else {
-      alert('Not enough cash or invalid quantity for buying.'); // 에러 메시지
-    }
-  } else if (type === 'sell') {
-    // 매도 조건: 보유 주식이 충분하고, 거래량이 0보다 큼
-    if (volume > 0 && (portfolio.value[selectedStock.value] || 0) >= volume) {
-      cash.value += price * volume; // 현금 증가
-      portfolio.value[selectedStock.value] -= volume; // 포트폴리오 업데이트
-    } else {
-      alert('Not enough shares or invalid quantity for selling.'); // 에러 메시지
-    }
-  }
-
-  // 거래 완료 후 입력값 초기화
-  tradeVolume.value = 0;
-}
-
-// 뉴스 관련 코드 이하 정리 --------------------------------
-
-const newsTitles = ref([]); // 뉴스 제목 데이터를 저장할 상태
-
-// // 시도 1
-// async function fetchNewsTitles() {
-//     try {
-//         // Django API 호출
-//         const response = await axios.get('http://127.0.0.1:8000/api/articles/fetch-news/');
-//         if (response.data.status === 'success') {
-//             newsTitles.value = response.data.titles; // 뉴스 제목 저장
-//         } else {
-//             console.error('Error fetching news:', response.data.message);
-//         }
-//     } catch (error) {
-//         console.error('Failed to fetch news titles:', error);
-//     }
-// }
-// // 컴포넌트가 마운트되면 뉴스 데이터 가져오기
-// onMounted(() => {
-//     fetchNewsTitles();
-// });
-
-
-// // 시도 2 - 랜덤 난수 날짜에 맞는 뉴스 출력 - 다만 next 될때 바뀌진 않음
-// async function fetchNewsTitles() {
-//   try {
-//     // startDate.value를 그대로 사용하여 API 호출
-//     const response = await axios.get(`http://127.0.0.1:8000/api/articles/fetch-news/?date=${startDate.value}`);
-    
-//     if (response.data.status === 'success') {
-//       newsTitles.value = response.data.titles;
-//     } else {
-//       console.error('뉴스 가져오기 오류:', response.data.message);
-//     }
-//   } catch (error) {
-//     console.error('뉴스 제목 가져오기 실패:', error);
-//   }
-// }
-// onMounted(async () => {
-//   fetchNewsTitles(); // fetchRandomDate 이후에 호출
-// });
-
-
-// // 시도 3 - 날짜 업데이트 될 때마다 뉴스 바뀌도록
-// async function fetchNewsTitles(date) {
-//   try {
-//     const response = await axios.get(`http://127.0.0.1:8000/api/articles/fetch-news/?date=${date}`);
-//     if (response.data.status === 'success') {
-//       newsTitles.value = response.data.titles;
-//     } else {
-//       console.error('뉴스 가져오기 오류:', response.data.message);
-//     }
-//   } catch (error) {
-//     console.error('뉴스 제목 가져오기 실패:', error);
-//   }
-// }
-// onMounted(async () => {
-//   // fetchNewsTitles(); // fetchRandomDate 이후에 호출
-//   fetchNewsTitles(startDate.value); // 시도 3에 따른 수정
-// });
-
-
-// 시도 4 - 디버깅용 날짜 출력용
-const formattedDate = computed(() => {
-  if (!startDate.value) return '';
-  const date = new Date(startDate.value);
-  date.setDate(date.getDate() + currentDay.value - 1);
-  return date.toISOString().split('T')[0];
-});
-
-// fetchNewsTitles 함수 수정
+// News Titles Fetch
 async function fetchNewsTitles() {
   try {
     const response = await axios.get(`http://127.0.0.1:8000/api/articles/fetch-news/?date=${formattedDate.value}`);
@@ -492,54 +243,93 @@ async function fetchNewsTitles() {
   }
 }
 
-// nextDay 함수 수정
+// Update Stock URL
+function updateStockUrl() {
+  const stockCode = stockStore.stockMapping[selectedStock.value];
+  if (stockCode) {
+    const apiUrl = `http://127.0.0.1:8000/api/stocks/${stockCode}/?start_date=${startDate.value}`;
+    fetchStockData(apiUrl);
+  }
+}
+
+// Chart Initialization
+let chart;
+function initializeChart() {
+  const ctx = document.getElementById('chart').getContext('2d');
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: Array.from({ length: 10 }, (_, i) => `Day ${i + 1}`),
+      datasets: [
+        {
+          label: 'Stock Price',
+          data: stockData.value[selectedStock.value]?.slice(0, currentDay.value).map(item => item.open_price) || [],
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1,
+        },
+      ],
+    },
+    options: { scales: { y: { beginAtZero: false } } },
+  });
+}
+
+// Update Chart
+function updateChart() {
+  chart.data.datasets[0].data = stockData.value[selectedStock.value]?.map(item => item.open_price).slice(0, currentDay.value) || [];
+  chart.update();
+}
+
+// Validate Trade Input
+function validateInput(event) {
+  const value = Number(event.target.value);
+  tradeVolume.value = isNaN(value) || value < 0 ? 0 : value;
+}
+
+// Execute Trade
+function executeTrade(type) {
+  const volume = tradeVolume.value;
+  const price = currentPrice.value;
+
+  if (type === 'buy' && volume > 0 && cash.value >= price * volume) {
+    cash.value -= price * volume;
+    portfolio.value[selectedStock.value] = (portfolio.value[selectedStock.value] || 0) + volume;
+  } else if (type === 'sell' && volume > 0 && (portfolio.value[selectedStock.value] || 0) >= volume) {
+    cash.value += price * volume;
+    portfolio.value[selectedStock.value] -= volume;
+  } else {
+    alert('Invalid trade!');
+  }
+
+  tradeVolume.value = 0;
+}
+
+// Next Day
 function nextDay() {
   if (currentDay.value < 10) {
     currentDay.value++;
+    fetchNewsTitles();
     updateChart();
-    fetchNewsTitles(); // 날짜가 변경될 때마다 뉴스 업데이트
   } else {
-    // ... 기존 게임 종료 로직 ...
-    console.log('stockData는 이렇게 출력됩니다.', stockData.value);
     const finalPortfolioValue = Object.keys(portfolio.value).reduce((total, stock) => {
       const closePrice = stockData.value[stock]?.[9]?.close_price || 0;
       return total + (portfolio.value[stock] * closePrice);
     }, 0);
     finalTotalValue.value = cash.value + finalPortfolioValue;
-    console.log('Cash:', cash.value);
-    console.log('Final Portfolio Value:', finalPortfolioValue);
-    console.log('Final Total Value:', finalTotalValue.value);
-    alert(`게임 종료. 최종 자산은 ₩${finalTotalValue.value}입니다.`);
+    alert(`Game over. Your final total is ₩${finalTotalValue.value}`);
   }
 }
 
-// onMounted 훅 수정
+/* --------------------------- Lifecycle --------------------------- */
 onMounted(async () => {
+  await fetchRandomDate();
+  updateStockUrl();
   fetchNewsTitles();
+  initializeChart();
 });
-
-
-
-
-
-
-
-
+watch([cash, portfolio, currentDay, selectedStock], updateChart);
 </script>
 
 <style scoped>
-/* .chart-section {
-  width: 80%;
-  height: 300px;
-  margin: 0 auto;
-} */
-
-.trade-button {
-  margin-right: 10px;
-}
-
-.final-score {
-  margin-top: 20px;
-  color: red;
-}
+.trade-button { margin-right: 10px; }
+.final-score { margin-top: 20px; color: red; }
 </style>

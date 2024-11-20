@@ -174,6 +174,7 @@ const cash = ref(10000000); // 초기 현금 (₩10,000,000)
 const portfolio = ref({});  // 보유 주식 정보 (주식 이름: 수량)
 const selectedStock = ref('삼성에스디에스');  // 선택된 주식
 const tradeVolume = ref(0); // 거래량 (사용자 입력)
+const startDate = ref(''); // 난수로 받을 시작 날짜
 const stockData = ref({
     // 각 주식에 대한 가격 데이터 저장
     '삼성에스디에스' : [],
@@ -239,67 +240,28 @@ const currentPrice = computed(() => {
   return stockData.value[selectedStock.value]?.[currentDay.value - 1]?.open_price || 0;
 });
 
-
-
-
+async function fetchRandomDate() {
+  try {
+    const response = await axios.get('http://127.0.0.1:8000/api/stocks/generate_random_date/');
+    if (response.data.status === 'success') {
+      startDate.value = response.data.start_date;
+    } else {
+      console.error('Error generating random date:', response.data.message);
+    }
+  } catch (error) {
+    console.error('Error generating random date:', error);
+  }
+}
 
 // 주식 데이터 업데이트 URL 설정
 function updateStockUrl() {
   const stockCode = stockStore.stockMapping[selectedStock.value];  // 선택된 주식의 코드 가져오기
   if (stockCode) {
-    const apiUrl = `http://127.0.0.1:8000/api/stocks/${stockCode}/`; // API URL 생성
+    const apiUrl = `http://127.0.0.1:8000/api/stocks/${stockCode}/?start_date=${startDate.value}`; // API URL 생성
     console.log('API URL:', apiUrl); 
     fetchStockData(apiUrl); // 주식 데이터 가져오기
   }
 }
-
-// // 음수 및 문자 입력 방지 함수
-// function validateInput(event) {
-//   const value = event.target.value; // 실제 입력된 값을 가져옴
-//   // 숫자가 아니거나 음수라면 초기화
-//   if (isNaN(Number(value)) || Number(value) < 0) {
-//     tradeVolume.value = 0;
-//   } else {
-//     tradeVolume.value = Number(value); // 유효한 숫자면 반영
-//   }
-// }
-
-// 계산된 값: 최대 매수 가능 수량
-// const maxBuyableShares = computed(() => {
-//   // currentPrice가 0이 아니면 최대 매수 가능 주식 수 계산
-//   return currentPrice.value > 0 ? Math.floor(cash.value / currentPrice.value) : 0;
-// });
-
-// function validateInput(event) {
-//   const value = Number(event.target.value); // 입력값을 숫자로 변환
-//   // 입력값이 음수이거나 최대 매수 가능 수량보다 크면 제한
-//   if (isNaN(value) || value < 0 || value > maxBuyableShares.value) {
-//     tradeVolume.value = value > maxBuyableShares.value ? maxBuyableShares.value : 0;
-//   } else {
-//     tradeVolume.value = value;
-//   }
-// }
-
-// // 거래 함수 (매수/매도)
-// function executeTrade(type) {
-//   const volume = tradeVolume.value; // 거래량
-//   const price = currentPrice.value; // 현재 주가
-//   if (type === 'buy') {
-//     if (cash.value >= price * volume) {
-//       cash.value -= price * volume; // 현금 감소
-//       portfolio.value[selectedStock.value] = (portfolio.value[selectedStock.value] || 0) + volume;
-//     } else {
-//       alert('Not enough cash'); // 현금 부족 경고
-//     }
-//   } else if (type === 'sell') {
-//     if ((portfolio.value[selectedStock.value] || 0) >= volume) {
-//       cash.value += price * volume; // 현금 증가
-//       portfolio.value[selectedStock.value] -= volume; // 주식 감소
-//     } else {
-//       alert('Not enough shares'); // 주식 부족 경고
-//     }
-//   }
-// }
 
 // API에서 주식 데이터 가져오기
 async function fetchStockData(apiUrl) {
@@ -372,12 +334,19 @@ function nextDay() {
 }
 
 // 컴포넌트 초기화 시 호출
-onMounted(() => {
+onMounted(async () => {
+  await fetchRandomDate();
   updateStockUrl(); // 초기 데이터 가져오기
-  fetchStockData(); // API 호출
+  // fetchStockData(); // API 호출
   initializeChart(); // 차트 초기화
   updateChart(); // 차트 업데이트
+  // updateStockUrl();
+  // initializeChart();
+  // updateChart();
 });
+
+// onMounted(() => {
+// });
 
 
 // Watchers to update the UI when values change

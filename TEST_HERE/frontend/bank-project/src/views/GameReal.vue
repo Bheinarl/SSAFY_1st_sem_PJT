@@ -10,7 +10,12 @@
     <!-- News Section -->
     <div class="news-container">
       <h3>Latest News</h3>
-      <h3>{{ formattedDate }}</h3> <!-- 디버깅용으로 날짜 출력. 추후 삭제 -->
+      
+      <!-- 디버깅용으로 날짜 출력. 추후 삭제. 현재 뉴스 데이터의 날짜를 직접 참조 -->
+      <h3 v-if="stockData[selectedStock]?.[currentDay - 1]?.date">
+        {{ stockData[selectedStock][currentDay - 1].date }}
+      </h3>
+
       <ul> <!-- 있는 뉴스 다 출력, 최대 10개까지만-->
         <li v-for="(title, index) in newsTitles" :key="index">
           {{ title }}
@@ -181,12 +186,6 @@ const stockData = ref({
 });
 
 /* --------------------------- Computed Values --------------------------- */
-const formattedDate = computed(() => {
-  if (!startDate.value) return '';
-  const date = new Date(startDate.value);
-  date.setDate(date.getDate() + currentDay.value - 1);
-  return date.toISOString().split('T')[0];
-});
 const portfolioValue = computed(() => {
   return Object.keys(portfolio.value).reduce((total, stock) => {
     return total + (portfolio.value[stock] * (stockData.value[stock]?.[currentDay.value - 1]?.open_price || 0));
@@ -212,15 +211,49 @@ async function fetchRandomDate() {
 }
 
 // Stock API Fetch
+// // 기존 코드
+// async function fetchStockData(apiUrl) {
+//   try {
+//     const response = await axios.get(apiUrl);
+//     if (response.data.status === 'success') {
+//       stockData.value[selectedStock.value] = response.data.data.map(item => ({
+//         open_price: item.open_price,
+//         close_price: item.close_price,
+//       }));
+//       updateChart();
+//     } else {
+//       console.error('Error fetching stock data:', response.data.message);
+//     }
+//   } catch (error) {
+//     console.error('Error fetching stock data:', error);
+//   }
+// }
+
+// 수정 코드
+function updateNews() {
+  const currentStockData = stockData.value[selectedStock.value];
+  if (currentStockData && currentStockData.length >= currentDay.value) {
+    // 현재 날짜에 해당하는 뉴스 데이터
+    newsTitles.value = currentStockData[currentDay.value - 1].news || [];
+  } else {
+    newsTitles.value = []; // 데이터가 없을 경우 빈 리스트
+  }
+}
+
+
 async function fetchStockData(apiUrl) {
   try {
     const response = await axios.get(apiUrl);
     if (response.data.status === 'success') {
+      // API로부터 받은 데이터를 저장
       stockData.value[selectedStock.value] = response.data.data.map(item => ({
+        date: item.date,
         open_price: item.open_price,
         close_price: item.close_price,
+        news: item.news, // 날짜별 뉴스 추가
       }));
       updateChart();
+      updateNews(); // 현재 날짜의 뉴스 업데이트
     } else {
       console.error('Error fetching stock data:', response.data.message);
     }
@@ -228,6 +261,7 @@ async function fetchStockData(apiUrl) {
     console.error('Error fetching stock data:', error);
   }
 }
+
 
 // News Titles Fetch
 async function fetchNewsTitles() {
@@ -304,11 +338,29 @@ function executeTrade(type) {
 }
 
 // Next Day
+
+// // 기존 코드
+// function nextDay() {
+//   if (currentDay.value < 10) {
+//     currentDay.value++;
+//     fetchNewsTitles();
+//     updateChart();
+//   } else {
+//     const finalPortfolioValue = Object.keys(portfolio.value).reduce((total, stock) => {
+//       const closePrice = stockData.value[stock]?.[9]?.close_price || 0;
+//       return total + (portfolio.value[stock] * closePrice);
+//     }, 0);
+//     finalTotalValue.value = cash.value + finalPortfolioValue;
+//     alert(`Game over. Your final total is ₩${finalTotalValue.value}`);
+//   }
+// }
+
+// 수정 코드
 function nextDay() {
   if (currentDay.value < 10) {
     currentDay.value++;
-    fetchNewsTitles();
-    updateChart();
+    updateChart(); // 차트 업데이트
+    updateNews(); // 날짜 변경 시 뉴스 업데이트
   } else {
     const finalPortfolioValue = Object.keys(portfolio.value).reduce((total, stock) => {
       const closePrice = stockData.value[stock]?.[9]?.close_price || 0;
@@ -318,6 +370,8 @@ function nextDay() {
     alert(`Game over. Your final total is ₩${finalTotalValue.value}`);
   }
 }
+
+
 
 /* --------------------------- Lifecycle --------------------------- */
 onMounted(async () => {

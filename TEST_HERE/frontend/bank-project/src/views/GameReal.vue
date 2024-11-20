@@ -71,7 +71,7 @@
                   <br>
                   <div class="stock-info">
                     <br>
-                    <h3>Current Price: ₩<span>{{ currentPrice.toFixed(2) }}</span></h3>
+                    <h3>Current Price: ₩<span>{{ currentPrice }}</span></h3>
                     <br>
                   </div>
 

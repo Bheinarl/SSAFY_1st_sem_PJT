@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 def stock_data(request, ticker):
     try:
         start_date = datetime.strptime('2024-09-16', '%Y-%m-%d')
-        end_date = datetime.strptime('2024-09-19', '%Y-%m-%d')
+        end_date = start_date
 
         data = []
         while len(data) < 10:

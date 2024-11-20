@@ -462,7 +462,7 @@ function initializeChart() {
   chart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: Array.from({ length: 10 }, (_, i) => `Day ${i + 1}`), // X축: Day 1 ~ 10
+      labels: Array.from({ length: 11 }, (_, i) => (i === 10 ? '최종 결과' : `Day ${i + 1}`)), // X축: Day 1 ~ 10
       datasets: [{
         label: 'Stock Price',
         data: stockData.value[selectedStock.value].slice(0, currentDay.value), // 주가 데이터
@@ -482,7 +482,11 @@ function initializeChart() {
 
 // 차트 업데이트
 function updateChart() {
-  chart.data.datasets[0].data = stockData.value[selectedStock.value].map(item => item.open_price).slice(0, currentDay.value); // 차트에 데이터 반영
+  const data = stockData.value[selectedStock.value].map(item => item.open_price).slice(0, currentDay.value);
+  if (currentDay.value >= 10) {
+    data[currentDay.value - 1] = stockData.value[selectedStock.value][currentDay.value - 2].close_price;
+  }
+  chart.data.datasets[0].data = data; // 차트에 데이터 반영
   chart.update(); // 차트 업데이트
 }
 
@@ -495,6 +499,7 @@ function nextDay() {
   } else {
     // 게임 종료 및 최종 자산 계산
     currentDay.value++; // 마지막 날짜까지 진행
+    updateChart(); // 차트 업데이트
     console.log('stockData는 이렇게 출력됩니다.', stockData.value);
     const finalPortfolioValue = Object.keys(portfolio.value).reduce((total, stock) => {
       const closePrice = stockData.value[stock]?.[9]?.close_price || 0; // 10일차 close_price 사용

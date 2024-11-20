@@ -7,7 +7,9 @@
     </div>
 
     <div class="container">
-      <div class="day-counter">Day <span>{{ currentDay }}</span> / 10</div>
+      <div class="day-counter"  v-if="currentDay < 11">Day <span>{{ currentDay }}</span> / 10</div>
+      <div class="day-counter"  v-if="currentDay > 10">Day <span>10</span> / 10</div>
+
       
         <div class="game-container">
           <!-- <div class="balance-panel">
@@ -28,8 +30,8 @@
               <th>추정 자산</th>
             </tr>
             <tr>
-              <td>{{ totalEarningRate.toFixed(2) }}%</td>
-              <td>{{ totalEvaluationProfit }}</td>
+              <td :class="{'color-red': totalEarningRate > 0, 'color-blue': totalEarningRate < 0}">{{ totalEarningRate.toFixed(2) }}%</td>
+              <td :class="{'color-red': totalEvaluationProfit > 0, 'color-blue': totalEvaluationProfit < 0}">{{ totalEvaluationProfit }}</td>
               <td>{{ portfolioValue }}</td>
               <td>{{ seedMoney }}</td>
               <td>{{ cash }}</td>
@@ -125,7 +127,7 @@
                     <!-- 주식 정보 -->
                     <div class="stock-info">
                       <h3>Current Price: ₩<span>{{ currentPrice }}</span></h3>
-                      <p>Max Buyable Shares: {{ maxBuyableShares }}</p> <!-- 최대 매수 가능 수량 -->
+                      <p v-if="currentDay < 11">Max Buyable Shares: {{ maxBuyableShares }}</p> <!-- 최대 매수 가능 수량 -->
                       <!-- <p>Max Sellable Shares: {{ maxSellableShares }}</p> 최대 매도 가능 수량 -->
                     </div>
 
@@ -135,10 +137,11 @@
                       v-model.number="tradeVolume" 
                       @input="validateInput"
                       placeholder="Enter quantity"
+                      v-if="currentDay < 11"
                     />
 
                     <!-- 거래 버튼 -->
-                    <div class="trade-buttons" style="margin-top: 5px;">
+                    <div class="trade-buttons" style="margin-top: 5px;"  v-if="currentDay < 11">
                       <button class="trade-button" @click="executeTrade('buy')">Buy</button>
                       <button class="trade-button" @click="executeTrade('sell')">Sell</button>
                     </div>
@@ -168,7 +171,7 @@
                 </div>
               </div>
 
-              <button @click="nextDay">Next Day</button>
+              <button @click="nextDay"  v-if="currentDay < 11">Next Day</button>
             </div>
           </div>
         </div>
@@ -194,8 +197,8 @@
           <td>{{ totalQuantity[key] }}</td>
           <td>{{ purchasePrice[key].toFixed(0) }}</td>
           <td>{{ evaluationPrice[key].toFixed(0) }}</td>
-          <td>{{ evaluationProfit[key].toFixed(0) }}</td>
-          <td>{{ earningRate[key].toFixed(2) }}</td>
+          <td :class="{'color-red': evaluationProfit[key] > 0, 'color-blue': evaluationProfit[key] < 0}">{{ evaluationProfit[key].toFixed(0) }}</td>
+          <td :class="{'color-red': earningRate[key] > 0, 'color-blue': earningRate[key] < 0}">{{ earningRate[key].toFixed(2) }}</td>
         </tr>
       </template>
     </tbody>
@@ -440,6 +443,7 @@ function nextDay() {
     updateChart(); // 차트 업데이트
   } else {
     // 게임 종료 및 최종 자산 계산
+    currentDay.value++; // 마지막 날짜까지 진행
     console.log('stockData는 이렇게 출력됩니다.', stockData.value);
     const finalPortfolioValue = Object.keys(portfolio.value).reduce((total, stock) => {
       const closePrice = stockData.value[stock]?.[9]?.close_price || 0; // 10일차 close_price 사용
@@ -575,5 +579,13 @@ function executeTrade(type) {
 .final-score {
   margin-top: 20px;
   color: red;
+}
+
+.color-red {
+  color: red;
+}
+
+.color-blue {
+  color: blue;
 }
 </style>

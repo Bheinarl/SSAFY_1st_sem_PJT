@@ -14,7 +14,7 @@ def stock_data(request, ticker):
         start_month = random.randrange(1,13)      # 1~12 까지 랜덤
         if start_month in [1,3,5,7,8,10,12] :
             start_date = random.randrange(1,32)      # 1~31 까지 랜덤
-        elif star_month in [4,6,9,11] :
+        elif start_month in [4,6,9,11] :
             start_date = random.randrange(1,31)      # 1~30 까지 랜덤
         else : # 2월
             start_date = random.randrange(1,29)      # 1~28 까지 랜덤

@@ -69,30 +69,70 @@
                   </select>
                   
                   <br>
-                  <div class="stock-info">
+
+                  <!-- 기존코드 - 음수 및 문자 입력 방지는 구현되어있음 -->
+                  <!-- <div class="stock-info">
                     <br>
                     <h3>Current Price: ₩<span>{{ currentPrice }}</span></h3>
                     <br>
-                  </div>
-
-                  <!-- 기존 코드 -->
-                  <!-- <input type="number" v-model.number="tradeVolume" placeholder="Enter quantity"> -->
-
-                  <!-- 음수 및 문자 입력 방지 -->
+                  </div>                  
                   <input 
                     type="number" 
                     v-model.number="tradeVolume" 
                     @input="validateInput"
                     placeholder="Enter quantity"
                   />
+                   -->
+                  <!-- 시도 1 -->
+                  <!-- <div>
+
+                    <div class="stock-info">
+                      <h3>Current Price: ₩<span>{{ currentPrice }}</span></h3>
+                      <p>Max Buyable Shares: {{ maxBuyableShares }}</p>
+                    </div>
 
 
-                  <div class="trade-buttons">
+                    <input 
+                      type="number" 
+                      v-model.number="tradeVolume" 
+                      @input="validateInput"
+                      :max="maxBuyableShares"
+                      placeholder="Enter quantity"
+                    />
+                  </div> -->
+
+                  <!-- 시도 2 -->
+                  <div>
+                    <!-- 주식 정보 -->
+                    <div class="stock-info">
+                      <h3>Current Price: ₩<span>{{ currentPrice }}</span></h3>
+                      <p>Max Buyable Shares: {{ maxBuyableShares }}</p> <!-- 최대 매수 가능 수량 -->
+                      <!-- <p>Max Sellable Shares: {{ maxSellableShares }}</p> 최대 매도 가능 수량 -->
+                    </div>
+
+                    <!-- 매수/매도량 입력 -->
+                    <input 
+                      type="number" 
+                      v-model.number="tradeVolume" 
+                      @input="validateInput"
+                      placeholder="Enter quantity"
+                    />
+
+                    <!-- 거래 버튼 -->
+                    <div class="trade-buttons">
+                      <button class="trade-button" @click="executeTrade('buy')">Buy</button>
+                      <button class="trade-button" @click="executeTrade('sell')">Sell</button>
+                    </div>
+                  </div>
+
+                  <!-- ---------------------------------------------------------- -->
+
+                  <!-- <div class="trade-buttons">
                     <br>
                     <button class="trade-button" @click="executeTrade('buy')">Buy</button>
                     <button class="trade-button" @click="executeTrade('sell')">Sell</button>
                     <br>
-                  </div>
+                  </div> -->
                 </div>
 
               <div class="portfolio">
@@ -200,6 +240,9 @@ const currentPrice = computed(() => {
 });
 
 
+
+
+
 // 주식 데이터 업데이트 URL 설정
 function updateStockUrl() {
   const stockCode = stockStore.stockMapping[selectedStock.value];  // 선택된 주식의 코드 가져오기
@@ -210,16 +253,53 @@ function updateStockUrl() {
   }
 }
 
-// 음수 및 문자 입력 방지 함수
-function validateInput(event) {
-  const value = event.target.value; // 실제 입력된 값을 가져옴
-  // 숫자가 아니거나 음수라면 초기화
-  if (isNaN(Number(value)) || Number(value) < 0) {
-    tradeVolume.value = 0;
-  } else {
-    tradeVolume.value = Number(value); // 유효한 숫자면 반영
-  }
-}
+// // 음수 및 문자 입력 방지 함수
+// function validateInput(event) {
+//   const value = event.target.value; // 실제 입력된 값을 가져옴
+//   // 숫자가 아니거나 음수라면 초기화
+//   if (isNaN(Number(value)) || Number(value) < 0) {
+//     tradeVolume.value = 0;
+//   } else {
+//     tradeVolume.value = Number(value); // 유효한 숫자면 반영
+//   }
+// }
+
+// 계산된 값: 최대 매수 가능 수량
+// const maxBuyableShares = computed(() => {
+//   // currentPrice가 0이 아니면 최대 매수 가능 주식 수 계산
+//   return currentPrice.value > 0 ? Math.floor(cash.value / currentPrice.value) : 0;
+// });
+
+// function validateInput(event) {
+//   const value = Number(event.target.value); // 입력값을 숫자로 변환
+//   // 입력값이 음수이거나 최대 매수 가능 수량보다 크면 제한
+//   if (isNaN(value) || value < 0 || value > maxBuyableShares.value) {
+//     tradeVolume.value = value > maxBuyableShares.value ? maxBuyableShares.value : 0;
+//   } else {
+//     tradeVolume.value = value;
+//   }
+// }
+
+// // 거래 함수 (매수/매도)
+// function executeTrade(type) {
+//   const volume = tradeVolume.value; // 거래량
+//   const price = currentPrice.value; // 현재 주가
+//   if (type === 'buy') {
+//     if (cash.value >= price * volume) {
+//       cash.value -= price * volume; // 현금 감소
+//       portfolio.value[selectedStock.value] = (portfolio.value[selectedStock.value] || 0) + volume;
+//     } else {
+//       alert('Not enough cash'); // 현금 부족 경고
+//     }
+//   } else if (type === 'sell') {
+//     if ((portfolio.value[selectedStock.value] || 0) >= volume) {
+//       cash.value += price * volume; // 현금 증가
+//       portfolio.value[selectedStock.value] -= volume; // 주식 감소
+//     } else {
+//       alert('Not enough shares'); // 주식 부족 경고
+//     }
+//   }
+// }
 
 // API에서 주식 데이터 가져오기
 async function fetchStockData(apiUrl) {
@@ -270,26 +350,6 @@ function updateChart() {
   chart.update(); // 차트 업데이트
 }
 
-// 거래 함수 (매수/매도)
-function executeTrade(type) {
-  const volume = tradeVolume.value; // 거래량
-  const price = currentPrice.value; // 현재 주가
-  if (type === 'buy') {
-    if (cash.value >= price * volume) {
-      cash.value -= price * volume; // 현금 감소
-      portfolio.value[selectedStock.value] = (portfolio.value[selectedStock.value] || 0) + volume;
-    } else {
-      alert('Not enough cash'); // 현금 부족 경고
-    }
-  } else if (type === 'sell') {
-    if ((portfolio.value[selectedStock.value] || 0) >= volume) {
-      cash.value += price * volume; // 현금 증가
-      portfolio.value[selectedStock.value] -= volume; // 주식 감소
-    } else {
-      alert('Not enough shares'); // 주식 부족 경고
-    }
-  }
-}
 
 // 다음 날짜로 진행
 function nextDay() {
@@ -326,6 +386,53 @@ watch([cash, portfolio, currentDay, selectedStock], () => {
   updateChart(); // 상태 변경 시 차트 업데이트
 });
 
+///////////////////////////
+// 계산된 값: 최대 매수 가능 수량
+const maxBuyableShares = computed(() => {
+  return currentPrice.value > 0 ? Math.floor(cash.value / currentPrice.value) : 0;
+});
+
+// 계산된 값: 최대 매도 가능 수량
+const maxSellableShares = computed(() => {
+  return portfolio.value[selectedStock.value] || 0; // 선택된 주식의 보유 수량 반환
+});
+
+// 입력값 검증 함수
+function validateInput(event) {
+  const value = Number(event.target.value); // 입력값을 숫자로 변환
+  if (isNaN(value) || value < 0) {
+    tradeVolume.value = 0; // 음수 또는 숫자가 아닌 경우 초기화
+  } else {
+    tradeVolume.value = value; // 유효한 값 반영
+  }
+}
+
+// 거래 실행 함수 (매수/매도)
+function executeTrade(type) {
+  const volume = tradeVolume.value; // 거래량
+  const price = currentPrice.value; // 현재 주가
+
+  if (type === 'buy') {
+    // 매수 조건: 현금이 충분하고, 거래량이 0보다 큼
+    if (volume > 0 && cash.value >= price * volume) {
+      cash.value -= price * volume; // 현금 감소
+      portfolio.value[selectedStock.value] = (portfolio.value[selectedStock.value] || 0) + volume; // 포트폴리오 업데이트
+    } else {
+      alert('Not enough cash or invalid quantity for buying.'); // 에러 메시지
+    }
+  } else if (type === 'sell') {
+    // 매도 조건: 보유 주식이 충분하고, 거래량이 0보다 큼
+    if (volume > 0 && (portfolio.value[selectedStock.value] || 0) >= volume) {
+      cash.value += price * volume; // 현금 증가
+      portfolio.value[selectedStock.value] -= volume; // 포트폴리오 업데이트
+    } else {
+      alert('Not enough shares or invalid quantity for selling.'); // 에러 메시지
+    }
+  }
+
+  // 거래 완료 후 입력값 초기화
+  tradeVolume.value = 0;
+}
 
 
 </script>

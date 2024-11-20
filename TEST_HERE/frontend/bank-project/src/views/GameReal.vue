@@ -195,7 +195,7 @@
 
     <tbody>
       <template v-for="key in Object.keys(portfolio)" :key="key">
-        <tr v-if="portfolio[key].transactions != []">
+        <tr v-if="totalQuantity[key] !== 0">
           <td>{{ key }}</td>
           <td>{{ totalQuantity[key] }}</td>
           <td>{{ purchasePrice[key].toFixed(0) }}</td>
@@ -492,7 +492,7 @@ function updateChart() {
 
 
 // 다음 날짜로 진행
-function nextDay() {
+async function nextDay() {
   if (currentDay.value < 10) {
     currentDay.value++;  // 날짜 증가
     updateChart(); // 차트 업데이트
@@ -511,6 +511,16 @@ function nextDay() {
     console.log('Final Portfolio Value:', finalPortfolioValue);
     console.log('Final Total Value:', finalTotalValue.value);
     alert(`Game over. Your total value is ₩${finalTotalValue.value}`);
+    // try {
+    //     const response = await axios.post('http://127.0.0.1:8000/accounts/update_max_score/', { totalValue: finalTotalValue.value });
+    //     if (response.data.status === 'success') {
+    //       console.log('Max score updated:', response.data.max_score);
+    //     } else {
+    //       console.log('No update needed:', response.data.max_score);
+    //     }
+    //   } catch (error) {
+    //     console.error('Error updating max score:', error);
+    //   }
   }
 }
 

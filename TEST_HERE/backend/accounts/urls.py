@@ -11,4 +11,5 @@ urlpatterns = [
     path('check_exchange_rate/', views.check_exchange_rate, name='check_exchange_rate'),
     path('custom-registration/', CustomRegisterView.as_view(), name='custom_registration'),
     path('user/', CustomUserDetailsView.as_view(), name='user-details'),  # 사용자 정보 URL 오버라이드
+    path('update_max_score/', views.update_max_score, name='update_max_score'),
 ]

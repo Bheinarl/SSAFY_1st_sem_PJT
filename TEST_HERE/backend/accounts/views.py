@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
 import json
 from .models import CurrencyAlert
 from django.conf import settings
@@ -130,6 +131,20 @@ def get_exchange_rate(request):
     except requests.exceptions.RequestException as e:
         return JsonResponse({'error': '환율 데이터를 가져오는 중 오류가 발생했습니다.'}, status=500)
 
+@csrf_exempt
+def update_max_score(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        total_value = data.get('totalValue', 0)
+        print(f"Received totalValue: {total_value}")  # 디버깅용 출력
+        if total_value > request.user.max_score:
+            request.user.max_score = total_value
+            request.user.save()
+            return JsonResponse({'status': 'success', 'max_score': request.user.max_score})
+        
+        return JsonResponse({'status': 'no_update', 'max_score': request.user.max_score})
+    
+    return JsonResponse({'status': 'fail'}, status=400)
 
 from rest_framework import status
 from rest_framework.response import Response
@@ -153,3 +168,4 @@ class CustomRegisterView(APIView):
 class CustomUserDetailsView(UserDetailsView):
     serializer_class = CustomUserDetailsSerializer
     # CustomUserDetailsSerializer를 사용하도록 설정했습니다. 이는 프로필 정보에 nickname 필드를 포함하기 위함입니다.
+

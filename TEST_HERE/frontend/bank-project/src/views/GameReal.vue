@@ -99,10 +99,13 @@
                 <br>
                 <h3>Your Holdings</h3>
                 <div>
-                  <div v-for="(quantity, stock) in portfolio" :key="stock">
-                    {{ stock }}: {{ quantity }} shares
-                    <br>
-                  </div>
+                  <!-- 0 shares 는 표시하지 않도록 변경 -->
+                  <template v-for="(quantity, stock) in portfolio" :key="stock">
+                    <div v-if="quantity > 0">
+                      {{ stock }}: {{ quantity }} shares
+                      <br>
+                    </div>
+                  </template>
                 </div>
               </div>
 

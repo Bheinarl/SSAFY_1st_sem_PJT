@@ -249,12 +249,15 @@ const portfolioValue = computed(() => {
   console.log('portfolio.value는 이렇게 출력됩니다.', portfolio.value);
 
   return Object.keys(portfolio.value).reduce((total, stock) => {
-    const totalQuantity = portfolio.value[stock].transactions.reduce((totalQuantity, transaction) => totalQuantity + transaction.quantity, 0); 
-
-    const currentPrice = stockData.value[stock]?.[currentDay.value - 1]?.open_price || 0;
-
+    const totalQuantity = portfolio.value[stock].transactions.reduce((totalQuantity, transaction) => totalQuantity + transaction.quantity, 0); // totalQuantity는 총 보유 수량
     // 포트폴리오 가치 계산: (현재 주가 * 보유 수량)
-    return total + (currentPrice * totalQuantity); // totalQuantity는 총 보유 수량
+    if (currentDay.value > 10) {
+      const currentPrice = stockData.value[stock][9]?.close_price || 0;
+      return total + (currentPrice * totalQuantity);
+    } else {
+      const currentPrice = stockData.value[stock]?.[currentDay.value - 1]?.open_price || 0;
+      return total + (currentPrice * totalQuantity);
+    }
   }, 0);
 });
 
@@ -362,8 +365,13 @@ const evaluationPrice = computed(() => {
   const result = {}
   for (const key in portfolio.value) {
     const selectedQuantity = portfolio.value[key].transactions.reduce((totalQuantity, transaction) => totalQuantity + transaction.quantity, 0);  // 보유 수량
-    const selectedPrice = stockData.value[key]?.[currentDay.value - 1]?.open_price
-    result[key] = selectedQuantity * selectedPrice
+    if (currentDay.value > 10) {
+      const selectedPrice = stockData.value[key]?.[9]?.close_price
+      result[key] = selectedQuantity * selectedPrice
+    } else {
+      const selectedPrice = stockData.value[key]?.[currentDay.value - 1]?.open_price
+      result[key] = selectedQuantity * selectedPrice
+    }
     console.log('evaluationPrice의 result[key]는 이렇게 출력됩니다.', result[key]);
   }
   return result
@@ -375,8 +383,13 @@ const evaluationProfit = computed(() => {
   for (const key in portfolio.value) {
     const selectedQuantity = portfolio.value[key].transactions.reduce((totalQuantity, transaction) => totalQuantity + transaction.quantity, 0);  // 보유 수량
     const selectedTransaction = portfolio.value[key].transactions.reduce((totalTransaction, transaction) => totalTransaction + (transaction.quantity * transaction.price), 0);
-    const selectedPrice = stockData.value[key]?.[currentDay.value - 1]?.open_price
-    result[key] = selectedQuantity * selectedPrice - selectedTransaction
+    if (currentDay.value > 10) {
+      const selectedPrice = stockData.value[key]?.[9]?.close_price
+      result[key] = selectedQuantity * selectedPrice - selectedTransaction
+    } else {
+      const selectedPrice = stockData.value[key]?.[currentDay.value - 1]?.open_price
+      result[key] = selectedQuantity * selectedPrice - selectedTransaction
+    }
     console.log('evaluationProfit의 result[key]는 이렇게 출력됩니다.', result[key]);
   }
   return result
@@ -389,8 +402,13 @@ const earningRate = computed(() => {
     // const selectedQuantity = portfolio.value[key]?.quantity
     const selectedQuantity = portfolio.value[key].transactions.reduce((totalQuantity, transaction) => totalQuantity + transaction.quantity, 0);
     const selectedTransaction = portfolio.value[key].transactions.reduce((totalTransaction, transaction) => totalTransaction + (transaction.quantity * transaction.price), 0);
-    const selectedPrice = stockData.value[key]?.[currentDay.value - 1]?.open_price
-    result[key] = (selectedQuantity * selectedPrice) / selectedTransaction - 1
+    if (currentDay.value > 10) {
+      const selectedPrice = stockData.value[key]?.[9]?.close_price
+      result[key] = (selectedQuantity * selectedPrice) / selectedTransaction - 1
+    } else {
+      const selectedPrice = stockData.value[key]?.[currentDay.value - 1]?.open_price
+      result[key] = (selectedQuantity * selectedPrice) / selectedTransaction - 1
+    }
     console.log('earningRate의 result[key]는 이렇게 출력됩니다.', result[key]);
   }
   return result

@@ -21,7 +21,7 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('articles/', include('articles.urls')),
+    path('api/articles/', include('articles.urls')),  # articles 앱 URL 연결
     path('accounts/', include('accounts.urls')),
     path('api/auth/', include('accounts.urls')),  # accounts의 사용자 정보 URL 포함
     path('', include('stocks.urls')),  # stocks 앱의 URL 포함

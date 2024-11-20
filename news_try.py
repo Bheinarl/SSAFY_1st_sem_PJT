@@ -8,7 +8,7 @@ headers = {
 }
 
 # 크롤링할 URL
-url = "https://finance.naver.com/news/mainnews.naver?date=2020-01-01"
+url = "https://finance.naver.com/news/mainnews.naver?date=2020-01-02"
 
 # HTTP 요청 보내기
 response = requests.get(url, headers=headers)
@@ -21,4 +21,6 @@ soup = BeautifulSoup(response.text, 'lxml')
 news_titles = [title.text.strip() for title in soup.select('dd.articleSubject a')]
 
 # 결과 출력
-print(news_titles)
+for one_of_news_title in news_titles :
+    print(one_of_news_title)
+# print(news_titles)

@@ -6,6 +6,23 @@
       </div>
     </div>
 
+
+
+    <!-- 뉴스 있는 개수만큼 다 나오도록 -->
+    <div class="news-container">
+      <h3>Latest News</h3>
+      <h3>{{ formattedDate }}</h3> <!--디버깅용으로 날짜 출력하도록 했음. 추후 삭제-->
+      <ul>
+          <li v-for="(title, index) in newsTitles" :key="index">
+              {{ title }}
+          </li>
+      </ul>
+    </div>
+
+
+
+
+
     <div class="container">
       <div class="day-counter">Day <span>{{ currentDay }}</span> / 10</div>
       
@@ -70,44 +87,11 @@
                   
                   <br>
 
-                  <!-- 기존코드 - 음수 및 문자 입력 방지는 구현되어있음 -->
-                  <!-- <div class="stock-info">
-                    <br>
-                    <h3>Current Price: ₩<span>{{ currentPrice }}</span></h3>
-                    <br>
-                  </div>                  
-                  <input 
-                    type="number" 
-                    v-model.number="tradeVolume" 
-                    @input="validateInput"
-                    placeholder="Enter quantity"
-                  />
-                   -->
-                  <!-- 시도 1 -->
-                  <!-- <div>
-
-                    <div class="stock-info">
-                      <h3>Current Price: ₩<span>{{ currentPrice }}</span></h3>
-                      <p>Max Buyable Shares: {{ maxBuyableShares }}</p>
-                    </div>
-
-
-                    <input 
-                      type="number" 
-                      v-model.number="tradeVolume" 
-                      @input="validateInput"
-                      :max="maxBuyableShares"
-                      placeholder="Enter quantity"
-                    />
-                  </div> -->
-
-                  <!-- 시도 2 -->
                   <div>
                     <!-- 주식 정보 -->
                     <div class="stock-info">
                       <h3>Current Price: ₩<span>{{ currentPrice }}</span></h3>
                       <p>Max Buyable Shares: {{ maxBuyableShares }}</p> <!-- 최대 매수 가능 수량 -->
-                      <!-- <p>Max Sellable Shares: {{ maxSellableShares }}</p> 최대 매도 가능 수량 -->
                     </div>
 
                     <!-- 매수/매도량 입력 -->
@@ -125,14 +109,6 @@
                     </div>
                   </div>
 
-                  <!-- ---------------------------------------------------------- -->
-
-                  <!-- <div class="trade-buttons">
-                    <br>
-                    <button class="trade-button" @click="executeTrade('buy')">Buy</button>
-                    <button class="trade-button" @click="executeTrade('sell')">Sell</button>
-                    <br>
-                  </div> -->
                 </div>
 
               <div class="portfolio">
@@ -312,26 +288,54 @@ function updateChart() {
   chart.update(); // 차트 업데이트
 }
 
+// // 원래 코드
+// // 다음 날짜로 진행
+// function nextDay() {
+//   if (currentDay.value < 10) {
+//     currentDay.value++;  // 날짜 증가
+//     updateChart(); // 차트 업데이트
+//   } else {
+//     // 게임 종료 및 최종 자산 계산
+//     console.log('stockData는 이렇게 출력됩니다.', stockData.value);
+//     const finalPortfolioValue = Object.keys(portfolio.value).reduce((total, stock) => {
+//       const closePrice = stockData.value[stock]?.[9]?.close_price || 0; // 10일차 close_price 사용
+//       return total + (portfolio.value[stock] * closePrice);
+//     }, 0);
+//     finalTotalValue.value = cash.value + finalPortfolioValue; // 최종 자산 계산
+//     console.log('Cash:', cash.value);
+//     console.log('Final Portfolio Value:', finalPortfolioValue);
+//     console.log('Final Total Value:', finalTotalValue.value);
+//     alert(`Game over. Your total value is ₩${finalTotalValue.value}`);
+//   }
+// }
 
-// 다음 날짜로 진행
-function nextDay() {
-  if (currentDay.value < 10) {
-    currentDay.value++;  // 날짜 증가
-    updateChart(); // 차트 업데이트
-  } else {
-    // 게임 종료 및 최종 자산 계산
-    console.log('stockData는 이렇게 출력됩니다.', stockData.value);
-    const finalPortfolioValue = Object.keys(portfolio.value).reduce((total, stock) => {
-      const closePrice = stockData.value[stock]?.[9]?.close_price || 0; // 10일차 close_price 사용
-      return total + (portfolio.value[stock] * closePrice);
-    }, 0);
-    finalTotalValue.value = cash.value + finalPortfolioValue; // 최종 자산 계산
-    console.log('Cash:', cash.value);
-    console.log('Final Portfolio Value:', finalPortfolioValue);
-    console.log('Final Total Value:', finalTotalValue.value);
-    alert(`Game over. Your total value is ₩${finalTotalValue.value}`);
-  }
-}
+// // 시도 3에 따른 수정
+// function nextDay() {
+//   if (currentDay.value < 10) {
+//     currentDay.value++;
+//     const nextDate = new Date(startDate.value);
+//     nextDate.setDate(nextDate.getDate() + currentDay.value - 1);
+//     const formattedDate = nextDate.toISOString().split('T')[0];
+//     fetchNewsTitles(formattedDate);
+//     updateChart();
+//   } else {
+//     // 게임 종료 로직 (기존과 동일)
+//     console.log('stockData는 이렇게 출력됩니다.', stockData.value);
+//     const finalPortfolioValue = Object.keys(portfolio.value).reduce((total, stock) => {
+//       const closePrice = stockData.value[stock]?.[9]?.close_price || 0;
+//       return total + (portfolio.value[stock] * closePrice);
+//     }, 0);
+//     finalTotalValue.value = cash.value + finalPortfolioValue;
+//     console.log('Cash:', cash.value);
+//     console.log('Final Portfolio Value:', finalPortfolioValue);
+//     console.log('Final Total Value:', finalTotalValue.value);
+//     alert(`게임 종료. 최종 자산은 ₩${finalTotalValue.value}입니다.`);
+//   }
+// }
+
+
+
+
 
 // 컴포넌트 초기화 시 호출
 onMounted(async () => {
@@ -402,6 +406,123 @@ function executeTrade(type) {
   // 거래 완료 후 입력값 초기화
   tradeVolume.value = 0;
 }
+
+// 뉴스 관련 코드 이하 정리 --------------------------------
+
+const newsTitles = ref([]); // 뉴스 제목 데이터를 저장할 상태
+
+// // 시도 1
+// async function fetchNewsTitles() {
+//     try {
+//         // Django API 호출
+//         const response = await axios.get('http://127.0.0.1:8000/api/articles/fetch-news/');
+//         if (response.data.status === 'success') {
+//             newsTitles.value = response.data.titles; // 뉴스 제목 저장
+//         } else {
+//             console.error('Error fetching news:', response.data.message);
+//         }
+//     } catch (error) {
+//         console.error('Failed to fetch news titles:', error);
+//     }
+// }
+// // 컴포넌트가 마운트되면 뉴스 데이터 가져오기
+// onMounted(() => {
+//     fetchNewsTitles();
+// });
+
+
+// // 시도 2 - 랜덤 난수 날짜에 맞는 뉴스 출력 - 다만 next 될때 바뀌진 않음
+// async function fetchNewsTitles() {
+//   try {
+//     // startDate.value를 그대로 사용하여 API 호출
+//     const response = await axios.get(`http://127.0.0.1:8000/api/articles/fetch-news/?date=${startDate.value}`);
+    
+//     if (response.data.status === 'success') {
+//       newsTitles.value = response.data.titles;
+//     } else {
+//       console.error('뉴스 가져오기 오류:', response.data.message);
+//     }
+//   } catch (error) {
+//     console.error('뉴스 제목 가져오기 실패:', error);
+//   }
+// }
+// onMounted(async () => {
+//   fetchNewsTitles(); // fetchRandomDate 이후에 호출
+// });
+
+
+// // 시도 3 - 날짜 업데이트 될 때마다 뉴스 바뀌도록
+// async function fetchNewsTitles(date) {
+//   try {
+//     const response = await axios.get(`http://127.0.0.1:8000/api/articles/fetch-news/?date=${date}`);
+//     if (response.data.status === 'success') {
+//       newsTitles.value = response.data.titles;
+//     } else {
+//       console.error('뉴스 가져오기 오류:', response.data.message);
+//     }
+//   } catch (error) {
+//     console.error('뉴스 제목 가져오기 실패:', error);
+//   }
+// }
+// onMounted(async () => {
+//   // fetchNewsTitles(); // fetchRandomDate 이후에 호출
+//   fetchNewsTitles(startDate.value); // 시도 3에 따른 수정
+// });
+
+
+// 시도 4 - 디버깅용 날짜 출력용
+const formattedDate = computed(() => {
+  if (!startDate.value) return '';
+  const date = new Date(startDate.value);
+  date.setDate(date.getDate() + currentDay.value - 1);
+  return date.toISOString().split('T')[0];
+});
+
+// fetchNewsTitles 함수 수정
+async function fetchNewsTitles() {
+  try {
+    const response = await axios.get(`http://127.0.0.1:8000/api/articles/fetch-news/?date=${formattedDate.value}`);
+    if (response.data.status === 'success') {
+      newsTitles.value = response.data.titles;
+    } else {
+      console.error('Error fetching news:', response.data.message);
+    }
+  } catch (error) {
+    console.error('Failed to fetch news titles:', error);
+  }
+}
+
+// nextDay 함수 수정
+function nextDay() {
+  if (currentDay.value < 10) {
+    currentDay.value++;
+    updateChart();
+    fetchNewsTitles(); // 날짜가 변경될 때마다 뉴스 업데이트
+  } else {
+    // ... 기존 게임 종료 로직 ...
+    console.log('stockData는 이렇게 출력됩니다.', stockData.value);
+    const finalPortfolioValue = Object.keys(portfolio.value).reduce((total, stock) => {
+      const closePrice = stockData.value[stock]?.[9]?.close_price || 0;
+      return total + (portfolio.value[stock] * closePrice);
+    }, 0);
+    finalTotalValue.value = cash.value + finalPortfolioValue;
+    console.log('Cash:', cash.value);
+    console.log('Final Portfolio Value:', finalPortfolioValue);
+    console.log('Final Total Value:', finalTotalValue.value);
+    alert(`게임 종료. 최종 자산은 ₩${finalTotalValue.value}입니다.`);
+  }
+}
+
+// onMounted 훅 수정
+onMounted(async () => {
+  fetchNewsTitles();
+});
+
+
+
+
+
+
 
 
 </script>

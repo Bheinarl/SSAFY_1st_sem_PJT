@@ -33,4 +33,5 @@ npm run build
 ```sh
 npm install axios
 npm install chart.js
+npm install bootstrap
 ```

@@ -1,48 +1,33 @@
+# # articles/views.py
+
 # from django.http import JsonResponse
+# from .models import LocationBasedRecommendation
 
-# import requests
-# from bs4 import BeautifulSoup
+# def location_recommendation(request):
+#     recommendation = LocationBasedRecommendation.objects.filter(user=request.user).last()
+#     return JsonResponse({'recommended_product': recommendation.recommended_product if recommendation else "추천 상품 없음"})
+
+
+# # articles/views.py
+
+# from django.contrib.auth.decorators import login_required
 # from django.http import JsonResponse
+# from .models import LocationBasedRecommendation
 
-# def fetch_news(request):
-#     try:
-#         url = "https://finance.naver.com/news/mainnews.naver?date=2020-01-01"
-#         response = requests.get(url)
-#         response.raise_for_status()
-#         soup = BeautifulSoup(response.text, 'html.parser')
+# @login_required
+# def location_recommendation(request):
+#     recommendation = LocationBasedRecommendation.objects.filter(user=request.user).last()
+#     return JsonResponse({'recommended_product': recommendation.recommended_product if recommendation else "추천 상품 없음"})
 
-#         # 뉴스 제목 추출
-#         titles = [
-#             title.text.strip()
-#             for title in soup.select('dd.articleSubject a')
-#         ]
 
-#         return JsonResponse({'status': 'success', 'titles': titles}, status=200)
-#     except Exception as e:
-#         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+# articles/views.py
 
 from django.http import JsonResponse
-import requests
-from bs4 import BeautifulSoup
+# from .models import LocationBasedRecommendation
 
-def fetch_news(request):
-    try:
-        # 요청에서 날짜 파라미터 가져오기
-        date = request.GET.get('date', '2020-01-01')  # 기본값으로 2020-01-01 설정
-        
-        # URL에 날짜 파라미터 추가
-        url = f"https://finance.naver.com/news/mainnews.naver?date={date}"
-        
-        response = requests.get(url)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.text, 'html.parser')
+# def location_recommendation(request):
+#     if not request.user.is_authenticated:
+#         return JsonResponse({'error': '로그인이 필요합니다.'}, status=403)
 
-        # 뉴스 제목 추출
-        titles = [
-            title.text.strip()
-            for title in soup.select('dd.articleSubject a')
-        ]
-
-        return JsonResponse({'status': 'success', 'titles': titles}, status=200)
-    except Exception as e:
-        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+#     recommendation = LocationBasedRecommendation.objects.filter(user=request.user).last()
+#     return JsonResponse({'recommended_product': recommendation.recommended_product if recommendation else "추천 상품 없음"})

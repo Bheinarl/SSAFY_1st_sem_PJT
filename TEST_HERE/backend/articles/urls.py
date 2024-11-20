@@ -1,6 +1,8 @@
+# articles/urls.py
+
 from django.urls import path
-from .views import fetch_news
+from . import views
 
 urlpatterns = [
-    path('fetch-news/', fetch_news, name='fetch_news'),
+    # path('location_recommendation/', views.location_recommendation, name='location_recommendation'),
 ]

@@ -11,7 +11,7 @@
     <div class="news-container">
       <h3>Latest News</h3>
       <h3>{{ formattedDate }}</h3> <!-- 디버깅용으로 날짜 출력. 추후 삭제 -->
-      <ul>
+      <ul> <!-- 있는 뉴스 다 출력, 최대 10개까지만-->
         <li v-for="(title, index) in newsTitles" :key="index">
           {{ title }}
         </li>
@@ -232,7 +232,7 @@ async function fetchStockData(apiUrl) {
 // News Titles Fetch
 async function fetchNewsTitles() {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/api/articles/fetch-news/?date=${formattedDate.value}`);
+    const response = await axios.get(`http://127.0.0.1:8000/api/stocks/fetch-news/?date=${formattedDate.value}`);
     if (response.data.status === 'success') {
       newsTitles.value = response.data.titles;
     } else {

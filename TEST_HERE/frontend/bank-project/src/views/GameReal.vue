@@ -480,7 +480,8 @@ function nextDay() {
     console.log('stockData는 이렇게 출력됩니다.', stockData.value);
     const finalPortfolioValue = Object.keys(portfolio.value).reduce((total, stock) => {
       const closePrice = stockData.value[stock]?.[9]?.close_price || 0; // 10일차 close_price 사용
-      return total + (portfolio.value[stock] * closePrice);
+      const selectedQuantity = portfolio.value[stock].transactions.reduce((totalQuantity, transaction) => totalQuantity + transaction.quantity, 0);  // 보유 수량
+      return total + (selectedQuantity * closePrice);
     }, 0);
     finalTotalValue.value = cash.value + finalPortfolioValue; // 최종 자산 계산
     console.log('Cash:', cash.value);

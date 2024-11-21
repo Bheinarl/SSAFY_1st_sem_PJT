@@ -178,6 +178,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',  # Vite 개발 서버 주소 # Vue.js 개발 서버 URL
+    'http://127.0.0.1:8000',  # Django 개발 서버 주소
 ]
 
 CORS_ALLOW_CREDENTIALS = True

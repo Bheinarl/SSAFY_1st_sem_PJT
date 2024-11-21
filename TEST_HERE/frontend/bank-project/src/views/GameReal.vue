@@ -139,8 +139,11 @@
 
                     <!-- 거래 버튼 -->
                     <div class="trade-buttons" style="margin-top: 5px;"  v-if="currentDay < 11">
-                      <button class="trade-button" @click="executeTrade('buy')">Buy</button>
-                      <button class="trade-button" @click="executeTrade('sell')">Sell</button>
+                      <button class="trade-button" @click="executeTrade('buy')" v-if="currentPrice !== 0">Buy</button>
+                      <button class="trade-button" v-else>Buy</button>
+                      <button class="trade-button" @click="executeTrade('sell')"v-if="currentPrice !== 0">Sell</button>
+                      <button class="trade-button" v-else>Sell</button>
+                      
                     </div>
                   </div>
 
@@ -159,7 +162,8 @@
                   </template>
                 </div>
               </div>
-              <button @click="nextDay"  v-if="currentDay < 11">Next Day</button>
+              <button v-if="currentDay < 11 && currentPrice === 0">Next Day</button>
+              <button @click="nextDay" v-else-if="currentDay < 11">Next Day</button>
 
             </div>
           </div>
@@ -484,7 +488,7 @@ async function fetchStockData(apiUrl) {
 // News Titles Fetch
 async function fetchNewsTitles() {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/api/stocks/fetch-news/?date=${formattedDate.value}`);
+    const response = await axios.get(`http://127.0.0.1:8000/api/stocks/fetch-news/?date=${stockData[selectedStock][currentDay - 1].date}`);
     if (response.data.status === 'success') {
       newsTitles.value = response.data.titles;
     } else {
@@ -543,32 +547,48 @@ async function nextDay() {
     updateChart(); // 차트 업데이트
     updateNews(); // 날짜 변경 시 뉴스 업데이트
   } else {
-
     // 게임 종료 및 최종 자산 계산
     currentDay.value++; // 마지막 날짜까지 진행
     updateChart(); // 차트 업데이트
     console.log('stockData는 이렇게 출력됩니다.', stockData.value);
     const finalPortfolioValue = Object.keys(portfolio.value).reduce((total, stock) => {
-      const closePrice = stockData.value[stock]?.[9]?.close_price || 0; // 10일차 close_price 사용
-      const selectedQuantity = portfolio.value[stock].transactions.reduce((totalQuantity, transaction) => totalQuantity + transaction.quantity, 0);  // 보유 수량
-      return total + (selectedQuantity * closePrice);
+    const closePrice = stockData.value[stock]?.[9]?.close_price || 0; // 10일차 close_price 사용
+    const selectedQuantity = portfolio.value[stock].transactions.reduce((totalQuantity, transaction) => totalQuantity + transaction.quantity, 0);  // 보유 수량
+    return total + (selectedQuantity * closePrice);
     }, 0);
     finalTotalValue.value = cash.value + finalPortfolioValue; // 최종 자산 계산
     console.log('Cash:', cash.value);
     console.log('Final Portfolio Value:', finalPortfolioValue);
     console.log('Final Total Value:', finalTotalValue.value);
     alert(`Game over. Your total value is ₩${finalTotalValue.value}`);
-    // try {
-    //     const response = await axios.post('http://127.0.0.1:8000/accounts/update_max_score/', { totalValue: finalTotalValue.value });
-    //     if (response.data.status === 'success') {
-    //       console.log('Max score updated:', response.data.max_score);
-    //     } else {
-    //       console.log('No update needed:', response.data.max_score);
-    //     }
-    //   } catch (error) {
-    //     console.error('Error updating max score:', error);
-    //   }
+    try {
+        const csrfToken = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('csrftoken='))
+            ?.split('=')[1]; // 쿠키에서 CSRF 토큰 추출
 
+        const response = await fetch('http://127.0.0.1:8000/accounts/update_max_score/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken, // CSRF 토큰 추가
+            },
+            body: JSON.stringify({ totalValue: finalTotalValue.value }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (data.status === 'success') {
+            console.log('Max score updated:', data.max_score);
+        } else {
+            console.log('No update needed:', data.max_score);
+        }
+    } catch (error) {
+        console.error('Error updating max score:', error);
+    }   
   }
 }
 
@@ -654,8 +674,6 @@ function executeTrade(type) {
   // 거래 완료 후 입력값 초기화
   tradeVolume.value = 0;
 }
-
-
 </script>
 
 <style scoped>
@@ -682,4 +700,3 @@ function executeTrade(type) {
   color: blue;
 }
 </style>
-

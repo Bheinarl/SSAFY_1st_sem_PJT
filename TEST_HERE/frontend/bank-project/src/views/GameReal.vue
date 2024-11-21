@@ -474,6 +474,7 @@ async function fetchStockData(apiUrl) {
         close_price: item.close_price,
         news: item.news, // 날짜별 뉴스 추가
       }));
+      console.log('stockData는 이렇게 출력됩니다.', stockData.value);
       updateChart();
       updateNews(); // 현재 날짜의 뉴스 업데이트
     } else {
@@ -481,21 +482,6 @@ async function fetchStockData(apiUrl) {
     }
   } catch (error) {
     console.error('Error fetching stock data:', error);
-  }
-}
-
-
-// News Titles Fetch
-async function fetchNewsTitles() {
-  try {
-    const response = await axios.get(`http://127.0.0.1:8000/api/stocks/fetch-news/?date=${stockData[selectedStock][currentDay - 1].date}`);
-    if (response.data.status === 'success') {
-      newsTitles.value = response.data.titles;
-    } else {
-      console.error('Error fetching news:', response.data.message);
-    }
-  } catch (error) {
-    console.error('Failed to fetch news titles:', error);
   }
 }
 
@@ -560,35 +546,22 @@ async function nextDay() {
     console.log('Cash:', cash.value);
     console.log('Final Portfolio Value:', finalPortfolioValue);
     console.log('Final Total Value:', finalTotalValue.value);
-    alert(`Game over. Your total value is ₩${finalTotalValue.value}`);
-    try {
-        const csrfToken = document.cookie
-            .split('; ')
-            .find(row => row.startsWith('csrftoken='))
-            ?.split('=')[1]; // 쿠키에서 CSRF 토큰 추출
 
-        const response = await fetch('http://127.0.0.1:8000/accounts/update_max_score/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrfToken, // CSRF 토큰 추가
-            },
-            body: JSON.stringify({ totalValue: finalTotalValue.value }),
-        });
+    const response = await fetch('http://127.0.0.1:8000/accounts/update_max_score/', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Token ${localStorage.getItem('token')}`, // 토큰을 헤더에 포함
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ max_score: finalTotalValue.value }) // 최종 자산을 서버로 전송
+    });
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        if (data.status === 'success') {
-            console.log('Max score updated:', data.max_score);
-        } else {
-            console.log('No update needed:', data.max_score);
-        }
-    } catch (error) {
-        console.error('Error updating max score:', error);
-    }   
+    alert(`Game over. Your total value is ₩${finalTotalValue.value}`); 
+    if (response.ok) {
+      console.log('Game over. Your total value is ₩', finalTotalValue.value); 
+    } else {
+      console.error('Failed to update max score:', response.statusText);
+    }
   }
 }
 
@@ -598,7 +571,6 @@ async function nextDay() {
 onMounted(async () => {
   await fetchRandomDate();
   updateStockUrl();
-  fetchNewsTitles();
   initializeChart();
 });
 

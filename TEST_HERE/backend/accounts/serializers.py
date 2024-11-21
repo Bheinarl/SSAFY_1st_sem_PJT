@@ -36,12 +36,14 @@ class CustomRegisterSerializer(serializers.ModelSerializer):
 # 사용자 프로필을 가져올 때 사용할 CustomUserDetailsSerializer
 class CustomUserDetailsSerializer(serializers.ModelSerializer):
     username = serializers.CharField(read_only=True)
-    nickname = serializers.CharField(read_only=True)
-    age = serializers.SerializerMethodField()
+    # nickname = serializers.CharField(read_only=True)
+    # age = serializers.SerializerMethodField()
+    max_score = serializers.IntegerField(read_only=True)
+    # interests = serializers.CharField()
 
     class Meta:
         model = CustomUser
-        fields = ('username', 'nickname', 'age')  # 필요한 필드를 직접 지정
+        fields = ('username', 'nickname', 'age','interests', 'max_score')  # 필요한 필드를 직접 지정
 
     def get_age(self, obj):
         return obj.age if obj.age is not None else '비공개'

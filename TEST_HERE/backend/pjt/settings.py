@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'dj_rest_auth',
+    'dj_rest_auth.registration',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -69,6 +70,8 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
 
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
 REST_AUTH_SERIALIZERS = {
     'USER_DETAILS_SERIALIZER': 'accounts.serializers.CustomUserDetailsSerializer',
 }
@@ -78,9 +81,13 @@ SITE_ID = 1
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
+        # 'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # 'rest_framework.authentication.SessionAuthentication',
+        # 'rest_framework.authentication.BasicAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
+        # 'rest_framework.permissions.AllowAny'
     ],
 }
 
@@ -179,6 +186,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',  # Vite 개발 서버 주소 # Vue.js 개발 서버 URL
     'http://127.0.0.1:8000',  # Django 개발 서버 주소
+    'http://127.0.0.1:5173',  # Django 개발 서버 주소
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -190,6 +198,17 @@ CORS_ALLOW_HEADERS = [
     'x-csrftoken',
     'Access-Control-Allow-Credentials',  # 추가된 헤더
 ]
+
+CSRF_TRUSTED_ORIGINS = [
+    'http://127.0.0.1:8000',
+    'http://localhost:8000',
+    'http://127.0.0.1:5173',  # Vue.js dev server 주소
+    'http://localhost:5173',
+]
+
+SIMPLE_JWT = {
+    'AUTH_HEADER_TYPES': ('Bearer',),  # Authorization 헤더 타입 설정
+}
 
 #####################################
 

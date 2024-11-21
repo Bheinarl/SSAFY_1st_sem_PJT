@@ -7,6 +7,15 @@ from .models import CurrencyAlert
 from django.conf import settings
 import requests
 from datetime import datetime, timedelta
+from rest_framework.authtoken.models import Token
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from .models import CustomUser
+from django.contrib.auth import authenticate
+from .serializers import CustomUserDetailsSerializer
 
 @csrf_exempt
 def set_alert(request):
@@ -69,51 +78,6 @@ def check_exchange_rate(request):
         print(f"기타 오류 발생: {e}")
         return JsonResponse({'error': '알 수 없는 오류가 발생했습니다.'}, status=500)
 
-'''
-def check_exchange_rate(request):
-    print("check_exchange_rate 함수 호출됨")
-    api_url = f"https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey={settings.EXCHANGE_RATE_API_KEY}&data=AP01"
-    print(f"API URL: {api_url}")
-    
-    try:
-        response = requests.get(api_url, verify=False)  # SSL 검증 비활성화
-        print(f"API 응답 상태 코드: {response.status_code}")
-        response.raise_for_status()
-        
-        data = response.json()
-        print(f"API에서 받은 데이터: {data}")
-
-        usd_data = next((item for item in data if item['cur_unit'] == 'USD'), None)
-        if not usd_data:
-            print("환율 데이터를 찾을 수 없습니다.")
-            return JsonResponse({'error': '환율 데이터를 찾을 수 없습니다.'}, status=500)
-
-        # 쉼표 제거 후 float 변환
-        current_rate = float(usd_data['deal_bas_r'].replace(',', ''))
-        print(f"현재 USD 환율: {current_rate}")
-
-        # 인증되지 않은 사용자도 사용할 수 있도록 alert 조회 로직을 조건부로 변경
-        alert = None
-        if request.user.is_authenticated:
-            alert = CurrencyAlert.objects.filter(user=request.user, currency="KRW").first()
-            print(f"사용자 알림 설정: {alert}")
-
-        if alert and current_rate <= alert.target_rate:
-            return JsonResponse({'alert': True, 'current_rate': current_rate})
-        else:
-            return JsonResponse({'alert': False, 'current_rate': current_rate})
-
-    except requests.exceptions.HTTPError as e:
-        print(f"HTTP 오류 발생: {e}")
-        return JsonResponse({'error': '환율 데이터를 가져오는 중 HTTP 오류가 발생했습니다.'}, status=500)
-    except requests.exceptions.RequestException as e:
-        print(f"API 요청 오류 발생: {e}")
-        return JsonResponse({'error': '환율 데이터를 가져오는 중 API 요청 오류가 발생했습니다.'}, status=500)
-    except Exception as e:
-        print(f"기타 오류 발생: {e}")
-        return JsonResponse({'error': '알 수 없는 오류가 발생했습니다.'}, status=500)
-'''
-
 def get_exchange_rate(request):
     # 환율 API URL 및 API 키 (예시: 한국 수출입은행 API 사용)
     api_url = f"https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey={settings.EXCHANGE_RATE_API_KEY}&data=AP01"
@@ -131,41 +95,82 @@ def get_exchange_rate(request):
     except requests.exceptions.RequestException as e:
         return JsonResponse({'error': '환율 데이터를 가져오는 중 오류가 발생했습니다.'}, status=500)
 
-@csrf_exempt
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])  # Token 인증 사용
+@permission_classes([IsAuthenticated]) 
 def update_max_score(request):
     if request.method == 'POST':
-        data = json.loads(request.body)
-        total_value = data.get('totalValue', 0)
-        print(f"Received totalValue: {total_value}")  # 디버깅용 출력
-        if total_value > request.user.max_score:
-            request.user.max_score = total_value
-            request.user.save()
-            return JsonResponse({'status': 'success', 'max_score': request.user.max_score})
+        # print(request.user)
+        # print(request.user.is_authenticated)
+        user = request.user
+        max_score = request.data.get('max_score')
+        print(max_score)
+        print(user.max_score)
+        if max_score is None:
+            return Response({'error': 'totalValue 필드가 전달되지 않았습니다.'}, status=400)
         
-        return JsonResponse({'status': 'no_update', 'max_score': request.user.max_score})
+        if max_score > user.max_score:
+          user.max_score = max_score
+          user.save()
+          return Response({'message': 'Max score updated successfully'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': 'max_score not provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def register(request):
+    username = request.data.get('username')
+    password = request.data.get('password')
+    nickname = request.data.get('nickname')
+    age = request.data.get('age')
+    interests = request.data.get('interests')
+
+    if CustomUser.objects.filter(username=username).exists():
+        return Response({'error': 'User already exists'}, status=status.HTTP_400_BAD_REQUEST)
     
-    return JsonResponse({'status': 'fail'}, status=400)
+    user = CustomUser.objects.create_user(
+        username=username,
+        password=password,
+        nickname=nickname,  # nickname 필드 추가
+        age=age,  # age 필드 추가
+        interests=interests  # interests 필드 추가
+    )
+    token, created = Token.objects.get_or_create(user=user)
+    return Response({'token': token.key}, status=status.HTTP_201_CREATED)
 
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny  # 인증 없이 접근 가능하도록 권한 추가
-from .serializers import CustomRegisterSerializer, CustomUserDetailsSerializer
-from dj_rest_auth.views import UserDetailsView
+@api_view(['POST'])
+def login(request):
 
-class CustomRegisterView(APIView):
-    permission_classes = [AllowAny]  # 인증 없이 접근 가능
-    # CustomRegisterView에 AllowAny 권한을 설정하여, 인증되지 않은 사용자도 접근할 수 있도록 합니다. 회원가입 엔드포인트는 누구나 접근할 수 있어야 하므로 이 설정이 필요합니다.
+    username = request.data.get('username')
+    password = request.data.get('password')
+    user = authenticate(username=username, password=password)
 
-    def post(self, request, *args, **kwargs):
-        serializer = CustomRegisterSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"message": "Registration successful"}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    if user is not None:
+        # 이미 존재하는 Token을 반환
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({'token': token.key}, status=status.HTTP_200_OK)
+    else:
+        return Response({'error': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
 
+# 프로필 조회 API
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def profile(request):
+    user = request.user  # 인증된 사용자
+    serializer = CustomUserDetailsSerializer(user)  # 사용자 데이터를 직렬화
+    return Response(serializer.data)
 
-class CustomUserDetailsView(UserDetailsView):
-    serializer_class = CustomUserDetailsSerializer
-    # CustomUserDetailsSerializer를 사용하도록 설정했습니다. 이는 프로필 정보에 nickname 필드를 포함하기 위함입니다.
+# 프로필 수정 API
+@api_view(['PATCH'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def update_profile(request):
+    user = request.user  # 인증된 사용자
+    serializer = CustomUserDetailsSerializer(user, data=request.data, partial=True)  # 부분 업데이트
 
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

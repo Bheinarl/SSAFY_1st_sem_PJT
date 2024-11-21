@@ -1,51 +1,33 @@
 <template>
-    <div>
-        <h2>Login</h2>
-        <form @submit.prevent="login">
-            <label>Username:</label>
-            <input v-model="username" type="text" required />
-            <label>Password:</label>
-            <input v-model="password" type="password" required />
-            <button type="submit">Login</button>
-        </form>
-        <p v-if="error" style="color: red;">{{ error }}</p>
-    </div>
+  <div>
+    <h2>로그인</h2>
+    <input v-model="username" placeholder="Username" />
+    <input v-model="password" type="password" placeholder="Password" />
+    <button @click="login">로그인</button>
+  </div>
 </template>
 
-<script>
-import api from '../api';
+<script setup>
+import { ref } from 'vue';
+import axios from 'axios';
+import { useRouter } from 'vue-router';
 
-export default {
-    data() {
-        return {
-            username: '',
-            password: '',
-            error: null,
-        };
-    },
-    methods: {
-        async login() {
-            try {
-                const response = await api.post('/api/auth/login/', {
-                    username: this.username,
-                    password: this.password,
-                });
-                console.log('Login successful:', response.data);
+const username = ref('');
+const password = ref('');
+const router = useRouter();
 
-                // JWT 토큰 저장
-                // localStorage.setItem('token', response.data.key);
-
-                const token = response.data.key;  // 응답에서 토큰 가져오기
-                localStorage.setItem('token', token);  // localStorage에 저장
-                console.log('Login successful. Token:', token);  // 콘솔에 토큰 출력 - 디버깅용 지우기않기
-
-                alert('Login successful! Redirecting to profile...');
-                this.$router.push('/profile'); // 로그인 성공 후 프로필 페이지로 이동
-            } catch (error) {
-                this.error = 'Login failed. Please check your username and password.';
-                console.error('Login failed:', error.response?.data || error);
-            }
-        },
-    },
+const login = async () => {
+  try {
+    const response = await axios.post('http://127.0.0.1:8000/api/auth/login/', {
+      username: username.value,
+      password: password.value,
+    });
+    console.log('로그인 성공, 토큰:', response.data.key);
+    localStorage.setItem('token', response.data.key);
+    console.log('토큰은 이렇습니다.', response.data.key);
+    router.push('/'); // 로그인 후 리디렉션
+  } catch (error) {
+    console.error('로그인 실패:', error.response.data);
+  }
 };
 </script>

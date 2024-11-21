@@ -72,7 +72,7 @@
               </div>
               <div class="col-4">
                 <div class="trading-panel">
-                  <select v-model="selectedStock" @change="updateStockUrl">
+                  <select v-model="selectedStock">
                     <option value='삼성에스디에스'>삼성에스디에스</option>
                     <option value='넥슨게임즈'>넥슨게임즈</option>
                     <option value='카카오'>카카오</option>
@@ -467,13 +467,22 @@ async function fetchStockData(apiUrl) {
   try {
     const response = await axios.get(apiUrl);
     if (response.data.status === 'success') {
-      // API로부터 받은 데이터를 저장
-      stockData.value[selectedStock.value] = response.data.data.map(item => ({
-        date: item.date,
-        open_price: item.open_price,
-        close_price: item.close_price,
-        news: item.news, // 날짜별 뉴스 추가
-      }));
+      // API 응답에서 받은 데이터 처리
+      response.data.data.forEach(stockItem => {
+        const stockCode = stockItem.ticker; // ticker가 주식 코드
+        const stockName = Object.keys(stockStore.stockMapping).find(key => stockStore.stockMapping[key] === stockCode); // stockMapping에서 해당하는 주식 이름 찾기
+        
+        if (stockName) {
+          // stockName에 해당하는 stockData 업데이트
+          // stockData[stockName]에 데이터 넣기
+          stockData.value[stockName] = stockItem.data.map(item => ({
+            date: item.date,
+            open_price: item.open_price,
+            close_price: item.close_price,
+            news: item.news, // 날짜별 뉴스 추가
+          }));
+        }
+      });
       console.log('stockData는 이렇게 출력됩니다.', stockData.value);
       updateChart();
       updateNews(); // 현재 날짜의 뉴스 업데이트
@@ -487,11 +496,8 @@ async function fetchStockData(apiUrl) {
 
 // Update Stock URL
 function updateStockUrl() {
-  const stockCode = stockStore.stockMapping[selectedStock.value];
-  if (stockCode) {
-    const apiUrl = `http://127.0.0.1:8000/api/stocks/${stockCode}/?start_date=${startDate.value}`;
-    fetchStockData(apiUrl);
-  }
+  const apiUrl = `http://127.0.0.1:8000/api/stocks/using_data/?start_date=${startDate.value}`;
+  fetchStockData(apiUrl);
 }
 
 // Chart Initialization
@@ -646,6 +652,18 @@ function executeTrade(type) {
   // 거래 완료 후 입력값 초기화
   tradeVolume.value = 0;
 }
+
+watch([cash.value, portfolio.value, currentDay.value, selectedStock.value], updateChart); // 현금, 포트폴리오, 날짜, 주식 변경 시 차트 업데이트
+
+// watch([selectedStock], initializeChart);
+watch([selectedStock.value], updateNews);
+watch([selectedStock.value], executeTrade);
+
+// selectedStock 변경 시 데이터 업데이트
+watch(selectedStock, () => {
+  updateStockUrl();
+  updateNews();
+});
 </script>
 
 <style scoped>

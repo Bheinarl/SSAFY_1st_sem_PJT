@@ -1,25 +1,51 @@
 <template>
   <div>
+    <!-- Header Section -->
     <div class="header">
       <div class="container">
         <h1>10-Day Stock Investment Game</h1>
       </div>
     </div>
 
+    <!-- News Section -->
+    <div class="news-container">
+      <h3>Latest News</h3>
+      
+      <!-- 디버깅용으로 날짜 출력. 추후 삭제. 현재 뉴스 데이터의 날짜를 직접 참조 -->
+      <h3 v-if="stockData[selectedStock]?.[currentDay - 1]?.date">
+        {{ stockData[selectedStock][currentDay - 1].date }}
+      </h3>
+
+
+
+      <!-- 기존 코드 -->
+      <!-- <ul>
+        <li v-for="(title, index) in newsTitles" :key="index">
+          {{ title }}
+        </li>
+      </ul> -->
+
+      <ul>
+        <!-- 최대 10개까지만 출력 -->
+        <li v-for="(title, index) in newsTitles.slice(0, 10)" :key="index">
+          {{ title }}
+        </li>
+        <!-- 뉴스가 없을 경우에는 No news available for this date. 메시지가 표시 -->
+        <li v-if="newsTitles.length === 0">No news available for this date.</li>
+      </ul>
+
+      
+
+    </div>
+
+    <!-- Game UI Section -->
     <div class="container">
       <div class="day-counter"  v-if="currentDay < 11">Day <span>{{ currentDay }}</span> / 10</div>
       <div class="day-counter"  v-if="currentDay > 10">Day <span>10</span> / 10</div>
 
       
         <div class="game-container">
-          <!-- <div class="balance-panel">
-            <h3>Account Balance</h3>
-            <div class="balance-info">Cash: ₩<span>{{ cash }}</span></div>
-            <div class="balance-info">Portfolio Value: ₩<span>{{ portfolioValue }}</span></div>
-            <div class="balance-info">Total Value: ₩<span>{{ totalValue }}</span></div>
-            <h3 class="final-score" v-if="finalTotalValue !== 0">최종 금액은 {{ finalTotalValue }}원 입니다.</h3>
-          </div> -->
-
+          
           <table class="table align-middle entire-earning-rate" style="margin: 10px;">
             <tr>
               <th>전체 수익률</th>
@@ -91,38 +117,6 @@
                   
                   <br>
 
-                  <!-- 기존코드 - 음수 및 문자 입력 방지는 구현되어있음 -->
-                  <!-- <div class="stock-info">
-                    <br>
-                    <h3>Current Price: ₩<span>{{ currentPrice }}</span></h3>
-                    <br>
-                  </div>                  
-                  <input 
-                    type="number" 
-                    v-model.number="tradeVolume" 
-                    @input="validateInput"
-                    placeholder="Enter quantity"
-                  />
-                   -->
-                  <!-- 시도 1 -->
-                  <!-- <div>
-
-                    <div class="stock-info">
-                      <h3>Current Price: ₩<span>{{ currentPrice }}</span></h3>
-                      <p>Max Buyable Shares: {{ maxBuyableShares }}</p>
-                    </div>
-
-
-                    <input 
-                      type="number" 
-                      v-model.number="tradeVolume" 
-                      @input="validateInput"
-                      :max="maxBuyableShares"
-                      placeholder="Enter quantity"
-                    />
-                  </div> -->
-
-                  <!-- 시도 2 -->
                   <div>
                     <!-- 주식 정보 -->
                     <div class="stock-info">
@@ -150,14 +144,6 @@
                     </div>
                   </div>
 
-                  <!-- ---------------------------------------------------------- -->
-
-                  <!-- <div class="trade-buttons">
-                    <br>
-                    <button class="trade-button" @click="executeTrade('buy')">Buy</button>
-                    <button class="trade-button" @click="executeTrade('sell')">Sell</button>
-                    <br>
-                  </div> -->
                 </div>
 
               <div class="portfolio">
@@ -173,14 +159,15 @@
                   </template>
                 </div>
               </div>
-
               <button @click="nextDay"  v-if="currentDay < 11">Next Day</button>
+
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+  
   <table class="table align-middle entire-earning-rate" style="margin: 10px;">
     <thead>
       <tr>
@@ -209,14 +196,16 @@
 </template>
 
 <script setup>
+/* --------------------------- Imports --------------------------- */
 import { ref, computed, onMounted, watch } from 'vue';
 import { useStockStore } from '@/stores/StockStore';
 import axios from 'axios';
 import Chart from 'chart.js/auto';
 // import api from '@/api';
 
-// 주식 데이터 저장소 사용
+/* --------------------------- State --------------------------- */
 const stockStore = useStockStore();
+
 
 // 상태 관리 변수
 const currentDay = ref(1);  // 현재 날짜 (1~10일)
@@ -226,6 +215,14 @@ const portfolio = ref({});  // 보유 주식 정보 (주식 이름: 수량)
 const selectedStock = ref('삼성에스디에스');  // 선택된 주식
 const tradeVolume = ref(0); // 거래량 (사용자 입력)
 const startDate = ref(''); // 난수로 받을 시작 날짜
+
+/////////////////// 확인하기
+const finalTotalValue = ref(0);
+
+const newsTitles = ref([]);
+
+
+
 const stockData = ref({
     // 각 주식에 대한 가격 데이터 저장
     '삼성에스디에스' : [], '넥슨게임즈' : [], '카카오' : [], 'NAVER' : [],
@@ -240,13 +237,8 @@ const stockData = ref({
     '메가스터디교육' : [], '웅진씽크빅' : [], 'KB금융' : [], '우리금융지주' : [],
 });
 
-let chart; // 차트를 저장할 변수
-const finalTotalValue = ref(0); // 게임 종료 후 최종 자산
-
-// 계산된 값
+/* --------------------------- Computed Values --------------------------- */
 const portfolioValue = computed(() => {
-  // 포트폴리오의 총 가치를 계산 (보유 주식 * 현재 주가)
-  console.log('portfolio.value는 이렇게 출력됩니다.', portfolio.value);
 
   return Object.keys(portfolio.value).reduce((total, stock) => {
     const totalQuantity = portfolio.value[stock].transactions.reduce((totalQuantity, transaction) => totalQuantity + transaction.quantity, 0); // totalQuantity는 총 보유 수량
@@ -260,6 +252,10 @@ const portfolioValue = computed(() => {
     }
   }, 0);
 });
+const totalValue = computed(() => cash.value + portfolioValue.value);
+const currentPrice = computed(() => stockData.value[selectedStock.value]?.[currentDay.value - 1]?.open_price || 0);
+const maxBuyableShares = computed(() => (currentPrice.value > 0 ? Math.floor(cash.value / currentPrice.value) : 0));
+
 
 const totalValue = computed(() => {
   // 총 자산 = 현금 + 포트폴리오 가치
@@ -414,6 +410,10 @@ const earningRate = computed(() => {
   return result
 })
 
+
+/* --------------------------- Functions --------------------------- */
+// Random Date Fetch
+
 async function fetchRandomDate() {
   try {
     const response = await axios.get('http://127.0.0.1:8000/api/stocks/generate_random_date/');
@@ -427,38 +427,86 @@ async function fetchRandomDate() {
   }
 }
 
-// 주식 데이터 업데이트 URL 설정
-function updateStockUrl() {
-  const stockCode = stockStore.stockMapping[selectedStock.value];  // 선택된 주식의 코드 가져오기
-  if (stockCode) {
-    const apiUrl = `http://127.0.0.1:8000/api/stocks/${stockCode}/?start_date=${startDate.value}`; // API URL 생성
-    console.log('API URL:', apiUrl); 
-    fetchStockData(apiUrl); // 주식 데이터 가져오기
+// Stock API Fetch
+// // 기존 코드
+// async function fetchStockData(apiUrl) {
+//   try {
+//     const response = await axios.get(apiUrl);
+//     if (response.data.status === 'success') {
+//       stockData.value[selectedStock.value] = response.data.data.map(item => ({
+//         open_price: item.open_price,
+//         close_price: item.close_price,
+//       }));
+//       updateChart();
+//     } else {
+//       console.error('Error fetching stock data:', response.data.message);
+//     }
+//   } catch (error) {
+//     console.error('Error fetching stock data:', error);
+//   }
+// }
+
+// 수정 코드
+function updateNews() {
+  const currentStockData = stockData.value[selectedStock.value];
+  if (currentStockData && currentStockData.length >= currentDay.value) {
+    // 현재 날짜에 해당하는 뉴스 데이터
+    newsTitles.value = currentStockData[currentDay.value - 1].news || [];
+  } else {
+    newsTitles.value = []; // 데이터가 없을 경우 빈 리스트
   }
 }
 
-// API에서 주식 데이터 가져오기
+
 async function fetchStockData(apiUrl) {
   try {
-    const response = await axios.get(apiUrl); // Axios를 사용해 API 호출
-    console.log('API Response:', response); // 응답 데이터 확인(디버깅용)
+    const response = await axios.get(apiUrl);
     if (response.data.status === 'success') {
+      // API로부터 받은 데이터를 저장
       stockData.value[selectedStock.value] = response.data.data.map(item => ({
+        date: item.date,
         open_price: item.open_price,
-        close_price: item.close_price
-      })); // 주식 데이터 저장
-      updateChart(); // 차트 업데이트
+        close_price: item.close_price,
+        news: item.news, // 날짜별 뉴스 추가
+      }));
+      updateChart();
+      updateNews(); // 현재 날짜의 뉴스 업데이트
     } else {
       console.error('Error fetching stock data:', response.data.message);
     }
   } catch (error) {
-    console.error('Error fetching stock data:', error); // 에러 처리
+    console.error('Error fetching stock data:', error);
   }
 }
 
-// 차트 초기화
+
+// News Titles Fetch
+async function fetchNewsTitles() {
+  try {
+    const response = await axios.get(`http://127.0.0.1:8000/api/stocks/fetch-news/?date=${formattedDate.value}`);
+    if (response.data.status === 'success') {
+      newsTitles.value = response.data.titles;
+    } else {
+      console.error('Error fetching news:', response.data.message);
+    }
+  } catch (error) {
+    console.error('Failed to fetch news titles:', error);
+  }
+}
+
+// Update Stock URL
+function updateStockUrl() {
+  const stockCode = stockStore.stockMapping[selectedStock.value];
+  if (stockCode) {
+    const apiUrl = `http://127.0.0.1:8000/api/stocks/${stockCode}/?start_date=${startDate.value}`;
+    fetchStockData(apiUrl);
+  }
+}
+
+// Chart Initialization
+let chart;
 function initializeChart() {
-  const ctx = document.getElementById('chart').getContext('2d'); // 차트 캔버스 컨텍스트 가져오기
+  const ctx = document.getElementById('chart').getContext('2d');
   chart = new Chart(ctx, {
     type: 'line',
     data: {
@@ -470,17 +518,11 @@ function initializeChart() {
         borderWidth: 1
       }]
     },
-    options: {
-      scales: {
-        y: {
-          beginAtZero: false  
-        }, // Y축 시작점 설정
-      }
-    }
+    options: { scales: { y: { beginAtZero: false } } },
   });
 }
 
-// 차트 업데이트
+// Update Chart
 function updateChart() {
   const data = stockData.value[selectedStock.value].map(item => item.open_price).slice(0, currentDay.value);
   if (currentDay.value >= 10) {
@@ -491,12 +533,16 @@ function updateChart() {
 }
 
 
-// 다음 날짜로 진행
+
+
+// Next Day 다음 날짜로 진행
 async function nextDay() {
   if (currentDay.value < 10) {
-    currentDay.value++;  // 날짜 증가
+    currentDay.value++;
     updateChart(); // 차트 업데이트
+    updateNews(); // 날짜 변경 시 뉴스 업데이트
   } else {
+
     // 게임 종료 및 최종 자산 계산
     currentDay.value++; // 마지막 날짜까지 진행
     updateChart(); // 차트 업데이트
@@ -521,41 +567,20 @@ async function nextDay() {
     //   } catch (error) {
     //     console.error('Error updating max score:', error);
     //   }
+
   }
 }
 
-// 컴포넌트 초기화 시 호출
+
+
+/* --------------------------- Lifecycle --------------------------- */
 onMounted(async () => {
   await fetchRandomDate();
-  updateStockUrl(); // 초기 데이터 가져오기
-  // fetchStockData(); // API 호출
-  initializeChart(); // 차트 초기화
-  updateChart(); // 차트 업데이트
-  // updateStockUrl();
-  // initializeChart();
-  // updateChart();
+  updateStockUrl();
+  fetchNewsTitles();
+  initializeChart();
 });
 
-// onMounted(() => {
-// });
-
-
-// Watchers to update the UI when values change
-// 값 변경 감지 및 업데이트
-watch([cash, portfolio, currentDay, selectedStock], () => {
-  updateChart(); // 상태 변경 시 차트 업데이트
-});
-
-///////////////////////////
-// 계산된 값: 최대 매수 가능 수량
-const maxBuyableShares = computed(() => {
-  return currentPrice.value > 0 ? Math.floor(cash.value / currentPrice.value) : 0;
-});
-
-// 계산된 값: 최대 매도 가능 수량
-const maxSellableShares = computed(() => {
-  return portfolio.value[selectedStock.value] || 0; // 선택된 주식의 보유 수량 반환
-});
 
 // 입력값 검증 함수
 function validateInput(event) {
@@ -656,3 +681,15 @@ function executeTrade(type) {
   color: blue;
 }
 </style>
+
+
+/*
+watch([cash, portfolio, currentDay, selectedStock], updateChart);
+</script>
+
+<style scoped>
+.trade-button { margin-right: 10px; }
+.final-score { margin-top: 20px; color: red; }
+</style>
+*/
+

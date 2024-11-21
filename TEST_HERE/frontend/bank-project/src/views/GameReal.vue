@@ -252,8 +252,7 @@ const portfolioValue = computed(() => {
     }
   }, 0);
 });
-const totalValue = computed(() => cash.value + portfolioValue.value);
-const currentPrice = computed(() => stockData.value[selectedStock.value]?.[currentDay.value - 1]?.open_price || 0);
+
 const maxBuyableShares = computed(() => (currentPrice.value > 0 ? Math.floor(cash.value / currentPrice.value) : 0));
 
 
@@ -299,7 +298,9 @@ const keyBeforePrice = computed(() => {
 
 const totalEarningRate = computed(() => {
   // 전체 수익률 계산
-  return ((totalValue.value / cash.value) - 1) * 100;
+  console.log('totalValue.value는 이렇게 출력됩니다.', totalValue.value);
+  console.log('seedMoney는 이렇게 출력됩니다.', seedMoney);
+  return ((totalValue.value / seedMoney) - 1) * 100;
 });
 
 const totalEvaluationProfit = computed(() => {
@@ -681,15 +682,4 @@ function executeTrade(type) {
   color: blue;
 }
 </style>
-
-
-/*
-watch([cash, portfolio, currentDay, selectedStock], updateChart);
-</script>
-
-<style scoped>
-.trade-button { margin-right: 10px; }
-.final-score { margin-top: 20px; color: red; }
-</style>
-*/
 

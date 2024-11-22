@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'articles',
     'accounts',
     'stocks',
+    'maps',
 
     # Django contrib
     'django.contrib.admin',

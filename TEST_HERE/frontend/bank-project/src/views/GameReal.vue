@@ -139,8 +139,11 @@
 
                     <!-- 거래 버튼 -->
                     <div class="trade-buttons" style="margin-top: 5px;"  v-if="currentDay < 11">
-                      <button class="trade-button" @click="executeTrade('buy')">Buy</button>
-                      <button class="trade-button" @click="executeTrade('sell')">Sell</button>
+                      <button class="trade-button" @click="executeTrade('buy')" v-if="currentPrice !== 0">Buy</button>
+                      <button class="trade-button" v-else>Buy</button>
+                      <button class="trade-button" @click="executeTrade('sell')"v-if="currentPrice !== 0">Sell</button>
+                      <button class="trade-button" v-else>Sell</button>
+                      
                     </div>
                   </div>
 
@@ -159,7 +162,8 @@
                   </template>
                 </div>
               </div>
-              <button @click="nextDay"  v-if="currentDay < 11">Next Day</button>
+              <button v-if="currentDay < 11 && currentPrice === 0">Next Day</button>
+              <button @click="nextDay" v-else-if="currentDay < 11">Next Day</button>
 
             </div>
           </div>
@@ -252,8 +256,7 @@ const portfolioValue = computed(() => {
     }
   }, 0);
 });
-const totalValue = computed(() => cash.value + portfolioValue.value);
-const currentPrice = computed(() => stockData.value[selectedStock.value]?.[currentDay.value - 1]?.open_price || 0);
+
 const maxBuyableShares = computed(() => (currentPrice.value > 0 ? Math.floor(cash.value / currentPrice.value) : 0));
 
 
@@ -299,7 +302,9 @@ const keyBeforePrice = computed(() => {
 
 const totalEarningRate = computed(() => {
   // 전체 수익률 계산
-  return ((totalValue.value / cash.value) - 1) * 100;
+  console.log('totalValue.value는 이렇게 출력됩니다.', totalValue.value);
+  console.log('seedMoney는 이렇게 출력됩니다.', seedMoney);
+  return ((totalValue.value / seedMoney) - 1) * 100;
 });
 
 const totalEvaluationProfit = computed(() => {
@@ -469,6 +474,7 @@ async function fetchStockData(apiUrl) {
         close_price: item.close_price,
         news: item.news, // 날짜별 뉴스 추가
       }));
+      console.log('stockData는 이렇게 출력됩니다.', stockData.value);
       updateChart();
       updateNews(); // 현재 날짜의 뉴스 업데이트
     } else {
@@ -476,21 +482,6 @@ async function fetchStockData(apiUrl) {
     }
   } catch (error) {
     console.error('Error fetching stock data:', error);
-  }
-}
-
-
-// News Titles Fetch
-async function fetchNewsTitles() {
-  try {
-    const response = await axios.get(`http://127.0.0.1:8000/api/stocks/fetch-news/?date=${formattedDate.value}`);
-    if (response.data.status === 'success') {
-      newsTitles.value = response.data.titles;
-    } else {
-      console.error('Error fetching news:', response.data.message);
-    }
-  } catch (error) {
-    console.error('Failed to fetch news titles:', error);
   }
 }
 
@@ -542,32 +533,35 @@ async function nextDay() {
     updateChart(); // 차트 업데이트
     updateNews(); // 날짜 변경 시 뉴스 업데이트
   } else {
-
     // 게임 종료 및 최종 자산 계산
     currentDay.value++; // 마지막 날짜까지 진행
     updateChart(); // 차트 업데이트
     console.log('stockData는 이렇게 출력됩니다.', stockData.value);
     const finalPortfolioValue = Object.keys(portfolio.value).reduce((total, stock) => {
-      const closePrice = stockData.value[stock]?.[9]?.close_price || 0; // 10일차 close_price 사용
-      const selectedQuantity = portfolio.value[stock].transactions.reduce((totalQuantity, transaction) => totalQuantity + transaction.quantity, 0);  // 보유 수량
-      return total + (selectedQuantity * closePrice);
+    const closePrice = stockData.value[stock]?.[9]?.close_price || 0; // 10일차 close_price 사용
+    const selectedQuantity = portfolio.value[stock].transactions.reduce((totalQuantity, transaction) => totalQuantity + transaction.quantity, 0);  // 보유 수량
+    return total + (selectedQuantity * closePrice);
     }, 0);
     finalTotalValue.value = cash.value + finalPortfolioValue; // 최종 자산 계산
     console.log('Cash:', cash.value);
     console.log('Final Portfolio Value:', finalPortfolioValue);
     console.log('Final Total Value:', finalTotalValue.value);
-    alert(`Game over. Your total value is ₩${finalTotalValue.value}`);
-    // try {
-    //     const response = await axios.post('http://127.0.0.1:8000/accounts/update_max_score/', { totalValue: finalTotalValue.value });
-    //     if (response.data.status === 'success') {
-    //       console.log('Max score updated:', response.data.max_score);
-    //     } else {
-    //       console.log('No update needed:', response.data.max_score);
-    //     }
-    //   } catch (error) {
-    //     console.error('Error updating max score:', error);
-    //   }
 
+    const response = await fetch('http://127.0.0.1:8000/accounts/update_max_score/', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Token ${localStorage.getItem('token')}`, // 토큰을 헤더에 포함
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ max_score: finalTotalValue.value }) // 최종 자산을 서버로 전송
+    });
+
+    alert(`Game over. Your total value is ₩${finalTotalValue.value}`); 
+    if (response.ok) {
+      console.log('Game over. Your total value is ₩', finalTotalValue.value); 
+    } else {
+      console.error('Failed to update max score:', response.statusText);
+    }
   }
 }
 
@@ -577,7 +571,6 @@ async function nextDay() {
 onMounted(async () => {
   await fetchRandomDate();
   updateStockUrl();
-  fetchNewsTitles();
   initializeChart();
 });
 
@@ -653,8 +646,6 @@ function executeTrade(type) {
   // 거래 완료 후 입력값 초기화
   tradeVolume.value = 0;
 }
-
-
 </script>
 
 <style scoped>
@@ -681,15 +672,3 @@ function executeTrade(type) {
   color: blue;
 }
 </style>
-
-
-/*
-watch([cash, portfolio, currentDay, selectedStock], updateChart);
-</script>
-
-<style scoped>
-.trade-button { margin-right: 10px; }
-.final-score { margin-top: 20px; color: red; }
-</style>
-*/
-

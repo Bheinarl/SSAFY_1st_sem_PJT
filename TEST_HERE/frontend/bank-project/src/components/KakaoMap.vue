@@ -16,7 +16,7 @@ export default {
       keyword: '',
       markers: [],
       defaultPosition: {
-        lat: 37.50625 , // 멀티캠퍼스 위치 (기본값)
+        lat: 37.50625 , // 서울시청 위치 (기본값)
         lng: 127.03169444444445
       }
     }

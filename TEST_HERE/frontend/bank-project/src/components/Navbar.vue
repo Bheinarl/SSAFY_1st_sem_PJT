@@ -8,6 +8,7 @@
       <button v-show="isAuthenticated" @click="logout">Logout</button><span v-show="isAuthenticated"> | </span>
       <button v-show="isAuthenticated" @click="goExchangeRateAlert">ExchangeRateAlert</button><span v-show="isAuthenticated"> | </span>
       <button v-show="isAuthenticated" @click="goGame">goGameReal</button><span v-show="isAuthenticated"> | </span>
+      <button v-show="isAuthenticated" @click="goFinances">Finances</button><span v-show="isAuthenticated"> | </span>
       
     </nav>
 </template>
@@ -30,6 +31,9 @@ export default {
         },
         goGame() {
             this.$router.push('/gamereal');
+        },
+        goFinances() {
+            this.$router.push('/finances');
         },
     },
     watch: {

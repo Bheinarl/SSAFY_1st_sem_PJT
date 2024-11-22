@@ -6,7 +6,8 @@ import Login from '@/views/Login.vue';
 import ExchangeRateAlert from '@/components/ExchangeRateAlert.vue';
 import GamePage from '@/views/GamePage.vue';
 import GameReal from '@/views/GameReal.vue';
-import StockChart from "../components/StockChart.vue";
+import Finances from '@/views/Finances.vue';
+import FinanceDeposit from '@/views/FinanceDeposit.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -18,12 +19,14 @@ const router = createRouter({
     { path: '/exchange-rate-alert', component: ExchangeRateAlert },
     { path: '/game', component: GamePage },
     { path: '/gamereal', component: GameReal },
-    {
-      path: "/stocks", // /stocks 경로에서 StockChart 컴포넌트 출력
-      name: "Stocks",
-      component: StockChart,
-    },
-  ],
+    { path: '/finances', component: Finances,
+      children: [
+        // { path: 'deposit', component: FinanceDeposit},
+        // { path: '/finances', component: Finances},
+        // { path: '/finances', component: Finances},
+      ]
+    }
+  ]
 })
 
 export default router

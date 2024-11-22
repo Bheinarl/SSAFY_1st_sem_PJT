@@ -16,13 +16,20 @@
         <h3>{{ place.place_name }}</h3>
         <p class="address">{{ place.address_name }}</p>
         <p class="category">{{ place.category_name }}</p>
-        <p class="phone">{{ place.phone || '전화번호 없음' }}</p>
+        <p class="distance">{{ place.distance.toFixed(2) }} km</p>
+        <p class="phone">{{ place.phone ? place.phone : '전화번호 없음' }}</p>
       </div>
     </div>
   </div>
+  
 </template>
 
 <script>
+// script 시작 부분에 이미지 import 추가
+import markerCurrent from '@/assets/markers/marker-current.png'
+import markerDefault from '@/assets/markers/marker-default.png'
+import markerSelected from '@/assets/markers/marker-selected.png'
+
 export default {
   data() {
     return {
@@ -56,21 +63,28 @@ export default {
             // 현재 위치로 지도 이동
             const moveLatLng = new window.kakao.maps.LatLng(lat, lng);
             this.map.setCenter(moveLatLng);
-            this.map.setLevel(5);  // 기본 확대 레벨로 설정 (1~14, 숫자가 작을수록 확대)
-            
-            // 기존 현재 위치 마커 제거
+            this.map.setLevel(2);  // 확대 레벨 설정 (1~14, 숫자가 작을수록 확대)
+
+
+            // 현재 위치 마커 이미지 설정
+            const currentMarkerImage = new window.kakao.maps.MarkerImage(
+              markerCurrent,  // 현재 위치용 마커 이미지
+              new window.kakao.maps.Size(24, 35)
+            );
+
             if (this.currentMarker) {
               this.currentMarker.setMap(null);
             }
-            
-            // 현재 위치 마커 생성
+
             this.currentMarker = new window.kakao.maps.Marker({
               position: moveLatLng,
-              map: this.map
+              map: this.map,
+              image: currentMarkerImage
             });
-            
+
             console.log('현재 위치:', { lat, lng });
           },
+
           (error) => {
             console.error('위치 정보 가져오기 실패:', error);
             alert('위치 정보를 가져올 수 없습니다.');
@@ -106,6 +120,9 @@ export default {
             console.log('사용자 위치:', { lat: userLat, lng: userLng });
             
             this.createMap(userLat, userLng);
+            // createMap 대신 moveToCurrentLocation 호출
+            this.moveToCurrentLocation();
+
           },
           (error) => {
             console.error('위치 정보 가져오기 실패:', error);
@@ -127,6 +144,23 @@ export default {
       this.map = new window.kakao.maps.Map(container, options);
     },
 
+    // 거리 계산 함수 추가
+    calculateDistance(lat1, lng1, lat2, lng2) {
+      const R = 6371; // 지구의 반지름 (km)
+      const dLat = this.toRad(lat2 - lat1);
+      const dLng = this.toRad(lng2 - lng1);
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(this.toRad(lat1)) * Math.cos(this.toRad(lat2)) * 
+                Math.sin(dLng/2) * Math.sin(dLng/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
+    },
+
+    toRad(value) {
+      return value * Math.PI / 180;
+    },
+
+
     // searchPlaces 메소드 수정
     searchPlaces() {
       if (!this.keyword.trim()) {
@@ -141,54 +175,95 @@ export default {
 
       places.keywordSearch(this.keyword, (result, status) => {
         if (status === window.kakao.maps.services.Status.OK) {
-          console.log('****검색 결과:', result);
-          this.searchResults = result; // 검색 결과 저장
-          this.displayMarkers(result);
+          // 현재 위치 가져오기
+          const currentLat = this.currentMarker ? this.currentMarker.getPosition().getLat() : this.map.getCenter().getLat();
+          const currentLng = this.currentMarker ? this.currentMarker.getPosition().getLng() : this.map.getCenter().getLng();
+
+          // 거리 계산 및 정렬
+          result.forEach(place => {
+            place.distance = this.calculateDistance(
+              currentLat, 
+              currentLng,
+              parseFloat(place.y), 
+              parseFloat(place.x)
+            );
+          });
+
+          // 거리순 정렬
+          const sortedResult = result.sort((a, b) => a.distance - b.distance);
+          
+          console.log('정렬된 검색 결과:', sortedResult);
+          this.searchResults = sortedResult;
+          this.displayMarkers(sortedResult);
         } else {
           console.error('검색 실패:', status);
-          this.searchResults = []; // 검색 결과 초기화
+          this.searchResults = [];
           alert('검색 결과가 없습니다.');
         }
       }, options);
     },
 
-    // 장소로 이동하는 메소드 추가
-    moveToPlace(place) {
-      const moveLatLng = new window.kakao.maps.LatLng(place.y, place.x);
-      this.map.setCenter(moveLatLng);
-    },
-
     
     displayMarkers(places) {
-      // 기존 마커들 제거
       this.markers.forEach(marker => marker.setMap(null));
       this.markers = [];
+      this.map.setLevel(5);  // 확대 레벨 설정 (1~14, 숫자가 작을수록 확대)
 
-      // 새로운 마커들 생성
+      // 기본 마커 이미지 설정
+      const defaultMarkerImage = new window.kakao.maps.MarkerImage(
+        markerDefault,  // 기본 검색 결과용 마커 이미지
+        new window.kakao.maps.Size(24, 35)
+      );
+
       places.forEach(place => {
         const marker = new window.kakao.maps.Marker({
           map: this.map,
-          position: new window.kakao.maps.LatLng(place.y, place.x)
+          position: new window.kakao.maps.LatLng(place.y, place.x),
+          image: defaultMarkerImage
         });
 
-        // 인포윈도우 생성
         const infowindow = new window.kakao.maps.InfoWindow({
           content: `<div style="padding:5px;font-size:12px;">${place.place_name}</div>`
         });
 
-        // 마커에 마우스오버 이벤트 추가
         window.kakao.maps.event.addListener(marker, 'mouseover', () => {
           infowindow.open(this.map, marker);
         });
 
-        // 마커에 마우스아웃 이벤트 추가
         window.kakao.maps.event.addListener(marker, 'mouseout', () => {
           infowindow.close();
         });
 
         this.markers.push(marker);
       });
+    },
+
+    moveToPlace(place) {
+      const moveLatLng = new window.kakao.maps.LatLng(place.y, place.x);
+      this.map.setLevel(3);
+      this.map.setCenter(moveLatLng);
+
+      const defaultMarkerImage = new window.kakao.maps.MarkerImage(
+        markerDefault,
+        new window.kakao.maps.Size(24, 35)
+      );
+      
+      const selectedMarkerImage = new window.kakao.maps.MarkerImage(
+        markerSelected,  // 선택된 장소용 마커 이미지
+        new window.kakao.maps.Size(24, 35)
+      );
+
+
+      // 검색 결과의 인덱스를 이용하여 마커 찾기
+      this.searchResults.forEach((searchPlace, index) => {
+        if (searchPlace.id === place.id) {  // 장소 ID로 비교
+          this.markers[index].setImage(selectedMarkerImage);
+        } else {
+          this.markers[index].setImage(defaultMarkerImage);
+        }
+      });
     }
+
   }
 }
 </script>
@@ -325,5 +400,8 @@ button {
 .result-item .phone {
   color: #4a5568;
 }
-
+.result-item .distance {
+  color: #2b6cb0;
+  font-weight: bold;
+}
 </style>

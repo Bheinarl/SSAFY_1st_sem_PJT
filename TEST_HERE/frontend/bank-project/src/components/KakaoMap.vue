@@ -7,22 +7,24 @@
     </div>
   </div>
 </template>
+
 <script>
 export default {
   data() {
     return {
       map: null,
       keyword: '',
-      markers: []
+      markers: [],
+      defaultPosition: {
+        lat: 37.50625 , // 멀티캠퍼스 위치 (기본값)
+        lng: 127.03169444444445
+      }
     }
   },
   mounted() {
-    console.log('컴포넌트 마운트됨');
     if (window.kakao && window.kakao.maps) {
-      console.log('카카오맵 SDK 이미 로드됨');
       this.initMap();
     } else {
-      console.log('카카오맵 SDK 로드 시작');
       this.loadKakaoMap();
     }
   },
@@ -34,17 +36,34 @@ export default {
       document.head.appendChild(script);
     },
     initMap() {
-      navigator.geolocation.getCurrentPosition((position) => {
-        const container = document.getElementById('map');
-        const options = {
-          center: new window.kakao.maps.LatLng(
-            position.coords.latitude,
-            position.coords.longitude
-          ),
-          level: 3
-        };
-        this.map = new window.kakao.maps.Map(container, options);
-      });
+      // 사용자의 위치 가져오기 시도
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const userLat = position.coords.latitude;
+            const userLng = position.coords.longitude;
+            console.log('사용자 위치:', { lat: userLat, lng: userLng });
+            
+            this.createMap(userLat, userLng);
+          },
+          (error) => {
+            console.error('위치 정보 가져오기 실패:', error);
+            // 기본 위치(멀티캠퍼스)로 지도 생성
+            this.createMap(this.defaultPosition.lat, this.defaultPosition.lng);
+          }
+        );
+      } else {
+        console.log('Geolocation이 지원되지 않음');
+        this.createMap(this.defaultPosition.lat, this.defaultPosition.lng);
+      }
+    },
+    createMap(lat, lng) {
+      const container = document.getElementById('map');
+      const options = {
+        center: new window.kakao.maps.LatLng(lat, lng),
+        level: 3
+      };
+      this.map = new window.kakao.maps.Map(container, options);
     },
     searchPlaces() {
       if (!this.keyword.trim()) {
@@ -53,6 +72,10 @@ export default {
       }
 
       const places = new window.kakao.maps.services.Places();
+      const options = {
+        location: this.map.getCenter()
+      };
+
       places.keywordSearch(this.keyword, (result, status) => {
         if (status === window.kakao.maps.services.Status.OK) {
           console.log('검색 결과:', result);
@@ -61,16 +84,36 @@ export default {
           console.error('검색 실패:', status);
           alert('검색 결과가 없습니다.');
         }
-      });
+      }, options);
     },
     displayMarkers(places) {
+      // 기존 마커들 제거
       this.markers.forEach(marker => marker.setMap(null));
-      this.markers = places.map(place => {
+      this.markers = [];
+
+      // 새로운 마커들 생성
+      places.forEach(place => {
         const marker = new window.kakao.maps.Marker({
           map: this.map,
           position: new window.kakao.maps.LatLng(place.y, place.x)
         });
-        return marker;
+
+        // 인포윈도우 생성
+        const infowindow = new window.kakao.maps.InfoWindow({
+          content: `<div style="padding:5px;font-size:12px;">${place.place_name}</div>`
+        });
+
+        // 마커에 마우스오버 이벤트 추가
+        window.kakao.maps.event.addListener(marker, 'mouseover', () => {
+          infowindow.open(this.map, marker);
+        });
+
+        // 마커에 마우스아웃 이벤트 추가
+        window.kakao.maps.event.addListener(marker, 'mouseout', () => {
+          infowindow.close();
+        });
+
+        this.markers.push(marker);
       });
     }
   }
@@ -86,7 +129,7 @@ export default {
 
 #map {
   width: 100%;
-  height: 600px;  /* 높이를 명시적으로 지정 */
+  height: 600px;
   margin-bottom: 20px;
 }
 

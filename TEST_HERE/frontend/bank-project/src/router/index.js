@@ -6,8 +6,7 @@ import Login from '@/views/Login.vue';
 import ExchangeRateAlert from '@/components/ExchangeRateAlert.vue';
 import GamePage from '@/views/GamePage.vue';
 import GameReal from '@/views/GameReal.vue';
-import Finances from '@/views/Finances.vue';
-import FinanceDeposit from '@/views/FinanceDeposit.vue';
+import Finances from '@/components/Finances.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),

@@ -41,16 +41,28 @@ def check_exchange_rate(request):
     print("check_exchange_rate 함수 호출됨")
     print(f'리퀘스트 : {request.GET}')
     currency = request.GET.get('currency')
-    # api_url = f"https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey={settings.EXCHANGE_RATE_API_KEY}&data=AP01"
-    api_url = "https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey=TUwyZMxyTt6XP6rTujYY02UCuSPWDHDb&data=AP01&searchdate=20241115"
+    api_url = f"https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey={settings.EXCHANGE_RATE_API_KEY}&data=AP01"
+    # api_url = "https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey=TUwyZMxyTt6XP6rTujYY02UCuSPWDHDb&data=AP01&searchdate=20241114"
+
+    # 현재 날짜 시간 수신
+    now = datetime.now()
+    # 주말이라면 금요일 데이터 사용
+    if now.weekday() == 5: 
+        able_day = datetime.now() - timedelta(days=1)
+    elif now.weekday() == 6:
+        able_day = datetime.now() - timedelta(days=2)
+    # 오전 11시 이전이라면 오늘을 기준으로 어제 데이터 사용
+    elif datetime.now().hour < 11:
+        able_day = datetime.now() - timedelta(days=1)
+    api_url += f"&searchdate={able_day.strftime('%Y%m%d')}"
 
     # 오전 11시 이전이라면 오늘을 기준으로 어제 데이터 사용
-    if datetime.now().hour < 11:
-        yesterday = datetime.now() - timedelta(days=1)
-        api_url += f"&searchdate={yesterday.strftime('%Y%m%d')}"
+    # if datetime.now().hour < 11:
+    #     yesterday = datetime.now() - timedelta(days=1)
+        # api_url += f"&searchdate={yesterday.strftime('%Y%m%d')}"
     
     try:
-        response = requests.get(api_url, verify=False)  # SSL 검증 비활성화
+        response = requests.get(api_url, verify=True)  # SSL 검증 비활성화
         response.raise_for_status()
         
         data = response.json()
@@ -82,9 +94,15 @@ def get_exchange_rate(request):
     # 환율 API URL 및 API 키 (예시: 한국 수출입은행 API 사용)
     api_url = f"https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey={settings.EXCHANGE_RATE_API_KEY}&data=AP01"
     # 오전 11시 이전이라면 오늘을 기준으로 어제 데이터 사용
-    if datetime.now().hour < 11:
-        yesterday = datetime.now() - timedelta(days=1)
-        api_url += f"&searchdate={yesterday.strftime('%Y%m%d')}"
+    now = datetime.now()
+    print(now.weekday())
+    if now.weekday() == 5: 
+        able_day = datetime.now() - timedelta(days=1)
+    elif now.weekday() == 6:
+        able_day = datetime.now() - timedelta(days=2)
+    elif datetime.now().hour < 11:
+        able_day = datetime.now() - timedelta(days=1)
+        api_url += f"&searchdate={able_day.strftime('%Y%m%d')}"
     
     try:
         # API 호출

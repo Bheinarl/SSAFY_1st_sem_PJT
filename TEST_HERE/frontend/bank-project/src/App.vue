@@ -30,20 +30,16 @@ onMounted(() => {
 <template>
   <header>
   </header>
-
+  
   <main>
     <div id="app">
       <Navbar />
       <RouterView />
       <!-- <router-view /> -->
-
     </div>
 
     <section>
-
     </section>
-
-
   </main>
 </template>
 

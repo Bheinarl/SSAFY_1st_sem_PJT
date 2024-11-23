@@ -9,10 +9,20 @@
 import { onMounted } from 'vue';
 import axios from 'axios';
 
+async function updateStockUrl() {
+    const apiUrl = 'http://127.0.0.1:8000/stocks/api/stocks/list/';
+    console.log('API URL:', apiUrl);
+    try {
+        const response = await axios.get(apiUrl);
+    } catch (error) {
+        console.error('Error fetching stock data:', error);
+    }
+}
+
 const fetchDataAndSaveDeposits = async () => {
   try {
     // 백엔드로 데이터를 요청하여 수신 및 저장
-    await axios.get('/api/fetch-and-save-products/deposits');  // 데이터를 백엔드에서 수신하고 저장하는 API
+    await axios.get('http://127.0.0.1:8000/finances/api/fetch_and_save_products/deposits');  // 데이터를 백엔드에서 수신하고 저장하는 API
     console.log('데이터 수신 및 저장 완료');
   } catch (error) {
     console.error('데이터 수신 실패:', error);
@@ -22,17 +32,19 @@ const fetchDataAndSaveDeposits = async () => {
 const fetchDataAndSaveSavings = async () => {
   try {
     // 백엔드로 데이터를 요청하여 수신 및 저장
-    await axios.get('/api/fetch-and-save-products/savings');  // 데이터를 백엔드에서 수신하고 저장하는 API
+    await axios.get('http://127.0.0.1:8000/finances/api/fetch_and_save_products/savings');  // 데이터를 백엔드에서 수신하고 저장하는 API
     console.log('데이터 수신 및 저장 완료');
   } catch (error) {
     console.error('데이터 수신 실패:', error);
   }
 };
 
-onMounted(() => {
-  fetchDataAndSaveDeposits(); // Home.vue가 로드될 때 데이터 수신 및 저장
-  fetchDataAndSaveSavings(); // Home.vue가 로드될 때 데이터 수신 및 저장
+onMounted(async () => {
+  await updateStockUrl();  // updateStockUrl이 완료된 후
+  await fetchDataAndSaveDeposits(); // Home.vue가 로드될 때 데이터 수신 및 저장
+  await fetchDataAndSaveSavings(); // Home.vue가 로드될 때 데이터 수신 및 저장
 });
+
 </script>
 
 <style scoped>

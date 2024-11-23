@@ -15,6 +15,7 @@ def fetch_news(request):
         date = request.GET.get('date', '2020-01-01')  # 기본값으로 2020-01-01 설정
         
         # URL에 날짜 파라미터 추가
+        # url = f"https://finance.naver.com/news/news_list.naver?mode=LSS2D&section_id=101&section_id2=258&date={date}"
         url = f"https://finance.naver.com/news/mainnews.naver?date={date}"
         
         response = requests.get(url)

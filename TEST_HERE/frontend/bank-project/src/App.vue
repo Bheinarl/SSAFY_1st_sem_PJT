@@ -15,21 +15,11 @@ async function updateStockUrl() {
     console.log('API URL:', apiUrl);
     try {
         const response = await axios.get(apiUrl);
-        // console.log('API Response:', response.data); // 응답 데이터 확인
-        // 필요한 경우 응답 데이터를 상태에 저장하거나 추가 처리
     } catch (error) {
         console.error('Error fetching stock data:', error);
     }
 }
 
-
-// async function fetchStockData(apiUrl) {
-//   try {
-//     console.log('API Response:', response); // 응답 데이터 확인
-//   } catch (error) {
-//     console.error('Error fetching stock data:', error);
-//   }
-// }
 
 onMounted(() => {
   updateStockUrl(); // await 키워드를 사용하여 비동기 호출

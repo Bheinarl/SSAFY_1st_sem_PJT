@@ -4,9 +4,10 @@ import Profile from '@/views/Profile.vue';
 import Register from '@/views/Register.vue';
 import Login from '@/views/Login.vue';
 import ExchangeRateAlert from '@/components/ExchangeRateAlert.vue';
-import GamePage from '@/views/GamePage.vue';
 import GameReal from '@/views/GameReal.vue';
 import Finances from '@/components/Finances.vue';
+import MapView from '@/views/MapView.vue';
+
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -16,8 +17,8 @@ const router = createRouter({
     { path: '/register', component: Register },
     { path: '/login', component: Login },
     { path: '/exchange-rate-alert', component: ExchangeRateAlert },
-    { path: '/game', component: GamePage },
     { path: '/gamereal', component: GameReal },
+    { path: '/mapview', component: MapView },
     { path: '/finances', component: Finances,
       children: [
         // { path: 'deposit', component: FinanceDeposit},

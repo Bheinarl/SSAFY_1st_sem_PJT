@@ -16,15 +16,6 @@
         {{ stockData[selectedStock][currentDay - 1].date }}
       </h3>
 
-
-
-      <!-- 기존 코드 -->
-      <!-- <ul>
-        <li v-for="(title, index) in newsTitles" :key="index">
-          {{ title }}
-        </li>
-      </ul> -->
-
       <ul>
         <!-- 최대 10개까지만 출력 -->
         <li v-for="(title, index) in newsTitles.slice(0, 10)" :key="index">
@@ -432,26 +423,7 @@ async function fetchRandomDate() {
   }
 }
 
-// Stock API Fetch
-// // 기존 코드
-// async function fetchStockData(apiUrl) {
-//   try {
-//     const response = await axios.get(apiUrl);
-//     if (response.data.status === 'success') {
-//       stockData.value[selectedStock.value] = response.data.data.map(item => ({
-//         open_price: item.open_price,
-//         close_price: item.close_price,
-//       }));
-//       updateChart();
-//     } else {
-//       console.error('Error fetching stock data:', response.data.message);
-//     }
-//   } catch (error) {
-//     console.error('Error fetching stock data:', error);
-//   }
-// }
 
-// 수정 코드
 function updateNews() {
   const currentStockData = stockData.value[selectedStock.value];
   if (currentStockData && currentStockData.length >= currentDay.value) {
@@ -490,6 +462,47 @@ function updateStockUrl() {
   const stockCode = stockStore.stockMapping[selectedStock.value];
   if (stockCode) {
     const apiUrl = `http://127.0.0.1:8000/api/stocks/${stockCode}/?start_date=${startDate.value}`;
+    console.log("apiUrl : ",apiUrl)
+
+    /*
+    apiUrl 형태
+    
+    {
+      "status": "success",
+      "data": [
+      {
+      "date": "2020-10-27",
+      "open_price": 186500,
+      "close_price": 181000,
+      "news": [
+      "[클릭! 해외증시 이 종목] 영상회의 시장서 반전 노리는 시스코",
+      "[마감시황]코스피, 2330선 하락 마감…코스닥 소폭 반등",
+      "[마켓뷰] 美 경기부양책은 언제쯤…코스피, 또 하락 마감",
+      "[코스닥 마감]4거래일 만에 상승…780선 탈환",
+      "[외환마감]GDP 반등이 지지한 원화 강세…원·달러 1125.50원",
+      "[시황종합] 코스피 2330선 하락…코스닥 반발매수 4일만에 반등",
+      "[원자재시황]WTI 3% 급락, 리비아 공급 과잉",
+      "[유럽증시] 코로나19 재확산 우려 속 하락",
+      "[외환브리핑]코로나 2차 팬데믹 우려…원·달러 하락세 제동",
+      "어제 와르르 무너진 코스닥, 아스트라제네카 희소식 응답할까",
+      "[김현석의 월스트리트나우] 모든 악재가 다 터진 날…그래도 사라?",
+      "[굿모닝 증시]코로나·추가 부양책 지연 속 증시 하락…中 5중전회에 주목",
+      "[일일펀드동향]국내 주식형 펀드 141억원 자금 유입",
+      "뉴욕증시 급락…LG-SK 배터리 소송 결정 또 연기[모닝브리핑]",
+      "'2차 팬데믹' 공포에 다우 장중 3.4% 급락 [뉴욕마감]",
+      "답없는 부양책에 코로나 재확산까지···다우 -2.29% [데일리 국제금융시장]",
+      "[유럽증시] 코로나19 재확산 우려 속 일제히 하락"
+      ]
+      },
+      {
+      "date": "2020-10-28",
+      "open_price": 179500,
+      "close_price": 176500,
+      "news": [
+        "[마켓뷰] 기관·외인 순매수로 코스닥 3일만에 800 회복",
+        ...
+    
+    */
     fetchStockData(apiUrl);
   }
 }

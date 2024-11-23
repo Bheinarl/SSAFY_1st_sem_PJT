@@ -3,10 +3,20 @@
     <h1>상품 목록</h1>
     
     <!-- 카테고리 탭 -->
-    <div>
-      <button @click="fetchProducts('deposits')" :class="{ active: selectedCategory === 'deposits' }">정기예금</button>
-      <button @click="fetchProducts('savings')" :class="{ active: selectedCategory === 'savings' }">적금</button>
-    </div>
+    <nav>
+      <button 
+        @click="fetchProducts('deposits')" 
+        :class="{ active: selectedCategory === 'deposits' }"
+      >
+        정기예금
+      </button>
+      <button 
+        @click="fetchProducts('savings')" 
+        :class="{ active: selectedCategory === 'savings' }"
+      >
+        적금
+      </button>
+    </nav>
 
     <!-- 로딩 상태 표시 -->
     <div v-if="loading">로딩 중...</div>
@@ -38,9 +48,19 @@
 
     <!-- 페이지네이션 -->
     <div v-if="pagination.total_count > 0">
-      <button @click="changePage(pagination.now_page_no - 1)" :disabled="pagination.now_page_no === 1">이전</button>
+      <button 
+        @click="changePage(pagination.now_page_no - 1)" 
+        :disabled="pagination.now_page_no === 1"
+      >
+        이전
+      </button>
       <span>{{ pagination.now_page_no }} / {{ pagination.max_page_no }}</span>
-      <button @click="changePage(pagination.now_page_no + 1)" :disabled="pagination.now_page_no === pagination.max_page_no">다음</button>
+      <button 
+        @click="changePage(pagination.now_page_no + 1)" 
+        :disabled="pagination.now_page_no === pagination.max_page_no"
+      >
+        다음
+      </button>
     </div>
   </div>
 </template>
@@ -50,11 +70,11 @@ import { ref, onMounted } from 'vue';
 import axios from 'axios';
 
 // 상태 변수
-const selectedCategory = ref('deposits');  // 기본 카테고리 설정
-const products = ref([]);  // 상품 데이터
-const paginatedProducts = ref([]);  // 페이지네이션된 상품 데이터
-const loading = ref(false);  // 로딩 상태
-const error = ref(null);  // 에러 상태
+const selectedCategory = ref('deposits'); // 기본 카테고리 설정
+const products = ref([]); // 전체 상품 데이터
+const paginatedProducts = ref([]); // 페이지네이션된 상품 데이터
+const loading = ref(false); // 로딩 상태
+const error = ref(null); // 에러 상태
 const pagination = ref({
   total_count: 0,
   max_page_no: 1,
@@ -65,14 +85,17 @@ const pagination = ref({
 const fetchProducts = async (category) => {
   loading.value = true;
   error.value = null;
-  selectedCategory.value = category;  // 카테고리 변경
-
+  selectedCategory.value = category; // 카테고리 변경
+  
   try {
+    // API 호출로 전체 데이터 가져오기
     const response = await axios.get(`http://127.0.0.1:8000/finances/api/products/${category}/`);
-
-    if (response.data && response.data.products) {
-      products.value = response.data.products;
-      paginateProducts();  // 페이지네이션 처리
+    
+    if (response.data) {
+      products.value = response.data.products; // 전체 상품 데이터 저장
+      pagination.value.total_count = products.value.length;
+      pagination.value.max_page_no = Math.ceil(products.value.length / 10); // 한 페이지당 10개 기준
+      changePage(1); // 첫 페이지로 초기화
     } else {
       error.value = "상품을 불러오는 데 실패했습니다.";
     }
@@ -84,21 +107,18 @@ const fetchProducts = async (category) => {
   }
 };
 
-// 페이지네이션 함수
+// 페이지네이션 데이터 생성
 const paginateProducts = () => {
-  const start = (pagination.value.now_page_no - 1) * 20;
-  const end = start + 20;
-  paginatedProducts.value = products.value.slice(start, end);
-
-  pagination.value.total_count = products.value.length;
-  pagination.value.max_page_no = Math.ceil(products.value.length / 20);
+  const start = (pagination.value.now_page_no - 1) * 10; // 현재 페이지의 시작 인덱스
+  const end = start + 10; // 현재 페이지의 끝 인덱스
+  paginatedProducts.value = products.value.slice(start, end); // 현재 페이지 데이터 추출
 };
 
 // 페이지 변경 함수
 const changePage = (pageNo) => {
   if (pageNo < 1 || pageNo > pagination.value.max_page_no) return;
   pagination.value.now_page_no = pageNo;
-  paginateProducts();  // 새 페이지에 맞는 데이터 업데이트
+  paginateProducts(); // 페이지 데이터 갱신
 };
 
 // 컴포넌트가 마운트될 때 기본적으로 데이터 가져오기
@@ -115,7 +135,7 @@ nav {
 
 nav button {
   padding: 10px 20px;
-  margin-right: 10px;
+  /* margin-right: 10px; */
   border: 1px solid #ccc;
   background-color: #f9f9f9;
   cursor: pointer;

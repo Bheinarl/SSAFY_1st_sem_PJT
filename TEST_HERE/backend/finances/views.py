@@ -2,7 +2,7 @@ from django.http import JsonResponse
 import requests
 from .models import DepositProduct, SavingProduct
 
-def fetch_products(request, category):
+def fetch_and_save_products(request, category):
     # 기본 API URL 설정
     api_url = 'http://finlife.fss.or.kr/finlifeapi/depositProductsSearch.json'
     if category == 'deposits':
@@ -104,3 +104,22 @@ def fetch_products(request, category):
     except Exception as e:
         print(f"Error fetching products: {e}")
         return JsonResponse({"error": "Internal Server Error"}, status=500)
+
+
+def get_filtered_products(request, category):
+    """
+    category: 'deposits' 또는 'savings'
+    """
+    # 해당 category에 맞는 데이터 가져오기
+    if category == 'deposits':
+        products = DepositProduct.objects.all()
+    elif category == 'savings':
+        products = SavingProduct.objects.all()
+    else:
+        return JsonResponse({"error": "Invalid category"}, status=400)
+
+    # 반환할 데이터 구성
+    response_data = {
+        "products": list(products.values('fin_prdt_nm', 'kor_co_nm', 'join_member', 'mtrt_int', 'join_way')),
+    }
+    return JsonResponse(response_data)

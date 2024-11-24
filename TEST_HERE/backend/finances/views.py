@@ -3,6 +3,7 @@ import requests
 from .models import DepositProduct, SavingProduct
 
 def fetch_and_save_products(request, category):
+    print('fetch_and_save_products')
     # 기본 API URL 설정
     api_url = 'http://finlife.fss.or.kr/finlifeapi/depositProductsSearch.json'
     if category == 'deposits':
@@ -12,6 +13,17 @@ def fetch_and_save_products(request, category):
     else:
         return JsonResponse({"error": "Invalid category"}, status=400)
     
+    # 모델 선택
+    model = DepositProduct if category == 'deposits' else SavingProduct
+
+    # 데이터가 이미 존재하는지 확인
+    existing_data_count = model.objects.count()
+    if existing_data_count > 0:
+        return JsonResponse({
+            "message": "Data already exists. Fetching skipped.",
+            "existing_count": existing_data_count
+        }, status=200)
+
     # 페이지 번호와 기본 파라미터 처리
     params = {
         'auth': '00b0b3083665dc1958ea2974b49690e1',
@@ -20,6 +32,7 @@ def fetch_and_save_products(request, category):
 
     topFinGrpNo_list = ['020000', '030200', '030300', '050000', '060000']
     all_product_list = []  # 전체 상품 리스트를 저장할 리스트
+
 
     try:
         # 각 topFinGrpNo에 대해 반복적으로 데이터 처리

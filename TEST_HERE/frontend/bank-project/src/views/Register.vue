@@ -30,7 +30,7 @@ const register = async () => {
     });
     console.log('회원가입 성공, 토큰:', response.data.key);
     localStorage.setItem('token', response.data.key);
-    // router.push('/'); // 회원가입 후 리디렉션
+    router.push('/'); // 회원가입 후 리디렉션
   } catch (error) {
     console.error('회원가입 실패:', error.response.data);
   }

@@ -8,21 +8,21 @@
     </div>
 
     <!-- News Section -->
-    <div class="news-container">
+    <div class="news-container" v-if="currentDay < 11">
       <h3>Latest News</h3>
       
       <!-- 디버깅용으로 날짜 출력. 추후 삭제. 현재 뉴스 데이터의 날짜를 직접 참조 -->
-      <h3 v-if="stockData[selectedStock]?.[currentDay - 1]?.date">
+      <!-- <h3 v-if="stockData[selectedStock]?.[currentDay - 1]?.date">
         {{ stockData[selectedStock][currentDay - 1].date }}
-      </h3>
+      </h3> -->
 
       <ul>
         <!-- 최대 10개까지만 출력 -->
-        <li v-for="(title, index) in newsTitles.slice(0, 10)" :key="index">
+        <li v-for="(title, index) in newsTitles" :key="index">
           {{ title }}
         </li>
         <!-- 뉴스가 없을 경우에는 No news available for this date. 메시지가 표시 -->
-        <li v-if="newsTitles.length === 0">No news available for this date.</li>
+        <h5 v-if="newsTitles.length === 0">해당 날짜의 뉴스를 로딩 중입니다.</h5>
       </ul>
 
       
@@ -193,6 +193,7 @@
 <script setup>
 /* --------------------------- Imports --------------------------- */
 import { ref, computed, onMounted, watch } from 'vue';
+import { addDays, format } from 'date-fns';
 import { useStockStore } from '@/stores/StockStore';
 import axios from 'axios';
 import Chart from 'chart.js/auto';
@@ -233,6 +234,7 @@ const stockData = ref({
 });
 
 /* --------------------------- Computed Values --------------------------- */
+
 const portfolioValue = computed(() => {
 
   return Object.keys(portfolio.value).reduce((total, stock) => {
@@ -415,6 +417,7 @@ async function fetchRandomDate() {
     const response = await axios.get('http://127.0.0.1:8000/api/stocks/generate_random_date/');
     if (response.data.status === 'success') {
       startDate.value = response.data.start_date;
+      await updateStockUrl()
     } else {
       console.error('Error generating random date:', response.data.message);
     }
@@ -422,18 +425,6 @@ async function fetchRandomDate() {
     console.error('Error generating random date:', error);
   }
 }
-
-
-function updateNews() {
-  const currentStockData = stockData.value[selectedStock.value];
-  if (currentStockData && currentStockData.length >= currentDay.value) {
-    // 현재 날짜에 해당하는 뉴스 데이터
-    newsTitles.value = currentStockData[currentDay.value - 1].news || [];
-  } else {
-    newsTitles.value = []; // 데이터가 없을 경우 빈 리스트
-  }
-}
-
 
 async function fetchStockData(apiUrl) {
   try {
@@ -444,11 +435,9 @@ async function fetchStockData(apiUrl) {
         date: item.date,
         open_price: item.open_price,
         close_price: item.close_price,
-        news: item.news, // 날짜별 뉴스 추가
       }));
       console.log('stockData는 이렇게 출력됩니다.', stockData.value);
       updateChart();
-      updateNews(); // 현재 날짜의 뉴스 업데이트
     } else {
       console.error('Error fetching stock data:', response.data.message);
     }
@@ -458,54 +447,39 @@ async function fetchStockData(apiUrl) {
 }
 
 // Update Stock URL
-function updateStockUrl() {
+async function updateStockUrl() {
   const stockCode = stockStore.stockMapping[selectedStock.value];
   if (stockCode) {
-    const apiUrl = `http://127.0.0.1:8000/api/stocks/${stockCode}/?start_date=${startDate.value}`;
+    const apiUrl = `http://127.0.0.1:8000/api/stocks/find_stock_data/${stockCode}/?start_date=${startDate.value}`;
     console.log("apiUrl : ",apiUrl)
 
-    /*
-    apiUrl 형태
-    
-    {
-      "status": "success",
-      "data": [
-      {
-      "date": "2020-10-27",
-      "open_price": 186500,
-      "close_price": 181000,
-      "news": [
-      "[클릭! 해외증시 이 종목] 영상회의 시장서 반전 노리는 시스코",
-      "[마감시황]코스피, 2330선 하락 마감…코스닥 소폭 반등",
-      "[마켓뷰] 美 경기부양책은 언제쯤…코스피, 또 하락 마감",
-      "[코스닥 마감]4거래일 만에 상승…780선 탈환",
-      "[외환마감]GDP 반등이 지지한 원화 강세…원·달러 1125.50원",
-      "[시황종합] 코스피 2330선 하락…코스닥 반발매수 4일만에 반등",
-      "[원자재시황]WTI 3% 급락, 리비아 공급 과잉",
-      "[유럽증시] 코로나19 재확산 우려 속 하락",
-      "[외환브리핑]코로나 2차 팬데믹 우려…원·달러 하락세 제동",
-      "어제 와르르 무너진 코스닥, 아스트라제네카 희소식 응답할까",
-      "[김현석의 월스트리트나우] 모든 악재가 다 터진 날…그래도 사라?",
-      "[굿모닝 증시]코로나·추가 부양책 지연 속 증시 하락…中 5중전회에 주목",
-      "[일일펀드동향]국내 주식형 펀드 141억원 자금 유입",
-      "뉴욕증시 급락…LG-SK 배터리 소송 결정 또 연기[모닝브리핑]",
-      "'2차 팬데믹' 공포에 다우 장중 3.4% 급락 [뉴욕마감]",
-      "답없는 부양책에 코로나 재확산까지···다우 -2.29% [데일리 국제금융시장]",
-      "[유럽증시] 코로나19 재확산 우려 속 일제히 하락"
-      ]
-      },
-      {
-      "date": "2020-10-28",
-      "open_price": 179500,
-      "close_price": 176500,
-      "news": [
-        "[마켓뷰] 기관·외인 순매수로 코스닥 3일만에 800 회복",
-        ...
-    
-    */
     fetchStockData(apiUrl);
   }
 }
+
+async function updateNews() {
+  const currentDate = ref(startDate.value);
+  console .log('currentDate는 이렇게 출력됩니다.111', currentDate.value);
+  if (startDate.value != stockData.value['삼성에스디에스']?.[currentDay.value - 1]?.date) {
+    currentDate.value = stockData.value['삼성에스디에스']?.[currentDay.value - 1]?.date
+    console .log('currentDate는 이렇게 출력됩니다.222', currentDate.value);
+  }
+  try {
+    const response = await axios.get(`http://127.0.0.1:8000/api/stocks/fetch_news/?start_date=${currentDate.value}`);
+    if (response.data.status === 'success') {
+      newsTitles.value = response.data.data;
+    } else {
+      console.error('Error updateNews11:', response.data.message);
+    }
+  } catch (error) {
+    console.error('Error updateNews22:', error);
+  }
+}
+
+// 페이지 로딩 후 2초 뒤에 updateNews 함수 실행
+setTimeout(() => {
+  updateNews();
+}, 2000);  // 2000ms = 2초
 
 // Chart Initialization
 let chart;
@@ -544,7 +518,7 @@ async function nextDay() {
   if (currentDay.value < 10) {
     currentDay.value++;
     updateChart(); // 차트 업데이트
-    updateNews(); // 날짜 변경 시 뉴스 업데이트
+    updateNews();
   } else {
     // 게임 종료 및 최종 자산 계산
     currentDay.value++; // 마지막 날짜까지 진행
@@ -585,6 +559,7 @@ onMounted(async () => {
   await fetchRandomDate();
   updateStockUrl();
   initializeChart();
+  // updateNews();
 });
 
 

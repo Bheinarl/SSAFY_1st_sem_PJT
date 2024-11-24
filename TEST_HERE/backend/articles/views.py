@@ -1,33 +1,17 @@
-# # articles/views.py
+from rest_framework.viewsets import ModelViewSet
+from .models import Post
+from .serializers import PostSerializer
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
-# from django.http import JsonResponse
-# from .models import LocationBasedRecommendation
+class PostViewSet(ModelViewSet):
+    queryset = Post.objects.all().order_by('-created_at')  # 모든 게시글 조회
+    serializer_class = PostSerializer  # PostSerializer 사용
 
-# def location_recommendation(request):
-#     recommendation = LocationBasedRecommendation.objects.filter(user=request.user).last()
-#     return JsonResponse({'recommended_product': recommendation.recommended_product if recommendation else "추천 상품 없음"})
+    @action(detail=True, methods=['post'])
+    def like(self, request, pk=None):
+        post = self.get_object()
+        post.likes += 1
+        post.save()
+        return Response({'status': 'like added', 'likes': post.likes})
 
-
-# # articles/views.py
-
-# from django.contrib.auth.decorators import login_required
-# from django.http import JsonResponse
-# from .models import LocationBasedRecommendation
-
-# @login_required
-# def location_recommendation(request):
-#     recommendation = LocationBasedRecommendation.objects.filter(user=request.user).last()
-#     return JsonResponse({'recommended_product': recommendation.recommended_product if recommendation else "추천 상품 없음"})
-
-
-# articles/views.py
-
-from django.http import JsonResponse
-# from .models import LocationBasedRecommendation
-
-# def location_recommendation(request):
-#     if not request.user.is_authenticated:
-#         return JsonResponse({'error': '로그인이 필요합니다.'}, status=403)
-
-#     recommendation = LocationBasedRecommendation.objects.filter(user=request.user).last()
-#     return JsonResponse({'recommended_product': recommendation.recommended_product if recommendation else "추천 상품 없음"})

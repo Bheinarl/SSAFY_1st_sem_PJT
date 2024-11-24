@@ -17,3 +17,6 @@ class CustomUser(AbstractUser):
     age = models.PositiveIntegerField(null=True, blank=True)
     interests = models.TextField(null=True, blank=True)
     max_score = models.IntegerField(default=0)  # max_score 필드 추가
+
+    def __str__(self):
+        return self.nickname if self.nickname else self.username

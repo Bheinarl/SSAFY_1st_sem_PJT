@@ -18,11 +18,11 @@ const router = createRouter({
     { path: '/', component: Home },
     { path: '/profile', component: Profile },
     
-    { path: '/posts', component: Board },  // 게시판 목록
-    { path: '/posts/new', component: PostCreate },  // 글 작성
-    { path: '/posts/:id', component: PostDetail },  // 게시글 상세
+    { path: '/posts', component: Board, name: 'Board' },  // 게시판 목록
+    { path: '/posts/new', component: PostCreate, name: 'PostCreate' },  // 글 작성
+    { path: '/posts/:id', component: PostDetail, name: 'PostDetail' },  // 게시글 상세
 
-    { path: '/register', component: Register },
+    { path: '/register', component: Register, },
     { path: '/login', component: Login },
     { path: '/exchange-rate-alert', component: ExchangeRateAlert },
     { path: '/gamereal', component: GameReal },

@@ -432,6 +432,21 @@ const calculateRiskLevel = computed(() => {
 });
 
 
+const calculateRiskMetrics = computed(() => {
+  return {
+    tradingFrequency: tradePattern.value.totalTrades / currentDay.value,
+    avgHoldingPeriod: tradePattern.value.holdingPeriod.length > 0 
+      ? tradePattern.value.holdingPeriod.reduce((a, b) => a + b, 0) / tradePattern.value.holdingPeriod.length 
+      : 0,
+    diversification: Object.keys(portfolio.value).filter(stock => 
+      totalQuantity.value[stock] > 0
+    ).length,
+    volatility: calculateVolatility()
+  }
+});
+
+
+
 /* @@@@@@@@@@@@@@@@@@@ 투자 유형 관련 수정 끝 @@@@@@@@@@@@@@@@@@@ */
 
 
@@ -580,7 +595,7 @@ async function nextDay() {
     /* @@@@@@@@@@@@@@@@@@@ 투자 유형 관련 수정 시작 @@@@@@@@@@@@@@@@@@@ */
     const riskLevel = calculateRiskLevel.value;
     let investorType;
-    console.log(riskLevel);
+    
     if (riskLevel < 0.3) investorType = '안정 추구형';
     else if (riskLevel < 0.6) investorType = '균형 투자형';
     else if (riskLevel < 0.8) investorType = '공격 투자형';
@@ -718,18 +733,17 @@ function executeTrade(type) {
   if (type === 'buy') {
     tradePattern.value.buyCount++;
     tradePattern.value.totalTrades++;
+    
     // 업종 선호도 기록
     const sector = stockStore.stockSectors[selectedStock.value];
     tradePattern.value.sectorPreference[sector] = (tradePattern.value.sectorPreference[sector] || 0) + 1;
-    console.log("tradePattern",tradePattern);
   } else if (type === 'sell') {
     tradePattern.value.sellCount++;
     tradePattern.value.totalTrades++;
+    
     // 보유 기간 기록
-    console.log("ddd");
     const holdingDays = currentDay.value - portfolio.value[selectedStock.value].transactions[0].day;
     tradePattern.value.holdingPeriod.push(holdingDays);
-    console.log("tradePattern",tradePattern);
   }
   
   // 위험 선호도 계산

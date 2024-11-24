@@ -8,19 +8,6 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 
-
-# class PostViewSet(viewsets.ModelViewSet):
-#     queryset = Post.objects.all().order_by('-created_at')  # 모든 게시글 조회
-#     serializer_class = PostSerializer  # PostSerializer 사용
-    # permission_classes = [IsAuthenticated]  # 인증된 사용자만 접근 가능
-
-    # @action(detail=True, methods=['post'])
-    # def like(self, request, pk=None):
-    #     post = self.get_object()
-    #     post.likes += 1
-    #     post.save()
-    #     return Response({'status': 'like added', 'likes': post.likes})
-
 @csrf_exempt
 def post_list(request):
     if request.method == 'GET':

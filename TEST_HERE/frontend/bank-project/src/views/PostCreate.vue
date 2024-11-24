@@ -28,18 +28,20 @@ const createPost = async () => {
     const token = localStorage.getItem('token')
     const post = { title: title.value, content: content.value }
     console.log('글 작성 요청:', post)
-    const response = await fetch('http://127.0.0.1:8000/api/articles/create/', {
+    const response = await fetch('http://127.0.0.1:8000/api/posts/create/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Token ${token}` },
       
       body: JSON.stringify(post)
     });
 
+    const result = await response.json()
+
     if (response.ok) {
-      console.log('글 작성 성공')
+      console.log('글 작성 성공', result)
       router.push('/posts')
     } else {
-      console.error('글 작성 실패:', response.statusText)
+      console.error('글 작성 실패:', result)
     }
   } catch (error) {
     console.error('글 작성 실패:', error)

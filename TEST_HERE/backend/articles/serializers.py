@@ -4,12 +4,13 @@ from .models import Post
 class PostSerializer(serializers.ModelSerializer):
     author = serializers.StringRelatedField()  # 작성자 이름 표시
     likes = serializers.ReadOnlyField()  # 좋아요 수 읽기 전용
+    liked_users = serializers.StringRelatedField(many=True, read_only=True)  # 좋아요 누른 사용자 표시
 
     class Meta:
         model = Post
         # fields = ['id', 'title', 'content', 'likes', 'author', 'created_at']
-        fields = ['id', 'title', 'content', 'likes', 'author', 'created_at']
-        read_only_fields = ['author', 'updated_at', 'created_at']  # 수정일자, 작성일자는 읽기 전용
+        fields = ['id', 'title', 'content', 'likes', 'author', 'liked_users', 'created_at']
+        read_only_fields = ['author', 'liked_users', 'updated_at', 'created_at']  # 수정일자, 작성일자는 읽기 전용
     
     def get_author(self, obj):
         return obj.author.username  # 작성자 이름 반환

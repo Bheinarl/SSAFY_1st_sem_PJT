@@ -233,7 +233,7 @@ const tradePattern = ref({
   holdingPeriod: [],       // 평균 보유 기간
   riskLevel: 0,            // 위험 선호도
   sectorPreference: {},    // 선호 업종
-  reactionToNews: 0        // 뉴스 반응도 // 이건 긍정적, 부정적 뉴스 키워드 반응
+  reactionToNews: 0        // 뉴스 반응도 // 이건 긍정적, 부정적 뉴스 키워드 반응 // 안쓰고있지만! 추후🙄
 });
 
 /* @@@@@@@@@@@@@@@@@@@ 투자 유형 관련 수정 끝 @@@@@@@@@@@@@@@@@@@ */
@@ -414,37 +414,64 @@ const earningRate = computed(() => {
 })
 
 
-/* @@@@@@@@@@@@@@@@@@@ 투자 유형 관련 수정 시작 @@@@@@@@@@@@@@@@@@@ */
-const calculateRiskLevel = computed(() => {
-  const { buyCount, sellCount, holdingPeriod } = tradePattern.value;
+// (4) 섹터 다양성 계산
+const sectorDiversity = computed(() => {
+  const sectorCounts = Object.values(tradePattern.value.sectorPreference); // 섹터별 투자 횟수
+  const totalSectors = sectorCounts.reduce((a, b) => a + b, 0); // 총 투자 횟수
+  const maxSectorPercentage = Math.max(...sectorCounts) / totalSectors; // 가장 큰 섹터 비중
+  return 1 - maxSectorPercentage; // 섹터 다양성이 높을수록 값이 커짐
+});
 
-  // 1. 거래 빈도와 평균 보유 기간 계산
-  const tradingFrequency = (buyCount + sellCount) / currentDay.value;
-  const avgHoldingPeriod =
-    holdingPeriod.length > 0
-      ? holdingPeriod.reduce((a, b) => a + b, 0) / holdingPeriod.length
-      : 0;
-
-  // 2. 재무자산 비율 계산
-  const totalAssets = cash.value + portfolioValue.value; // 총 자산
-  const financialAssetsRatio = portfolioValue.value / totalAssets; // 재무자산 비율
-  console.log(
-    "Risk Level Debug:",
-    `Trading Frequency: ${tradingFrequency}, Avg Holding Period: ${avgHoldingPeriod}, Financial Assets Ratio: ${financialAssetsRatio}`
-  );
-
-  // 3. 위험 선호도 계산 (0~1 사이 값)
-  // 가중치를 조절하여 각 항목의 중요도를 반영
-  return (
-    tradingFrequency * 0.3 + // 거래 빈도에 30% 반영
-    (1 - avgHoldingPeriod / 10) * 0.4 + // 보유 기간에 40% 반영
-    financialAssetsRatio * 0.3 // 재무자산 비율에 30% 반영
-  );
+// (5) 종목 분산도 계산
+const stockDiversity = computed(() => {
+  const totalInvestedStocks = Object.keys(portfolio.value).length; // 현재 투자한 종목 수
+  const maxStocks = Object.keys(stockStore.stockSectors).length;   // 전체 투자 가능한 종목 수
+  // 종목 분산도 계산 (투자 종목 수 / 전체 종목 수)
+  console.log("totalInvestedStocks,maxStocks",totalInvestedStocks,maxStocks)
+  return totalInvestedStocks / maxStocks; // 분산도가 높을수록 값이 커짐
 });
 
 
+// 💥💥위험 선호도 계산💥💥
+const calculateRiskLevel = computed(() => {
+  const { buyCount, sellCount, holdingPeriod } = tradePattern.value;
+  
+  // 거래 빈도 계산 (0 ~ 1 사이로 정규화)
+  const maxDailyTrades = 10; // 하루 최대 10회 거래로 가정
+  const tradingFrequency = Math.min((buyCount + sellCount) / (currentDay.value * maxDailyTrades), 1)
 
-/* @@@@@@@@@@@@@@@@@@@ 투자 유형 관련 수정 끝 @@@@@@@@@@@@@@@@@@@ */
+  // 2. 평균 보유 기간 계산
+  const maxHoldingDays = 10; // 최대 보유 기간 10일로 가정
+  const avgHoldingPeriod = holdingPeriod.length > 0 
+    ? holdingPeriod.reduce((a, b) => a + b, 0) / holdingPeriod.length 
+    : maxHoldingDays; // 보유 기록이 없으면 최대 보유 기간으로 설정
+  const normalizedHoldingPeriod = Math.min(1 - (avgHoldingPeriod / maxHoldingDays), 1); // 0~1 사이 값
+
+  // 3. 자산 분배율 계산
+  const assetAllocation = portfolioValue.value / totalValue.value; // 투자 자산 / 총 자산
+
+  // 4. 섹터 다양성 1 - (1 - 가장 큰 섹터 비율) = 다양할수록 전체 값 작아짐
+  const sectorDiversityValue = 1 - sectorDiversity.value;
+  
+  // 5. 종목 분산도 (1 - 투자 종목 수 / 전체 종목 수) = 분산도 높을수록 전체 값 작아짐
+  const diversity = 1 - stockDiversity.value;
+
+  console.log( tradingFrequency * 0.3 , normalizedHoldingPeriod * 0.3 , assetAllocation * 0.2, sectorDiversityValue * 0.1, diversity * 0.1 );
+  /* 1일차 30주만 샀으면                                                          
+                    0.3                             0                       0.0716                     0.1                   0.0975
+  */
+
+  
+  const riskLevel = (
+    tradingFrequency * 0.3 +           // 거래 빈도: 30% 비중
+    normalizedHoldingPeriod * 0.3 + // 보유 기간: 30% 비중
+    assetAllocation * 0.2 +            // 자산 분배율: 20% 비중
+    sectorDiversityValue * 0.1 +       // 섹터 다양성: 10% 비중
+    diversity * 0.1                    // 종목 분산도: 10% 비중
+  );
+
+  return riskLevel; // 0 ~ 1 사이 값
+});
 
 
 /* --------------------------- Functions --------------------------- */
@@ -604,7 +631,7 @@ async function nextDay() {
     }
 
 
-    /* @@@@@@@@@@@@@@@@@@@ 투자 유형 관련 수정 시작 @@@@@@@@@@@@@@@@@@@ */
+    
     const riskLevel = calculateRiskLevel.value;
     let investorType;
     console.log(riskLevel);
@@ -612,6 +639,13 @@ async function nextDay() {
     else if (riskLevel < 0.6) investorType = '균형 투자형';
     else if (riskLevel < 0.8) investorType = '공격 투자형';
     else investorType = '투기형';
+    /*
+    아무것도 안하면 -INF : 안정 추구형이 나오도록 했음
+    
+    
+    */
+
+
 
     // 분석 결과 서버로 전송
     const analysisData = {

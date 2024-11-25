@@ -34,5 +34,4 @@ npm run build
 npm install axios
 npm install chart.js
 npm install bootstrap
-npm install date-fns
 ```

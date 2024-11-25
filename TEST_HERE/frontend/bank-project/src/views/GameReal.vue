@@ -31,6 +31,7 @@
         <div>최종 자산: {{finalTotalValue}} </div>
         <div>투자자 유형: {{investorType}} </div>
         <div>실제 주식 데이터 기간 : {{startDateValue}} ~ {{endDateValue}}</div>
+        <button @click="goFinanceRecommend" class="btn btn-primary">당신에게 맞는 펀드 상품 추천 바로가기</button>
         <button @click="restartGame" class="btn btn-primary">Restart Game</button>
       </div>
 
@@ -195,12 +196,14 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { addDays, format } from 'date-fns';
 import { useStockStore } from '@/stores/StockStore';
+import { useRouter } from 'vue-router';
 import axios from 'axios';
 import Chart from 'chart.js/auto';
 // import api from '@/api';
 
 /* --------------------------- State --------------------------- */
 const stockStore = useStockStore();
+const router = useRouter();
 
 
 // 상태 관리 변수
@@ -683,7 +686,10 @@ function restartGame() {
   initializeChart();
 }
 
-
+function goFinanceRecommend() {
+  // finances 페이지로 이동
+  router.push('/finances');
+}
 
 
 /* --------------------------- Lifecycle --------------------------- */

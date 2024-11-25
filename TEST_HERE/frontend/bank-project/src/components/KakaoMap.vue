@@ -32,6 +32,7 @@
 import markerCurrent from '@/assets/markers/marker-current.png'
 import markerDefault from '@/assets/markers/marker-default.png'
 import markerSelected from '@/assets/markers/marker-selected.png'
+import { useRoute } from 'vue-router';
 
 export default {
   data() {
@@ -49,11 +50,22 @@ export default {
   },
 
   mounted() {
+    // 키워드를 Router Query에서 가져오기
+    const route = useRoute();
+    this.keyword = route.query.keyword || ''; // URL에서 전달된 쿼리 값 읽기
+
     // 카카오맵이 로드되어 있다면 초기화, 그렇지 않다면 로드 후 초기화
     if (window.kakao && window.kakao.maps) {
       this.initMap();
     } else {
       this.loadKakaoMap();
+    }
+
+    // 키워드 검색 실행
+    if (this.keyword) {
+      setTimeout(() => {
+        this.searchPlaces();
+      }, 1000); // 맵 로딩 완료 후 검색
     }
   },
 

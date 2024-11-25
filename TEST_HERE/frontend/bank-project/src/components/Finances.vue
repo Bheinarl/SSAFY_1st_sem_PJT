@@ -5,6 +5,11 @@
       <button @click="goToMapView" class="btn btn-primary">Go to Map</button>
     </div>
 
+    <!-- 투자자 유형 표시 -->
+    <div>
+      <h2>투자자 유형: <span>{{ userType }}</span></h2>
+    </div>
+
     <h1>상품 목록</h1>
     
     <!-- 카테고리 탭 -->

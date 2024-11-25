@@ -32,9 +32,9 @@ export default {
         goGame() {
             this.$router.push('/gamereal');
         },
-        // goFinances() {
-        //     this.$router.push('/finances');
-        // },
+        goFinances() {
+            this.$router.push('/finances');
+        },
         goLeaderBoard() {
             this.$router.push('/leaderboard');
         }

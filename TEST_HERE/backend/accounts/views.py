@@ -194,3 +194,16 @@ def update_profile(request):
         serializer.save()
         return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# 현재 사용자 정보 조회 API
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_current_user(request):
+    return Response({
+        'username': request.user.username,
+        'email': request.user.email,
+        'nickname': request.user.nickname,
+        'age': request.user.age,
+        'interests': request.user.interests,
+        # 추가적인 사용자 정보도 반환 가능
+    })

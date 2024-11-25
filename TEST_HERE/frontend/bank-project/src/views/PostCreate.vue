@@ -1,64 +1,77 @@
 <template>
-    <div>
-      <h1>글 작성하기</h1>
-      <form @submit.prevent="createPost">
-        <div>
-          <label for="title">제목</label>
-          <input id="title" v-model="form.title" required />
-        </div>
-        <div>
-          <label for="content">내용</label>
-          <textarea id="content" v-model="form.content" required></textarea>
-        </div>
-        <button type="submit">작성하기</button>
-      </form>
-    </div>
-  </template>
+  <div>
+    <h1>글 작성하기</h1>
+    <form @submit.prevent="createPost">
+      <div>
+        <label for="title">제목</label>
+        <input id="title" v-model="title" required />
+      </div>
+      <div>
+        <label for="content">내용</label>
+        <textarea id="content" v-model="content" required></textarea>
+      </div>
+      <button type="submit">작성하기</button>
+    </form>
+  </div>
+</template>
   
-  <script>
-  import apiClient from '@/api';
+<script setup>
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+const title = ref('')
+const content = ref('')
+const router = useRouter()
+
+const createPost = async () => {
+  try {
+    const token = localStorage.getItem('token')
+    const post = { title: title.value, content: content.value }
+    console.log('글 작성 요청:', post)
+    const response = await fetch('http://127.0.0.1:8000/api/posts/create/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Token ${token}` },
+      
+      body: JSON.stringify(post)
+    });
+
+    const result = await response.json()
+
+    if (response.ok) {
+      console.log('글 작성 성공', result)
+      router.push('/posts')
+    } else {
+      console.error('글 작성 실패:', result)
+    }
+  } catch (error) {
+    console.error('글 작성 실패:', error)
+  } finally {
+    title.value = ''
+    content.value = ''
+  }
+}
+
+</script>
   
-  export default {
-    data() {
-      return {
-        form: {
-          title: '',
-          content: '',
-        },
-      };
-    },
-    methods: {
-      async createPost() {
-        try {
-          await apiClient.post('/api/posts/', this.form); // API에 데이터 전송
-          this.$router.push('/posts'); // 글 작성 후 게시판 목록으로 이동
-        } catch (error) {
-          console.error('게시글 작성 중 오류:', error);
-        }
-      },
-    },
-  };
-  </script>
-  
-  <style scoped>
-  form {
-    display: flex;
-    flex-direction: column;
-  }
-  label {
-    margin-bottom: 5px;
-  }
-  input, textarea {
-    margin-bottom: 15px;
-    padding: 10px;
-    font-size: 16px;
-  }
-  button {
-    padding: 10px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    cursor: pointer;
-  }
-  </style>
+<style scoped>
+form {
+  display: flex;
+  flex-direction: column;
+}
+label {
+  margin-bottom: 5px;
+}
+input, textarea {
+  margin-bottom: 15px;
+  padding: 10px;
+  font-size: 16px;
+}
+button {
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+</style>
   

@@ -16,4 +16,5 @@ urlpatterns = [
     # path('user/', CustomUserDetailsView.as_view(), name='user-details'),  # 사용자 정보 URL 오버라이드
     path('update_max_score/', views.update_max_score, name='update_max_score'),
     # path('api/auth/login/', CustomLoginView.as_view(), name='custom_login'),
+    path('get_current_user/', views.get_current_user, name='get_current_user'),
 ]

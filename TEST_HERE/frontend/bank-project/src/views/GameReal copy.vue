@@ -10,6 +10,11 @@
     <!-- News Section -->
     <div class="news-container" v-if="currentDay < 11">
       <h3>Latest News</h3>
+      
+      <!-- 디버깅용으로 날짜 출력. 추후 삭제. 현재 뉴스 데이터의 날짜를 직접 참조 -->
+      <!-- <h3 v-if="stockData[selectedStock]?.[currentDay - 1]?.date">
+        {{ stockData[selectedStock][currentDay - 1].date }}
+      </h3> -->
 
       <ul>
         <!-- 최대 10개까지만 출력 -->
@@ -660,87 +665,73 @@ function executeTrade(type) {
       portfolio.value[selectedStock.value].transactions.push({
         quantity: volume,
         price: price,
+        /* @@@@@@@@@@@@@@@@@@@ 투자 유형 관련 수정 시작 @@@@@@@@@@@@@@@@@@@ */
         day: currentDay.value  // 거래 시점 추가
+        /* @@@@@@@@@@@@@@@@@@@ 투자 유형 관련 수정 끝 @@@@@@@@@@@@@@@@@@@ */
       });
-      
-      console.log(`매수 완료: ${volume}주, 가격: ${price}`);
 
-      /* @@@@@@@@@@@@@@@@@@@ 투자 유형 관련 수정 시작 @@@@@@@@@@@@@@@@@@@ */
-      // console.log("사든 팔든 일단 이거 출력해라(사고있음)");
-      // console.log("portfolio",portfolio);
-      // console.log("portfolio.value",portfolio.value);
-      // console.log("portfolio.value[selectedStock.value].transactions",portfolio.value[selectedStock.value].transactions);
-      // console.log("tradePattern@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",tradePattern);
-      // console.log("volume",volume);
-      tradePattern.value.buyCount += volume;
-      tradePattern.value.totalTrades += volume;
-      // 업종 선호도 기록
-      const sector = stockStore.stockSectors[selectedStock.value];
-      tradePattern.value.sectorPreference[sector] = (tradePattern.value.sectorPreference[sector] || 0) + 1;
-      console.log("tradePattern@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",tradePattern);
-      console.log("transactions 확인하기 : ", portfolio.value[selectedStock.value].transactions);
-      /* @@@@@@@@@@@@@@@@@@@ 투자 유형 관련 수정 끝 @@@@@@@@@@@@@@@@@@@ */
+
+
+      console.log(`매수 완료: ${volume}주, 가격: ${price}`);
     } else {
       alert('Not enough cash or invalid quantity for buying.'); // 에러 메시지
     }
   } else if (type === 'sell') {
-  // 매도 조건: 보유 주식이 충분하고, 거래량이 0보다 큼
-  const totalQuantityAvailable = portfolio.value[selectedStock.value].transactions.reduce((totalQuantity, transaction) => totalQuantity + transaction.quantity, 0);
+    // 매도 조건: 보유 주식이 충분하고, 거래량이 0보다 큼
+    const totalQuantityAvailable = portfolio.value[selectedStock.value].transactions.reduce((totalQuantity, transaction) => totalQuantity + transaction.quantity, 0);
 
-  if (volume > 0 && totalQuantityAvailable >= volume) {
-    let remainingQuantity = volume;
-    let totalCost = 0;
+    if (volume > 0 && totalQuantityAvailable >= volume) {
+      let remainingQuantity = volume;
+      let totalCost = 0;
 
-    // FIFO 방식으로 매도
-    while (remainingQuantity > 0) {
-      const firstTransaction = portfolio.value[selectedStock.value].transactions[0]; // 가장 오래된 거래 내역
+      // FIFO 방식으로 매도
+      while (remainingQuantity > 0) {
+        const firstTransaction = portfolio.value[selectedStock.value].transactions[0]; // 가장 오래된 거래 내역
 
-      if (!firstTransaction) {
-        console.error('Error: No transaction found in portfolio for sell operation.');
-        break;
+        if (firstTransaction.quantity <= remainingQuantity) {
+          // 매도 수량이 해당 거래 내역의 수량보다 작거나 같으면 해당 거래 내역을 모두 소진
+          totalCost += firstTransaction.quantity * firstTransaction.price;
+          remainingQuantity -= firstTransaction.quantity;
+          portfolio.value[selectedStock.value].transactions.shift(); // 해당 거래 내역 제거
+        } else {
+          // 매도 수량이 해당 거래 내역의 수량보다 크면 일부만 소진
+          totalCost += remainingQuantity * firstTransaction.price;
+          firstTransaction.quantity -= remainingQuantity;
+          remainingQuantity = 0;
+        }
       }
 
-      // 보유 기간 계산 및 기록
-      const holdingDays = currentDay.value - firstTransaction.day;
-      tradePattern.value.holdingPeriod.push(holdingDays);
+      // 매도 완료 후 현금 증가
+      cash.value += price * volume; // 현금 증가
 
-      if (firstTransaction.quantity <= remainingQuantity) {
-        // 매도 수량이 해당 거래 내역의 수량보다 작거나 같으면 해당 거래 내역을 모두 소진
-        totalCost += firstTransaction.quantity * firstTransaction.price;
-        remainingQuantity -= firstTransaction.quantity;
-        portfolio.value[selectedStock.value].transactions.shift(); // 해당 거래 내역 제거
-      } else {
-        // 매도 수량이 해당 거래 내역의 수량보다 크면 일부만 소진
-        totalCost += remainingQuantity * firstTransaction.price;
-        firstTransaction.quantity -= remainingQuantity;
-        remainingQuantity = 0;
-      }
-      console.log("transactions 확인하기 : ", portfolio.value[selectedStock.value].transactions);
-
+      console.log(`매도 완료: ${volume}주, 가격: ${price}, 총 매도 금액: ${totalCost}`);
+    } else {
+      alert('Not enough shares to sell.'); // 보유 주식 수량이 부족함을 알리는 메시지
     }
-
-    // 매도 완료 후 현금 증가
-    cash.value += price * volume; // 현금 증가
-
-    console.log(`매도 완료: ${volume}주, 가격: ${price}, 총 매도 금액: ${totalCost}`);
-
-    // 매도 거래 횟수 업데이트
-    tradePattern.value.sellCount += volume;
-    tradePattern.value.totalTrades += volume;
-
-    console.log('tradePattern after sell:', tradePattern.value);
-  } else {
-    alert('Not enough shares to sell.');
   }
-}
 
   // 거래 완료 후 입력값 초기화
   tradeVolume.value = 0;
 
   /* @@@@@@@@@@@@@@@@@@@ 투자 유형 관련 수정 시작 @@@@@@@@@@@@@@@@@@@ */
   // 거래 패턴 분석 추가
-  // 사든 팔든 일단 이거 출력해라
- 
+  if (type === 'buy') {
+    tradePattern.value.buyCount++;
+    tradePattern.value.totalTrades++;
+    // 업종 선호도 기록
+    const sector = stockStore.stockSectors[selectedStock.value];
+    tradePattern.value.sectorPreference[sector] = (tradePattern.value.sectorPreference[sector] || 0) + 1;
+    console.log("tradePattern",tradePattern);
+  } else if (type === 'sell') {
+    tradePattern.value.sellCount++;
+    tradePattern.value.totalTrades++;
+    // 보유 기간 기록
+    console.log("ddd");
+    const holdingDays = currentDay.value - portfolio.value[selectedStock.value].transactions[0].day;
+    tradePattern.value.holdingPeriod.push(holdingDays);
+    console.log("tradePattern",tradePattern);
+  }
+  
   // 위험 선호도 계산
   calculateRiskLevel();
   /* @@@@@@@@@@@@@@@@@@@ 투자 유형 관련 수정 끝 @@@@@@@@@@@@@@@@@@@ */

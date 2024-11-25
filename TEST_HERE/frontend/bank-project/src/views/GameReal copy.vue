@@ -426,7 +426,7 @@ const calculateRiskLevel = computed(() => {
   const avgHoldingPeriod = holdingPeriod.length > 0 
     ? holdingPeriod.reduce((a, b) => a + b, 0) / holdingPeriod.length 
     : 0;
-  
+  console.log("calculateRiskLevel 함수 내부 : buyCount, sellCount, holdingPeriod, tradingFrequency,avgHoldingPeriod",buyCount, sellCount, holdingPeriod, tradingFrequency,avgHoldingPeriod);
   // 위험 선호도 계산 (0~1 사이 값)
   return (tradingFrequency * 0.4 + (1 - avgHoldingPeriod/10) * 0.6);
 });
@@ -604,26 +604,7 @@ async function nextDay() {
 
     /* @@@@@@@@@@@@@@@@@@@ 투자 유형 관련 수정 끝 @@@@@@@@@@@@@@@@@@@ */
 
-
-
-
   }
-
-  if (currentDay.value === 10) {
-    const investorType = analyzeInvestorType();
-    const analysis = {
-      type: investorType,
-      pattern: tradePattern.value,
-      finalValue: finalTotalValue.value
-    };
-    
-    // 분석 결과 서버로 전송
-    await axios.post('http://127.0.0.1:8000/api/analysis/save/', analysis);
-    
-    // 결과 표시
-    showAnalysisResult(analysis); 
-  }
-
 }
 
 
@@ -733,18 +714,19 @@ function executeTrade(type) {
   }
   
   // 위험 선호도 계산
-  calculateRiskLevel();
-  /* @@@@@@@@@@@@@@@@@@@ 투자 유형 관련 수정 끝 @@@@@@@@@@@@@@@@@@@ */
+  console.log("Calculating risk level...");
+    try {
+    const riskLevel = calculateRiskLevel.value;
+    console.log("Risk Level: ", riskLevel);
+  } catch (error) {
+    console.error("Error accessing calculateRiskLevel: ", error);
+  }
 
-}
+
+} // executeTrade 함수 끝
 </script>
 
 <style scoped>
-/* .chart-section {
-  width: 80%;
-  height: 300px;
-  margin: 0 auto;
-} */
 
 .trade-button {
   margin-right: 10px;

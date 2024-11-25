@@ -421,7 +421,7 @@ const calculateRiskLevel = computed(() => {
   const avgHoldingPeriod = holdingPeriod.length > 0 
     ? holdingPeriod.reduce((a, b) => a + b, 0) / holdingPeriod.length 
     : 0;
-  
+  console.log("buyCount, sellCount, holdingPeriod,tradingFrequency,avgHoldingPeriod",buyCount, sellCount, holdingPeriod,tradingFrequency,avgHoldingPeriod);
   // 위험 선호도 계산 (0~1 사이 값)
   return (tradingFrequency * 0.4 + (1 - avgHoldingPeriod/10) * 0.6);
 });
@@ -677,7 +677,7 @@ function executeTrade(type) {
       // 업종 선호도 기록
       const sector = stockStore.stockSectors[selectedStock.value];
       tradePattern.value.sectorPreference[sector] = (tradePattern.value.sectorPreference[sector] || 0) + 1;
-      console.log("tradePattern@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",tradePattern);
+      // console.log("tradePattern@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",tradePattern);
       console.log("transactions 확인하기 : ", portfolio.value[selectedStock.value].transactions);
       /* @@@@@@@@@@@@@@@@@@@ 투자 유형 관련 수정 끝 @@@@@@@@@@@@@@@@@@@ */
     } else {
@@ -728,24 +728,29 @@ function executeTrade(type) {
     tradePattern.value.sellCount += volume;
     tradePattern.value.totalTrades += volume;
 
-    console.log('tradePattern after sell:', tradePattern.value);
+    // console.log('tradePattern after sell:', tradePattern.value);
   } else {
     alert('Not enough shares to sell.');
   }
 }
 
-  // 거래 완료 후 입력값 초기화
-  tradeVolume.value = 0;
-
-  /* @@@@@@@@@@@@@@@@@@@ 투자 유형 관련 수정 시작 @@@@@@@@@@@@@@@@@@@ */
-  // 거래 패턴 분석 추가
-  // 사든 팔든 일단 이거 출력해라
- 
-  // 위험 선호도 계산
-  calculateRiskLevel();
-  /* @@@@@@@@@@@@@@@@@@@ 투자 유형 관련 수정 끝 @@@@@@@@@@@@@@@@@@@ */
-
+// 위험 선호도 계산
+console.log("Calculating risk level...");
+try {
+  const riskLevel = calculateRiskLevel.value;
+  tradePattern.value.riskLevel = riskLevel;
+  console.log("Risk Level: ", riskLevel);
+} catch (error) {
+  console.error("Error accessing calculateRiskLevel: ", error);
 }
+
+
+// 거래 완료 후 입력값 초기화
+tradeVolume.value = 0;
+
+ 
+console.log('tradePattern@@@@@@@@@@@@@@', tradePattern.value);
+} // executeTrade 함수 끝
 </script>
 
 <style scoped>

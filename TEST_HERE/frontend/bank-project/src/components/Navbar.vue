@@ -2,15 +2,15 @@
     <nav>
       <router-link to="/">Home</router-link><span v-show="!isAuthenticated"> | </span>
       <router-link v-show="!isAuthenticated" to="/register">Register</router-link><span v-show="!isAuthenticated"> | </span>
-      <router-link v-show="!isAuthenticated" to="/login">Login</router-link><span v-show="isAuthenticated"> | </span>
       <router-link v-show="isAuthenticated" to="/profile">Profile</router-link><span v-show="isAuthenticated"> | </span>
       <router-link v-show="isAuthenticated" to="/posts">게시판</router-link><span v-show="isAuthenticated"> | </span>
-      <button v-show="isAuthenticated" @click="logout">Logout</button><span v-show="isAuthenticated"> | </span>
       <button v-show="isAuthenticated" @click="goExchangeRateAlert">ExchangeRateAlert</button><span v-show="isAuthenticated"> | </span>
       <button v-show="isAuthenticated" @click="goGame">goGameReal</button><span v-show="isAuthenticated"> | </span>
       <button v-show="isAuthenticated" @click="goFinances">Finances</button><span v-show="isAuthenticated"> | </span>
       <button v-show="isAuthenticated" @click="goLeaderBoard">LeaderBoard</button><span v-show="isAuthenticated"> | </span>
       
+      <router-link v-show="!isAuthenticated" to="/login">Login</router-link><span v-show="isAuthenticated"> | </span>
+      <button v-show="isAuthenticated" @click="logout">Logout</button><span v-show="isAuthenticated"> | </span>
     </nav>
 </template>
 

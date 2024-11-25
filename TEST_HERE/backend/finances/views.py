@@ -2,12 +2,10 @@ from django.http import JsonResponse
 import requests
 from .models import DepositProduct, SavingProduct, FundProduct
 
+# 펀드 상품 데이터 가져오기
 def fetch_and_save_funds_products(request): 
     print('fetch_and_save_funds_products')
 
-    # API 기본 URL 및 서비스 키 설정
-    # base_api_url = 'https://apis.data.go.kr/1160100/service/GetFundProductInfoService/getStandardCodeInfo?serviceKey=Z0etJ6Sv%2BIOfdba2SlwmsGsJfrut7XaOO50AMFe%2BMwH2ksB8ID5EZMniJwBYBTzUPpEJw87qpDY%2B54CHiw7R%2Fw%3D%3D&resultType=json&fndTp='
-    # service_key = 'Z0etJ6Sv%2BIOfdba2SlwmsGsJfrut7XaOO50AMFe%2BMwH2ksB8ID5EZMniJwBYBTzUPpEJw87qpDY%2B54CHiw7R%2Fw%3D%3D'
     categories = ['채권형', '단기금융', '혼합채권형', '혼합자산', '변액보험', '혼합주식형', '주식형', '파생상품', '부동산', '특별자산', '재간접']
 
     # 기존 데이터 확인
@@ -20,18 +18,9 @@ def fetch_and_save_funds_products(request):
 
     # API 호출 및 데이터 저장
     for category in categories:
-        # params = {
-        #     'serviceKey': service_key,
-        #     'resultType': 'json',
-        #     'pageNo': 1,
-        #     'numOfRows': 20,  # 한 번에 가져올 데이터 수
-        #     'ftnTp': category
-        # }
         base_api_url = 'https://apis.data.go.kr/1160100/service/GetFundProductInfoService/getStandardCodeInfo?serviceKey=Z0etJ6Sv%2BIOfdba2SlwmsGsJfrut7XaOO50AMFe%2BMwH2ksB8ID5EZMniJwBYBTzUPpEJw87qpDY%2B54CHiw7R%2Fw%3D%3D&resultType=json&pageNo=1&numOfRows=50&fndTp='
         base_api_url += category
-        # print(base_api_url)  # 디버깅용 출력
         try:
-            # response = requests.get(base_api_url, params=params)
             response = requests.get(base_api_url)
             response.raise_for_status()  # 요청 실패 시 예외 발생
 
@@ -51,13 +40,13 @@ def fetch_and_save_funds_products(request):
                     fndNm=item.get('fndNm', '')  # 펀드 명
                 )
 
-        except requests.exceptions.RequestException as e:
+        except requests.exceptions.RequestException as e:  # 요청 실패 예외 처리
             print(f"Error fetching data for category {category}: {e}")
             return JsonResponse({
                 "message": "Error fetching data.",
                 "error": str(e)
             }, status=500)
-        except ValueError as e:
+        except ValueError as e:  # 응답 데이터가 비어있는 경우 예외 처리
             print(f"Error fetching data for category {category}: {e}")
             return JsonResponse({
                 "message": "Error fetching data.",
@@ -68,16 +57,8 @@ def fetch_and_save_funds_products(request):
         "message": "Data fetched and saved successfully.",
         "fetched_categories": len(categories),
     }, status=201)
-        
 
-# def get_filtered_funds_products(request):
-#     products = FundProduct.objects.all()
-
-#     response_data = {
-#         "products": list(products.values('fndNm', 'fndTp')),
-#     }
-#     return JsonResponse(response_data)
-
+# 펀드 상품 필터링
 def get_filtered_funds_products(request, subcategory):
     try:
         if subcategory == '전체':
@@ -92,6 +73,7 @@ def get_filtered_funds_products(request, subcategory):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
+# 예금/적금 상품 데이터 가져오기
 def fetch_and_save_deposit_savings_products(request, category):
     print('fetch_and_save_deposit_savings_products')
     # 기본 API URL 설정
@@ -146,7 +128,7 @@ def fetch_and_save_deposit_savings_products(request, category):
             total_count = result.get("total_count", 0)
             max_page_no = result.get("max_page_no", 1)
 
-            # 각 페이지를 순차적으로 처리
+            # 데이터가 제공하는 최대 페이지까지 각 페이지를 순차적으로 처리
             for page_no in range(1, max_page_no + 1):
                 params['pageNo'] = page_no
                 response = requests.get(api_url, params=params)
@@ -204,15 +186,13 @@ def fetch_and_save_deposit_savings_products(request, category):
         print('response 데이터:', response_data['pagination'])
         return JsonResponse(response_data, safe=False)
     
-    except Exception as e:
+    except Exception as e:  # 예외 처리
         print(f"Error fetching products: {e}")
         return JsonResponse({"error": "Internal Server Error"}, status=500)
 
-
+# 예금/적금 상품 필터링
 def get_filtered_deposit_savings_products(request, category):
-    """
-    category: 'deposits' 또는 'savings'
-    """
+
     # 해당 category에 맞는 데이터 가져오기
     if category == 'deposits':
         products = DepositProduct.objects.all()

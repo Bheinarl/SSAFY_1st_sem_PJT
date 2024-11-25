@@ -13,11 +13,7 @@ import { RouterView } from 'vue-router';
     <div id="app">
       <Navbar />
       <RouterView />
-      <!-- <router-view /> -->
     </div>
-
-    <section>
-    </section>
   </main>
 </template>
 

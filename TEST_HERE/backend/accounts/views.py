@@ -1,24 +1,25 @@
-from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth.decorators import login_required
-import json
-from .models import CurrencyAlert
-from django.conf import settings
-import requests
-from datetime import datetime, timedelta
-from rest_framework.authtoken.models import Token
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.authentication import TokenAuthentication
-from rest_framework.decorators import api_view, permission_classes, authentication_classes
-from .models import CustomUser
 from django.contrib.auth import authenticate
+from django.conf import settings
+
+from .models import CurrencyAlert, CustomUser
 from .serializers import CustomUserDetailsSerializer
 
+import json
+import requests
+
+from datetime import datetime, timedelta
+
+from rest_framework import status
+from rest_framework.authtoken.models import Token
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
 @csrf_exempt
-def set_alert(request):
+def set_alert(request):  # 알림 설정 API
     try:
         if request.method == 'POST':
             data = json.loads(request.body)
@@ -37,12 +38,11 @@ def set_alert(request):
         print(f"알림 설정 중 오류 발생: {e}")
         return JsonResponse({'error': '알림 설정 중 오류가 발생했습니다.'}, status=500)
 
-def check_exchange_rate(request):
+def check_exchange_rate(request):  
     print("check_exchange_rate 함수 호출됨")
     print(f'리퀘스트 : {request.GET}')
     currency = request.GET.get('currency')
     api_url = f"https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey={settings.EXCHANGE_RATE_API_KEY}&data=AP01"
-    # api_url = "https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey=TUwyZMxyTt6XP6rTujYY02UCuSPWDHDb&data=AP01&searchdate=20241114"
 
     # 현재 날짜 시간 수신
     now = datetime.now()
@@ -51,7 +51,7 @@ def check_exchange_rate(request):
         able_day = datetime.now() - timedelta(days=1)
     elif now.weekday() == 6:
         able_day = datetime.now() - timedelta(days=2)
-    # 오전 11시 이전이라면 오늘을 기준으로 어제 데이터 사용
+    # 오전 11시 이전이라면 오늘을 기준으로 어제(월요일 오전 11시라면 지난 금요일) 데이터 사용
     elif now.weekday() == 0 and datetime.now().hour < 11:
         able_day = datetime.now() - timedelta(days=3)
     elif datetime.now().hour < 11:
@@ -66,7 +66,7 @@ def check_exchange_rate(request):
         
         data = response.json()
         print(currency)
-        # USD 환율 데이터 추출
+        # 환율 데이터 추출
         currency_data = next((item for item in data if item['cur_unit'] == currency), None)
         if not currency_data:
             return JsonResponse({'error': '환율 데이터를 찾을 수 없습니다.'}, status=500)
@@ -90,7 +90,7 @@ def check_exchange_rate(request):
         return JsonResponse({'error': '알 수 없는 오류가 발생했습니다.'}, status=500)
 
 def get_exchange_rate(request):
-    # 환율 API URL 및 API 키 (예시: 한국 수출입은행 API 사용)
+    # 환율 API URL 및 API 키 (한국 수출입은행 API 사용)
     api_url = f"https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey={settings.EXCHANGE_RATE_API_KEY}&data=AP01"
     # 오전 11시 이전이라면 오늘을 기준으로 어제 데이터 사용
     now = datetime.now()
@@ -120,23 +120,22 @@ def get_exchange_rate(request):
 @permission_classes([IsAuthenticated]) 
 def update_max_score(request):
     if request.method == 'POST':
-        # print(request.user)
-        # print(request.user.is_authenticated)
+        
         user = request.user
         max_score = request.data.get('max_score')
         my_investor_type = request.data.get('my_investor_type')
 
         print(max_score)
         print(user.max_score)
-        if max_score is None:
+        if max_score is None:  
             return Response({'error': 'totalValue 필드가 전달되지 않았습니다.'}, status=400)
         if my_investor_type is None:
             return Response({'error': 'totalValue 필드가 전달되지 않았습니다.'}, status=400)
         
-        user.my_investor_type = my_investor_type
-        user.save()  # 오류나면 여기
+        user.my_investor_type = my_investor_type  # my_investor_type 업데이트
+        user.save()
 
-        if max_score > user.max_score:
+        if max_score > user.max_score:  # 최고 점수 업데이트
           user.max_score = max_score
           user.save()
           return Response({'message': 'Max score updated successfully'}, status=status.HTTP_200_OK)
@@ -145,7 +144,7 @@ def update_max_score(request):
 
 
 @api_view(['POST'])
-def register(request):
+def register(request):  # 회원가입 API
     username = request.data.get('username')
     password = request.data.get('password')
     nickname = request.data.get('nickname')
@@ -162,8 +161,9 @@ def register(request):
         age=age,  # age 필드 추가
         my_investor_type=my_investor_type  # my_investor_type 필드 추가
     )
-    token, created = Token.objects.get_or_create(user=user)
+    token, created = Token.objects.get_or_create(user=user)  # Token 생성
     return Response({'token': token.key}, status=status.HTTP_201_CREATED)
+
 
 @api_view(['POST'])
 def login(request):

@@ -206,7 +206,7 @@
 /* --------------------------- Imports --------------------------- */
 import { ref, computed, onMounted } from 'vue';
 import { useStockStore } from '@/stores/StockStore';
-import { useRouter } from 'vue-router';
+import { useRouter, RouterView } from 'vue-router';
 import axios from 'axios';
 import Chart from 'chart.js/auto';
 

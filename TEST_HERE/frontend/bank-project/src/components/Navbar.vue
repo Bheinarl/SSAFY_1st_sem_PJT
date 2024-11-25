@@ -26,9 +26,6 @@ export default {
             this.isAuthenticated = false;
             this.$router.push('/login');
         },
-        // goExchangeRateAlert() {
-        //     this.$router.push('/exchange-rate-alert');
-        // },
         goGame() {
             this.$router.push('/gamereal');
         },

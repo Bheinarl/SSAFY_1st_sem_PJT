@@ -4,6 +4,7 @@ from .models import CustomUser
 
 # 회원가입에 사용하는 CustomRegisterSerializer
 class CustomRegisterSerializer(serializers.ModelSerializer):
+    nickname = serializers.CharField(write_only=True)  # nickname 필드 추가
     password1 = serializers.CharField(write_only=True)  # 비밀번호 필드 추가
     password2 = serializers.CharField(write_only=True)  # 비밀번호 확인 필드 추가
     age = serializers.IntegerField(required=False)

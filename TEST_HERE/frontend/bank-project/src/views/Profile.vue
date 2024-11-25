@@ -26,6 +26,7 @@
         </form>
       </div>
       <div v-else>
+        <p><strong>Username:</strong> {{ profile.username }}</p>
         <p><strong>Nickname:</strong> {{ profile.nickname }}</p>
         <p><strong>Age:</strong> {{ profile.age }}</p>
         <p><strong>My investor type:</strong> {{ profile.my_investor_type }}</p>
@@ -42,6 +43,7 @@ import axios from 'axios';
 
 // 프로필 데이터 초기화
 const profile = ref({
+  username: '',
   nickname: '',
   age: '',
   interests: '',

@@ -124,11 +124,18 @@ def update_max_score(request):
         # print(request.user.is_authenticated)
         user = request.user
         max_score = request.data.get('max_score')
+        my_investor_type = request.data.get('my_investor_type')
+
         print(max_score)
         print(user.max_score)
         if max_score is None:
             return Response({'error': 'totalValue 필드가 전달되지 않았습니다.'}, status=400)
+        if my_investor_type is None:
+            return Response({'error': 'totalValue 필드가 전달되지 않았습니다.'}, status=400)
         
+        user.my_investor_type = my_investor_type
+        user.save()  # 오류나면 여기
+
         if max_score > user.max_score:
           user.max_score = max_score
           user.save()

@@ -10,11 +10,6 @@
     <!-- News Section -->
     <div class="news-container" v-if="currentDay < 11">
       <h3>Latest News</h3>
-      
-      <!-- 디버깅용으로 날짜 출력. 추후 삭제. 현재 뉴스 데이터의 날짜를 직접 참조 -->
-      <!-- <h3 v-if="stockData[selectedStock]?.[currentDay - 1]?.date">
-        {{ stockData[selectedStock][currentDay - 1].date }}
-      </h3> -->
 
       <ul>
         <!-- 최대 10개까지만 출력 -->
@@ -238,7 +233,7 @@ const tradePattern = ref({
   holdingPeriod: [],       // 평균 보유 기간
   riskLevel: 0,            // 위험 선호도
   sectorPreference: {},    // 선호 업종
-  reactionToNews: 0        // 뉴스 반응도
+  reactionToNews: 0        // 뉴스 반응도 // 이건 긍정적, 부정적 뉴스 키워드 반응 // 안쓰고있지만! 추후🙄
 });
 
 /* @@@@@@@@@@@@@@@@@@@ 투자 유형 관련 수정 끝 @@@@@@@@@@@@@@@@@@@ */
@@ -419,20 +414,64 @@ const earningRate = computed(() => {
 })
 
 
-/* @@@@@@@@@@@@@@@@@@@ 투자 유형 관련 수정 시작 @@@@@@@@@@@@@@@@@@@ */
-const calculateRiskLevel = computed(() => {
-  const { buyCount, sellCount, holdingPeriod } = tradePattern.value;
-  const tradingFrequency = (buyCount + sellCount) / currentDay.value;
-  const avgHoldingPeriod = holdingPeriod.length > 0 
-    ? holdingPeriod.reduce((a, b) => a + b, 0) / holdingPeriod.length 
-    : 0;
-  
-  // 위험 선호도 계산 (0~1 사이 값)
-  return (tradingFrequency * 0.4 + (1 - avgHoldingPeriod/10) * 0.6);
+// (4) 섹터 다양성 계산
+const sectorDiversity = computed(() => {
+  const sectorCounts = Object.values(tradePattern.value.sectorPreference); // 섹터별 투자 횟수
+  const totalSectors = sectorCounts.reduce((a, b) => a + b, 0); // 총 투자 횟수
+  const maxSectorPercentage = Math.max(...sectorCounts) / totalSectors; // 가장 큰 섹터 비중
+  return 1 - maxSectorPercentage; // 섹터 다양성이 높을수록 값이 커짐
+});
+
+// (5) 종목 분산도 계산
+const stockDiversity = computed(() => {
+  const totalInvestedStocks = Object.keys(portfolio.value).length; // 현재 투자한 종목 수
+  const maxStocks = Object.keys(stockStore.stockSectors).length;   // 전체 투자 가능한 종목 수
+  // 종목 분산도 계산 (투자 종목 수 / 전체 종목 수)
+  console.log("totalInvestedStocks,maxStocks",totalInvestedStocks,maxStocks)
+  return totalInvestedStocks / maxStocks; // 분산도가 높을수록 값이 커짐
 });
 
 
-/* @@@@@@@@@@@@@@@@@@@ 투자 유형 관련 수정 끝 @@@@@@@@@@@@@@@@@@@ */
+// 💥💥위험 선호도 계산💥💥
+const calculateRiskLevel = computed(() => {
+  const { buyCount, sellCount, holdingPeriod } = tradePattern.value;
+  
+  // 거래 빈도 계산 (0 ~ 1 사이로 정규화)
+  const maxDailyTrades = 10; // 하루 최대 10회 거래로 가정
+  const tradingFrequency = Math.min((buyCount + sellCount) / (currentDay.value * maxDailyTrades), 1)
+
+  // 2. 평균 보유 기간 계산
+  const maxHoldingDays = 10; // 최대 보유 기간 10일로 가정
+  const avgHoldingPeriod = holdingPeriod.length > 0 
+    ? holdingPeriod.reduce((a, b) => a + b, 0) / holdingPeriod.length 
+    : maxHoldingDays; // 보유 기록이 없으면 최대 보유 기간으로 설정
+  const normalizedHoldingPeriod = Math.min(1 - (avgHoldingPeriod / maxHoldingDays), 1); // 0~1 사이 값
+
+  // 3. 자산 분배율 계산
+  const assetAllocation = portfolioValue.value / totalValue.value; // 투자 자산 / 총 자산
+
+  // 4. 섹터 다양성 1 - (1 - 가장 큰 섹터 비율) = 다양할수록 전체 값 작아짐
+  const sectorDiversityValue = 1 - sectorDiversity.value;
+  
+  // 5. 종목 분산도 (1 - 투자 종목 수 / 전체 종목 수) = 분산도 높을수록 전체 값 작아짐
+  const diversity = 1 - stockDiversity.value;
+
+  console.log( tradingFrequency * 0.3 , normalizedHoldingPeriod * 0.3 , assetAllocation * 0.2, sectorDiversityValue * 0.1, diversity * 0.1 );
+  /* 1일차 30주만 샀으면                                                          
+                    0.3                             0                       0.0716                     0.1                   0.0975
+  */
+
+  
+  const riskLevel = (
+    tradingFrequency * 0.3 +           // 거래 빈도: 30% 비중
+    normalizedHoldingPeriod * 0.3 + // 보유 기간: 30% 비중
+    assetAllocation * 0.2 +            // 자산 분배율: 20% 비중
+    sectorDiversityValue * 0.1 +       // 섹터 다양성: 10% 비중
+    diversity * 0.1                    // 종목 분산도: 10% 비중
+  );
+
+  return riskLevel; // 0 ~ 1 사이 값
+});
 
 
 /* --------------------------- Functions --------------------------- */
@@ -550,34 +589,30 @@ async function nextDay() {
     currentDay.value++; // 마지막 날짜까지 진행
     updateChart(); // 차트 업데이트
     console.log('stockData는 이렇게 출력됩니다.', stockData.value);
+
     const finalPortfolioValue = Object.keys(portfolio.value).reduce((total, stock) => {
-    const closePrice = stockData.value[stock]?.[9]?.close_price || 0; // 10일차 close_price 사용
-    const selectedQuantity = portfolio.value[stock].transactions.reduce((totalQuantity, transaction) => totalQuantity + transaction.quantity, 0);  // 보유 수량
-    return total + (selectedQuantity * closePrice);
+      const closePrice = stockData.value[stock]?.[9]?.close_price || 0; // 10일차 close_price 사용
+      const selectedQuantity = portfolio.value[stock].transactions.reduce(
+        (totalQuantity, transaction) => totalQuantity + transaction.quantity,0);  // 보유 수량
+        return total + (selectedQuantity * closePrice);
     }, 0);
     finalTotalValue.value = cash.value + finalPortfolioValue; // 최종 자산 계산
     console.log('Cash:', cash.value);
     console.log('Final Portfolio Value:', finalPortfolioValue);
     console.log('Final Total Value:', finalTotalValue.value);
 
-    const response = await fetch('http://127.0.0.1:8000/accounts/update_max_score/', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Token ${localStorage.getItem('token')}`, // 토큰을 헤더에 포함
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ max_score: finalTotalValue.value }) // 최종 자산을 서버로 전송
+
+    // 🔥 보유 기간 업데이트 (마지막 날까지 보유한 주식 포함)
+    Object.keys(portfolio.value).forEach((stock) => {
+      const transactions = portfolio.value[stock].transactions;
+      transactions.forEach((transaction) => {
+        const holdingDays = 10 - transaction.day; // 마지막 날(10일) 기준 보유 기간 계산
+        tradePattern.value.holdingPeriod.push(holdingDays); // 보유 기간 기록
+      });
     });
-
-    alert(`Game over. Your total value is ₩${finalTotalValue.value}`); 
-    if (response.ok) {
-      console.log('Game over. Your total value is ₩', finalTotalValue.value); 
-    } else {
-      console.error('Failed to update max score:', response.statusText);
-    }
+    console.log('Updated holdingPeriod:', tradePattern.value.holdingPeriod);
 
 
-    /* @@@@@@@@@@@@@@@@@@@ 투자 유형 관련 수정 시작 @@@@@@@@@@@@@@@@@@@ */
     const riskLevel = calculateRiskLevel.value;
     let investorType;
     console.log(riskLevel);
@@ -585,44 +620,67 @@ async function nextDay() {
     else if (riskLevel < 0.6) investorType = '균형 투자형';
     else if (riskLevel < 0.8) investorType = '공격 투자형';
     else investorType = '투기형';
+    /*
+    아무것도 안하면 -INF : 안정 추구형이 나오도록 했음 
+    */
 
-    // 분석 결과 서버로 전송
-    const analysisData = {
-      investor_type: investorType,
-      risk_level: riskLevel,
-      trade_pattern: tradePattern.value,
-      final_value: finalTotalValue.value
-    };
+    const response = await fetch('http://127.0.0.1:8000/accounts/update_max_score/', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Token ${localStorage.getItem('token')}`, // 토큰을 헤더에 포함
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ max_score: finalTotalValue.value, my_investor_type: investorType }) // 최종 자산을 서버로 전송
+    });
 
-    try {
-      await axios.post('http://127.0.0.1:8000/api/analysis/save/', analysisData);
-    } catch (error) {
-      console.error('Failed to save analysis:', error);
+    // alert(`Game over. Your total value is ₩${finalTotalValue.value}`); 
+    alert(`게임 종료!\n최종 자산: ₩${finalTotalValue.value}\n투자자 유형: ${investorType}`);
+    if (response.ok) {
+      console.log('Game over. Your total value is ₩', finalTotalValue.value); 
+    } else {
+      console.error('Failed to update max score:', response.statusText);
     }
 
-    alert(`게임 종료!\n최종 자산: ₩${finalTotalValue.value}\n투자자 유형: ${investorType}`);
 
-    /* @@@@@@@@@@@@@@@@@@@ 투자 유형 관련 수정 끝 @@@@@@@@@@@@@@@@@@@ */
+    
+
+
+
+    // // 분석 결과 서버로 전송
+    // const analysisData = {
+    //   investor_type: investorType,
+    //   risk_level: riskLevel,
+    //   trade_pattern: tradePattern.value,
+    //   final_value: finalTotalValue.value
+    // };
+
+    // try {
+    //   await axios.post('http://127.0.0.1:8000/api/analysis/save/', analysisData);
+    // } catch (error) {
+    //   console.error('Failed to save analysis:', error);
+    // }
+
+    // /* @@@@@@@@@@@@@@@@@@@ 투자 유형 관련 수정 끝 @@@@@@@@@@@@@@@@@@@ */
 
 
 
 
   }
 
-  if (currentDay.value === 10) {
-    const investorType = analyzeInvestorType();
-    const analysis = {
-      type: investorType,
-      pattern: tradePattern.value,
-      finalValue: finalTotalValue.value
-    };
+  // if (currentDay.value === 10) {
+  //   const investorType = analyzeInvestorType();
+  //   const analysis = {
+  //     type: investorType,
+  //     pattern: tradePattern.value,
+  //     finalValue: finalTotalValue.value
+  //   };
     
-    // 분석 결과 서버로 전송
-    await axios.post('http://127.0.0.1:8000/api/analysis/save/', analysis);
+  //   // 분석 결과 서버로 전송
+  //   await axios.post('http://127.0.0.1:8000/api/analysis/save/', analysis);
     
-    // 결과 표시
-    showAnalysisResult(analysis); 
-  }
+  //   // 결과 표시
+  //   showAnalysisResult(analysis); 
+  // }
 
 }
 
@@ -665,78 +723,97 @@ function executeTrade(type) {
       portfolio.value[selectedStock.value].transactions.push({
         quantity: volume,
         price: price,
-        /* @@@@@@@@@@@@@@@@@@@ 투자 유형 관련 수정 시작 @@@@@@@@@@@@@@@@@@@ */
         day: currentDay.value  // 거래 시점 추가
-        /* @@@@@@@@@@@@@@@@@@@ 투자 유형 관련 수정 끝 @@@@@@@@@@@@@@@@@@@ */
       });
-
-
-
+      
       console.log(`매수 완료: ${volume}주, 가격: ${price}`);
+
+      /* @@@@@@@@@@@@@@@@@@@ 투자 유형 관련 수정 시작 @@@@@@@@@@@@@@@@@@@ */
+      // console.log("사든 팔든 일단 이거 출력해라(사고있음)");
+      // console.log("portfolio",portfolio);
+      // console.log("portfolio.value",portfolio.value);
+      // console.log("portfolio.value[selectedStock.value].transactions",portfolio.value[selectedStock.value].transactions);
+      // console.log("tradePattern@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",tradePattern);
+      // console.log("volume",volume);
+      tradePattern.value.buyCount += volume;
+      tradePattern.value.totalTrades += volume;
+      // 업종 선호도 기록
+      const sector = stockStore.stockSectors[selectedStock.value];
+      tradePattern.value.sectorPreference[sector] = (tradePattern.value.sectorPreference[sector] || 0) + 1;
+      // console.log("tradePattern@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",tradePattern);
+      console.log("transactions 확인하기 : ", portfolio.value[selectedStock.value].transactions);
+      /* @@@@@@@@@@@@@@@@@@@ 투자 유형 관련 수정 끝 @@@@@@@@@@@@@@@@@@@ */
     } else {
       alert('Not enough cash or invalid quantity for buying.'); // 에러 메시지
     }
   } else if (type === 'sell') {
-    // 매도 조건: 보유 주식이 충분하고, 거래량이 0보다 큼
-    const totalQuantityAvailable = portfolio.value[selectedStock.value].transactions.reduce((totalQuantity, transaction) => totalQuantity + transaction.quantity, 0);
+  // 매도 조건: 보유 주식이 충분하고, 거래량이 0보다 큼
+  const totalQuantityAvailable = portfolio.value[selectedStock.value].transactions.reduce((totalQuantity, transaction) => totalQuantity + transaction.quantity, 0);
 
-    if (volume > 0 && totalQuantityAvailable >= volume) {
-      let remainingQuantity = volume;
-      let totalCost = 0;
+  if (volume > 0 && totalQuantityAvailable >= volume) {
+    let remainingQuantity = volume;
+    let totalCost = 0;
 
-      // FIFO 방식으로 매도
-      while (remainingQuantity > 0) {
-        const firstTransaction = portfolio.value[selectedStock.value].transactions[0]; // 가장 오래된 거래 내역
+    // FIFO 방식으로 매도
+    while (remainingQuantity > 0) {
+      const firstTransaction = portfolio.value[selectedStock.value].transactions[0]; // 가장 오래된 거래 내역
 
-        if (firstTransaction.quantity <= remainingQuantity) {
-          // 매도 수량이 해당 거래 내역의 수량보다 작거나 같으면 해당 거래 내역을 모두 소진
-          totalCost += firstTransaction.quantity * firstTransaction.price;
-          remainingQuantity -= firstTransaction.quantity;
-          portfolio.value[selectedStock.value].transactions.shift(); // 해당 거래 내역 제거
-        } else {
-          // 매도 수량이 해당 거래 내역의 수량보다 크면 일부만 소진
-          totalCost += remainingQuantity * firstTransaction.price;
-          firstTransaction.quantity -= remainingQuantity;
-          remainingQuantity = 0;
-        }
+      if (!firstTransaction) {
+        console.error('Error: No transaction found in portfolio for sell operation.');
+        break;
       }
 
-      // 매도 완료 후 현금 증가
-      cash.value += price * volume; // 현금 증가
+      // 보유 기간 계산 및 기록
+      const holdingDays = currentDay.value - firstTransaction.day;
+      tradePattern.value.holdingPeriod.push(holdingDays);
 
-      console.log(`매도 완료: ${volume}주, 가격: ${price}, 총 매도 금액: ${totalCost}`);
-    } else {
-      alert('Not enough shares to sell.'); // 보유 주식 수량이 부족함을 알리는 메시지
+      if (firstTransaction.quantity <= remainingQuantity) {
+        // 매도 수량이 해당 거래 내역의 수량보다 작거나 같으면 해당 거래 내역을 모두 소진
+        totalCost += firstTransaction.quantity * firstTransaction.price;
+        remainingQuantity -= firstTransaction.quantity;
+        portfolio.value[selectedStock.value].transactions.shift(); // 해당 거래 내역 제거
+      } else {
+        // 매도 수량이 해당 거래 내역의 수량보다 크면 일부만 소진
+        totalCost += remainingQuantity * firstTransaction.price;
+        firstTransaction.quantity -= remainingQuantity;
+        remainingQuantity = 0;
+      }
+      console.log("transactions 확인하기 : ", portfolio.value[selectedStock.value].transactions);
+
     }
+
+    // 매도 완료 후 현금 증가
+    cash.value += price * volume; // 현금 증가
+
+    console.log(`매도 완료: ${volume}주, 가격: ${price}, 총 매도 금액: ${totalCost}`);
+
+    // 매도 거래 횟수 업데이트
+    tradePattern.value.sellCount += volume;
+    tradePattern.value.totalTrades += volume;
+
+    // console.log('tradePattern after sell:', tradePattern.value);
+  } else {
+    alert('Not enough shares to sell.');
   }
-
-  // 거래 완료 후 입력값 초기화
-  tradeVolume.value = 0;
-
-  /* @@@@@@@@@@@@@@@@@@@ 투자 유형 관련 수정 시작 @@@@@@@@@@@@@@@@@@@ */
-  // 거래 패턴 분석 추가
-  if (type === 'buy') {
-    tradePattern.value.buyCount++;
-    tradePattern.value.totalTrades++;
-    // 업종 선호도 기록
-    const sector = stockStore.stockSectors[selectedStock.value];
-    tradePattern.value.sectorPreference[sector] = (tradePattern.value.sectorPreference[sector] || 0) + 1;
-    console.log("tradePattern",tradePattern);
-  } else if (type === 'sell') {
-    tradePattern.value.sellCount++;
-    tradePattern.value.totalTrades++;
-    // 보유 기간 기록
-    console.log("ddd");
-    const holdingDays = currentDay.value - portfolio.value[selectedStock.value].transactions[0].day;
-    tradePattern.value.holdingPeriod.push(holdingDays);
-    console.log("tradePattern",tradePattern);
-  }
-  
-  // 위험 선호도 계산
-  calculateRiskLevel();
-  /* @@@@@@@@@@@@@@@@@@@ 투자 유형 관련 수정 끝 @@@@@@@@@@@@@@@@@@@ */
-
 }
+
+// 위험 선호도 계산
+console.log("Calculating risk level...");
+try {
+  const riskLevel = calculateRiskLevel.value;
+  tradePattern.value.riskLevel = riskLevel;
+  console.log("Risk Level: ", riskLevel);
+} catch (error) {
+  console.error("Error accessing calculateRiskLevel: ", error);
+}
+
+
+// 거래 완료 후 입력값 초기화
+tradeVolume.value = 0;
+
+ 
+console.log('tradePattern@@@@@@@@@@@@@@', tradePattern.value);
+} // executeTrade 함수 끝
 </script>
 
 <style scoped>

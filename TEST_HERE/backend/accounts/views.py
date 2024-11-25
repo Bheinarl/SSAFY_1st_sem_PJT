@@ -52,19 +52,16 @@ def check_exchange_rate(request):
     elif now.weekday() == 6:
         able_day = datetime.now() - timedelta(days=2)
     # 오전 11시 이전이라면 오늘을 기준으로 어제 데이터 사용
+    elif now.weekday() == 0 and datetime.now().hour < 11:
+        able_day = datetime.now() - timedelta(days=3)
     elif datetime.now().hour < 11:
         able_day = datetime.now() - timedelta(days=1)
-    else:
+    else: 
         able_day = datetime.now()
     api_url += f"&searchdate={able_day.strftime('%Y%m%d')}"
-
-    # 오전 11시 이전이라면 오늘을 기준으로 어제 데이터 사용
-    # if datetime.now().hour < 11:
-    #     yesterday = datetime.now() - timedelta(days=1)
-        # api_url += f"&searchdate={yesterday.strftime('%Y%m%d')}"
     
     try:
-        response = requests.get(api_url, verify=True)  # SSL 검증 비활성화
+        response = requests.get(api_url, verify=False)  # SSL 검증 비활성화
         response.raise_for_status()
         
         data = response.json()
@@ -102,8 +99,10 @@ def get_exchange_rate(request):
         able_day = datetime.now() - timedelta(days=1)
     elif now.weekday() == 6:
         able_day = datetime.now() - timedelta(days=2)
-    elif datetime.now().hour < 11:
-        able_day = datetime.now() - timedelta(days=1)
+    elif datetime.now().hour < 11 and now.weekday() != 0:
+        able_day = datetime.now() - timedelta(days=3)
+    else:
+        able_day = datetime.now()
         api_url += f"&searchdate={able_day.strftime('%Y%m%d')}"
     
     try:

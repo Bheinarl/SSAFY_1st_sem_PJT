@@ -42,3 +42,11 @@ class SavingProduct(models.Model):
     # 기타 유의사항
     etc_note = models.CharField(max_length=100, default='', null=True)
 
+class FundProduct(models.Model):
+    # 펀드 유형
+    fndTp = models.CharField(max_length=100)
+    # 상품 분류 코드
+    asoStdCd = models.CharField(max_length=100)
+    # 펀드 명
+    fndNm = models.CharField(max_length=100)
+

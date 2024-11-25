@@ -5,17 +5,35 @@
     <!-- 카테고리 탭 -->
     <nav>
       <button 
-        @click="fetchProducts('deposits')" 
+        @click="changeCategory('deposits')" 
         :class="{ active: selectedCategory === 'deposits' }"
       >
         정기예금
       </button>
       <button 
-        @click="fetchProducts('savings')" 
+        @click="changeCategory('savings')" 
         :class="{ active: selectedCategory === 'savings' }"
       >
         적금
       </button>
+      <button 
+        @click="changeCategory('funds')" 
+        :class="{ active: selectedCategory === 'funds' }"
+      >
+        펀드
+      </button>
+    </nav>
+    <nav>
+      <div v-if="selectedCategory === 'funds' && showFundsSubcategories" class="subcategories">
+        <button 
+          v-for="subcategory in fundSubcategories" 
+          :key="subcategory" 
+          @click="changeSubCategory(subcategory)"
+          :class="{ active: selectedSubcategory === subcategory }"
+        >
+          {{ subcategory }}
+        </button>
+      </div>
     </nav>
 
     <!-- 로딩 상태 표시 -->
@@ -27,21 +45,31 @@
     <!-- 상품 목록 -->
     <table v-if="paginatedProducts.length > 0">
       <thead>
-        <tr>
+        <tr v-if="selectedCategory == 'deposits' || selectedCategory == 'savings'">
           <th>상품명</th>
           <th>금융회사명</th>
           <th>가입대상</th>
           <th>만기 후 이자율</th>
           <th>가입방법</th>
         </tr>
+        <tr v-else-if="selectedCategory == 'funds'">
+          <th>상품명</th>
+          <th>펀드 유형</th>
+        </tr>
       </thead>
-      <tbody>
+      <tbody v-if="selectedCategory == 'deposits' || selectedCategory == 'savings'">
         <tr v-for="(product, index) in paginatedProducts" :key="index">
           <td>{{ product.fin_prdt_nm }}</td>
           <td>{{ product.kor_co_nm }}</td>
           <td>{{ product.join_member }}</td>
           <td>{{ product.mtrt_int }}</td>
           <td>{{ product.join_way }}</td>
+        </tr>
+      </tbody>
+      <tbody v-else-if="selectedCategory == 'funds'">
+        <tr v-for="(product, index) in paginatedProducts" :key="index">
+          <td><a :href="'https://www.funddoctor.co.kr/afn/fund/fprofile.jsp?fund_cd=' + product.asoStdCd">{{ product.fndNm }}</a></td>
+          <td>{{ product.fndTp }}</td>
         </tr>
       </tbody>
     </table>
@@ -71,6 +99,12 @@ import axios from 'axios';
 
 // 상태 변수
 const selectedCategory = ref('deposits'); // 기본 카테고리 설정
+const selectedSubcategory = ref('전체'); // 기본 서브카테고리 설정
+const showFundsSubcategories = ref(false); // 펀드 하위 카테고리 표시 여부
+
+const fundSubcategories = ['전체', '재간접', '주식형', '혼합채권형', '채권형', '혼합자산', '파생상품', '부동산', '특별자산', '단기금융', '혼합주식형', '변액보험']
+
+
 const products = ref([]); // 전체 상품 데이터
 const paginatedProducts = ref([]); // 페이지네이션된 상품 데이터
 const loading = ref(false); // 로딩 상태
@@ -81,30 +115,41 @@ const pagination = ref({
   now_page_no: 1,
 });
 
-// 카테고리 선택 시 데이터 가져오기
-const fetchProducts = async (category) => {
+// 상품 데이터 가져오기
+const fetchProducts = async (category, subcategory = '전체') => {
   loading.value = true;
   error.value = null;
-  selectedCategory.value = category; // 카테고리 변경
-  
+  let apiUrl;
+
   try {
-    // API 호출로 전체 데이터 가져오기
-    const response = await axios.get(`http://127.0.0.1:8000/finances/api/products/${category}/`);
-    
+    if (category === 'funds') {
+      apiUrl = `http://127.0.0.1:8000/finances/api/products/funds/${subcategory}/`;
+    } else {
+      apiUrl = `http://127.0.0.1:8000/finances/api/products/${category}/`;
+    }
+
+    const response = await axios.get(apiUrl);
+
     if (response.data) {
-      products.value = response.data.products; // 전체 상품 데이터 저장
+      products.value = response.data.products || [];
       pagination.value.total_count = products.value.length;
-      pagination.value.max_page_no = Math.ceil(products.value.length / 10); // 한 페이지당 10개 기준
+      pagination.value.max_page_no = Math.ceil(products.value.length / 10);
       changePage(1); // 첫 페이지로 초기화
     } else {
-      error.value = "상품을 불러오는 데 실패했습니다.";
+      error.value = "상품 데이터를 불러오는 데 실패했습니다.";
     }
   } catch (err) {
-    error.value = "상품을 불러오는 중 오류가 발생했습니다.";
+    error.value = "데이터 요청 중 오류가 발생했습니다.";
     console.error(err);
   } finally {
     loading.value = false;
   }
+};
+
+// 서브카테고리 변경 시 호출
+const changeSubCategory = (subcategory) => {
+  selectedSubcategory.value = subcategory;
+  fetchProducts('funds', subcategory);
 };
 
 // 페이지네이션 데이터 생성
@@ -119,6 +164,14 @@ const changePage = (pageNo) => {
   if (pageNo < 1 || pageNo > pagination.value.max_page_no) return;
   pagination.value.now_page_no = pageNo;
   paginateProducts(); // 페이지 데이터 갱신
+};
+
+// 카테고리 변경
+const changeCategory = (category) => {
+  selectedCategory.value = category;
+  selectedSubcategory.value = '전체'; // 기본 서브카테고리로 초기화
+  showFundsSubcategories.value = category === 'funds'; // 펀드 하위 카테고리 토글
+  fetchProducts(category);
 };
 
 // 컴포넌트가 마운트될 때 기본적으로 데이터 가져오기

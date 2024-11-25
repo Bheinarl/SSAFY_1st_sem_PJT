@@ -9,7 +9,8 @@
   
 
     <!-- News Section -->
-    <div class="news-container" v-if="currentDay < 11">
+    <div class="news-container" v-if="currentDay < 11"> <!--10일차까지만 표시되어야함-->
+      
       <h3>Latest News</h3>
       <ul>
         <!-- 주식 관련 최신 뉴스 제목을 최대 10개 출력 -->
@@ -19,6 +20,10 @@
         <!-- 뉴스 데이터가 로드되지 않았을 때 출력 -->
         <h5 v-if="newsTitles.length === 0">해당 날짜의 뉴스를 로딩 중입니다.</h5>
       </ul>
+      
+      <!-- ExchangeRateAlert로 이동하는 버튼 -->
+      <button @click="goToExchangeRateAlert" class="btn btn-primary" style="margin-top: 10px;"> 환율 알림 기능 </button>
+
     </div>
 
 
@@ -678,6 +683,9 @@ function goFinanceRecommend() {
   router.push('/finances');  // finances 페이지로 이동
 }
 
+function goToExchangeRateAlert() {
+  router.push('/exchange-rate-alert'); // ExchangeRateAlert 페이지로 이동
+}
 
 /* --------------------------- Lifecycle --------------------------- */
 onMounted(async () => {  // 페이지 로딩 시 실행

@@ -4,7 +4,6 @@
       <router-link v-show="!isAuthenticated" to="/register">Register</router-link><span v-show="!isAuthenticated"> | </span>
       <router-link v-show="isAuthenticated" to="/profile">Profile</router-link><span v-show="isAuthenticated"> | </span>
       <router-link v-show="isAuthenticated" to="/posts">게시판</router-link><span v-show="isAuthenticated"> | </span>
-      <button v-show="isAuthenticated" @click="goExchangeRateAlert">ExchangeRateAlert</button><span v-show="isAuthenticated"> | </span>
       <button v-show="isAuthenticated" @click="goGame">goGameReal</button><span v-show="isAuthenticated"> | </span>
       <button v-show="isAuthenticated" @click="goFinances">Finances</button><span v-show="isAuthenticated"> | </span>
       <button v-show="isAuthenticated" @click="goLeaderBoard">LeaderBoard</button><span v-show="isAuthenticated"> | </span>
@@ -27,15 +26,15 @@ export default {
             this.isAuthenticated = false;
             this.$router.push('/login');
         },
-        goExchangeRateAlert() {
-            this.$router.push('/exchange-rate-alert');
-        },
+        // goExchangeRateAlert() {
+        //     this.$router.push('/exchange-rate-alert');
+        // },
         goGame() {
             this.$router.push('/gamereal');
         },
-        goFinances() {
-            this.$router.push('/finances');
-        },
+        // goFinances() {
+        //     this.$router.push('/finances');
+        // },
         goLeaderBoard() {
             this.$router.push('/leaderboard');
         }

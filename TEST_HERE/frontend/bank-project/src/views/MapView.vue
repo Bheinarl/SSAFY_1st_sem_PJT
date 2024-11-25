@@ -4,14 +4,8 @@
   </div>
 </template>
 
-<script>
-import KakaoMap from '@/components/KakaoMap.vue'
-
-export default {
-  components: {
-    KakaoMap
-  }
-}
+<script setup>
+import KakaoMap from '@/components/KakaoMap.vue';
 </script>
 
 <style scoped>

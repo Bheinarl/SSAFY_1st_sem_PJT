@@ -29,6 +29,7 @@ def fetch_news(request):
             titles.append(title.text.strip())
             if len(titles) == 10:  # 10개까지만 가져옴
                 break
+        # print(titles)  # 디버깅용으로 출력
 
         return JsonResponse({'status': 'success', 'message': 'News headlines saved successfully', 'data': titles}, status=200)
     

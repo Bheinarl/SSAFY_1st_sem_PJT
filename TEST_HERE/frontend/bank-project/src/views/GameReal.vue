@@ -26,8 +26,13 @@
 
     <!-- Game UI Section -->
     <div class="container">
-      <div class="day-counter"  v-if="currentDay < 11">Day <span>{{ currentDay }}</span> / 10</div>
-      <div class="day-counter"  v-if="currentDay > 10">Day <span>10</span> / 10</div>
+      <div class="day-counter"  v-if="currentDay < 11"> Day <span>{{ currentDay }}</span> / 10 </div>
+      <div class="day-counter"  v-if="currentDay > 10"> Day <span>10</span> / 10 
+        <div>최종 자산: {{finalTotalValue}} </div>
+        <div>투자자 유형: {{investorType}} </div>
+        <div>실제 주식 데이터 기간 : {{startDateValue}} ~ {{endDateValue}}</div>
+        <button @click="restartGame" class="btn btn-primary">Restart Game</button>
+      </div>
 
       
         <div class="game-container">
@@ -474,6 +479,15 @@ const calculateRiskLevel = computed(() => {
 });
 
 
+const startDateValue = computed(() => startDate.value || 'unknown');
+const endDateValue = computed(() =>
+  stockData.value[selectedStock.value]?.[9]?.date || 'unknown'
+);
+
+const investorType = ref('');
+
+
+
 /* --------------------------- Functions --------------------------- */
 // Random Date Fetch
 
@@ -613,13 +627,26 @@ async function nextDay() {
     console.log('Updated holdingPeriod:', tradePattern.value.holdingPeriod);
 
 
+    // // 날짜 범위 계산
+    // const startDateValue = startDate.value; // 시작 날짜
+    // const endDateValue = stockData.value[selectedStock.value]?.[9]?.date || 'unknown'; // 종료 날짜
+    // console.log(`Date Range: ${startDateValue} ~ ${endDateValue}`); // 디버깅용
+
+
     const riskLevel = calculateRiskLevel.value;
-    let investorType;
-    console.log(riskLevel);
-    if (riskLevel < 0.3) investorType = '안정 추구형';
-    else if (riskLevel < 0.6) investorType = '균형 투자형';
-    else if (riskLevel < 0.8) investorType = '공격 투자형';
-    else investorType = '투기형';
+    // let investorType; //////////////////////////////////////여기 문제!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // console.log(riskLevel);
+    // if (riskLevel < 0.3) investorType = '안정 추구형';
+    // else if (riskLevel < 0.6) investorType = '균형 투자형';
+    // else if (riskLevel < 0.8) investorType = '공격 투자형';
+    // else investorType = '투기형';
+
+    // let investorType; //////////////////////////////////////여기 문제!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    if (riskLevel < 0.3) investorType.value = '안정 추구형';
+    else if (riskLevel < 0.6) investorType.value = '균형 투자형';
+    else if (riskLevel < 0.8) investorType.value = '공격 투자형';
+    else investorType.value = '투기형';
+
     /*
     아무것도 안하면 -INF : 안정 추구형이 나오도록 했음 
     */
@@ -630,59 +657,32 @@ async function nextDay() {
         'Authorization': `Token ${localStorage.getItem('token')}`, // 토큰을 헤더에 포함
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ max_score: finalTotalValue.value, my_investor_type: investorType }) // 최종 자산을 서버로 전송
+      body: JSON.stringify({ max_score: finalTotalValue.value, my_investor_type: investorType.value }) // 최종 자산을 서버로 전송
     });
 
-    // alert(`Game over. Your total value is ₩${finalTotalValue.value}`); 
-    alert(`게임 종료!\n최종 자산: ₩${finalTotalValue.value}\n투자자 유형: ${investorType}`);
+    
+    alert(`게임 종료!\n최종 자산: ₩${finalTotalValue.value}\n투자자 유형: ${investorType.value}\n주식 데이터 기간: ${startDateValue.value} ~ ${endDateValue.value}`);
     if (response.ok) {
       console.log('Game over. Your total value is ₩', finalTotalValue.value); 
     } else {
       console.error('Failed to update max score:', response.statusText);
     }
-
-
-    
-
-
-
-    // // 분석 결과 서버로 전송
-    // const analysisData = {
-    //   investor_type: investorType,
-    //   risk_level: riskLevel,
-    //   trade_pattern: tradePattern.value,
-    //   final_value: finalTotalValue.value
-    // };
-
-    // try {
-    //   await axios.post('http://127.0.0.1:8000/api/analysis/save/', analysisData);
-    // } catch (error) {
-    //   console.error('Failed to save analysis:', error);
-    // }
-
-    // /* @@@@@@@@@@@@@@@@@@@ 투자 유형 관련 수정 끝 @@@@@@@@@@@@@@@@@@@ */
-
-
-
-
   }
-
-  // if (currentDay.value === 10) {
-  //   const investorType = analyzeInvestorType();
-  //   const analysis = {
-  //     type: investorType,
-  //     pattern: tradePattern.value,
-  //     finalValue: finalTotalValue.value
-  //   };
-    
-  //   // 분석 결과 서버로 전송
-  //   await axios.post('http://127.0.0.1:8000/api/analysis/save/', analysis);
-    
-  //   // 결과 표시
-  //   showAnalysisResult(analysis); 
-  // }
-
 }
+
+
+// 새로고침 없이 게임 초기화
+function restartGame() {
+  currentDay.value = 1;
+  cash.value = 10000000;
+  finalTotalValue.value = 0;
+  portfolio.value = {};
+  investorType = ""; // 투자자 유형 초기화
+  alert("Game has been restarted!");
+  updateStockUrl();
+  initializeChart();
+}
+
 
 
 

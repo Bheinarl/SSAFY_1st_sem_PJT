@@ -213,3 +213,18 @@ def get_current_user(request):
         'my_investor_type': request.user.my_investor_type,
         # 추가적인 사용자 정보도 반환 가능
     })
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_leaderboard(request):
+    users = CustomUser.objects.all().order_by('-max_score')[:10]  # 상위 10명
+    leaderboard = [
+        {
+            'username': user.username,
+            'nickname': user.nickname,
+            'max_score': user.max_score
+        }
+        for user in users
+    ]
+    return Response(leaderboard, status=status.HTTP_200_OK)

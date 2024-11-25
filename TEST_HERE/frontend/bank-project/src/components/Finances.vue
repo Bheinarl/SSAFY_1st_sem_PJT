@@ -5,6 +5,12 @@
     <!-- 카테고리 탭 -->
     <nav>
       <button 
+        @click="changeCategory('funds')" 
+        :class="{ active: selectedCategory === 'funds' }"
+      >
+        펀드
+      </button>
+      <button 
         @click="changeCategory('deposits')" 
         :class="{ active: selectedCategory === 'deposits' }"
       >
@@ -15,12 +21,6 @@
         :class="{ active: selectedCategory === 'savings' }"
       >
         적금
-      </button>
-      <button 
-        @click="changeCategory('funds')" 
-        :class="{ active: selectedCategory === 'funds' }"
-      >
-        펀드
       </button>
     </nav>
     <nav>
@@ -98,9 +98,9 @@ import { ref, onMounted } from 'vue';
 import axios from 'axios';
 
 // 상태 변수
-const selectedCategory = ref('deposits'); // 기본 카테고리 설정
+const selectedCategory = ref('funds'); // 기본 카테고리 설정
 const selectedSubcategory = ref('전체'); // 기본 서브카테고리 설정
-const showFundsSubcategories = ref(false); // 펀드 하위 카테고리 표시 여부
+const showFundsSubcategories = ref(true); // 펀드 하위 카테고리 표시 여부
 
 const fundSubcategories = ['전체', '채권형', '단기금융', '혼합채권형', '혼합자산', '변액보험', '혼합주식형', '주식형', '파생상품', '부동산', '특별자산', '재간접']
 

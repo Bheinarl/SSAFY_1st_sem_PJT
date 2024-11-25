@@ -13,37 +13,37 @@
     </nav>
 </template>
 
-<script>
-export default {
-    data() {
-        return {
-            isAuthenticated: !!localStorage.getItem('token')
-        };
-    },
-    methods: {
-        logout() {
-            localStorage.removeItem('token');
-            this.isAuthenticated = false;
-            this.$router.push('/login');
-        },
-        goGame() {
-            this.$router.push('/gamereal');
-        },
-        goFinances() {
-            this.$router.push('/finances');
-        },
-        goLeaderBoard() {
-            this.$router.push('/leaderboard');
-        }
-    },
-    watch: {
-        // 로그인 상태가 변경되면 Navbar 업데이트
-        '$route'() {
-            this.isAuthenticated = !!localStorage.getItem('token');
-        }
-    }
+<script setup>
+import { ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+const isAuthenticated = ref(!!localStorage.getItem('token'));
+
+const logout = () => {
+    localStorage.removeItem('token');
+    isAuthenticated.value = false;
+    router.push('/login');
 };
+
+const goGame = () => {
+    router.push('/gamereal');
+};
+
+const goFinances = () => {
+    router.push('/finances');
+};
+
+const goLeaderBoard = () => {
+    router.push('/leaderboard');
+};
+
+// 로그인 상태가 변경되면 Navbar 업데이트
+watch(() => router.currentRoute, () => {
+    isAuthenticated.value = !!localStorage.getItem('token');
+});
 </script>
+
 
 <style scoped>
 nav {

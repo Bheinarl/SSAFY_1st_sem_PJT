@@ -54,6 +54,8 @@ def check_exchange_rate(request):
     # 오전 11시 이전이라면 오늘을 기준으로 어제 데이터 사용
     elif datetime.now().hour < 11:
         able_day = datetime.now() - timedelta(days=1)
+    else:
+        able_day = datetime.now()
     api_url += f"&searchdate={able_day.strftime('%Y%m%d')}"
 
     # 오전 11시 이전이라면 오늘을 기준으로 어제 데이터 사용

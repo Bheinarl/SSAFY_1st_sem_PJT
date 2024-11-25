@@ -5,10 +5,6 @@
       <button @click="goToMapView" class="btn btn-primary">Go to Map</button>
     </div>
 
-    <!-- 특정 단어 클릭 -->
-    <button @click="searchInMap('은행')">은행</button>
-        
-
     <!-- 투자자 유형 표시 -->
     <div>
       <h2>투자자 유형: <span>{{ userType }}</span></h2>
@@ -74,7 +70,10 @@
       <tbody v-if="selectedCategory == 'deposits' || selectedCategory == 'savings'">
         <tr v-for="(product, index) in paginatedProducts" :key="index">
           <td>{{ product.fin_prdt_nm }}</td>
-          <td>{{ product.kor_co_nm }}</td>
+          <!-- 💰💰💰금융회사명을 바로 카카오맵에서 키워드 검색💰💰💰 -->
+          <td @click="searchInMap(product.kor_co_nm)" style="cursor: pointer; color: blue; text-decoration: underline;">
+            {{ product.kor_co_nm }}
+          </td>
           <td>{{ product.join_member }}</td>
           <td>{{ product.mtrt_int }}</td>
           <td>{{ product.join_way }}</td>

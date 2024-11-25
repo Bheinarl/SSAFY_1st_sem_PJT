@@ -17,4 +17,5 @@ urlpatterns = [
     path('update_max_score/', views.update_max_score, name='update_max_score'),
     # path('api/auth/login/', CustomLoginView.as_view(), name='custom_login'),
     path('get_current_user/', views.get_current_user, name='get_current_user'),
+    path('leaderboard/', views.get_leaderboard, name='get_leaderboard'),
 ]

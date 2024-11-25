@@ -2,6 +2,67 @@ import { defineStore } from 'pinia';
 
 export const useStockStore = defineStore('stock', {
   state: () => ({
+    stockSectors: {
+      /*
+      - IT: Information Technology
+      - F&B: Food and Beverage
+      - Telecom: Telecommunication
+      - Biotech: Biotechnology
+      - Insurance: Insurance
+      - Industry: Industrial
+      - Automotive: Automotive
+      - Energy: Energy
+      - Steel: Steel Manufacturing
+      - Electronics: Electronics and Semiconductor
+      - Entertainment: Entertainment and Media
+      - Construction: Construction and Infrastructure
+      - Airline: Aviation
+      - Logistics: Logistics and Transportation
+      - Chemical: Chemical Manufacturing
+      - Education: Education Services
+      - Finance: Financial Services
+      */
+      '삼성에스디에스': 'IT', // 삼성에스디에스: IT
+      '넥슨게임즈': 'IT', // 넥슨게임즈: IT
+      '카카오': 'IT', // 카카오: IT
+      'NAVER': 'IT', // NAVER: IT
+      'CJ제일제당': 'F&B', // CJ제일제당: 식품
+      '농심': 'F&B', // 농심: 식품
+      '하이트진로': 'F&B', // 하이트진로: 음료
+      '오뚜기': 'F&B', // 오뚜기: 식품
+      'SK텔레콤': 'Telecom', // SK텔레콤: 통신
+      'KT': 'Telecom', // KT: 통신
+      '삼성바이오로직스': 'Biotech', // 삼성바이오로직스: 바이오
+      '셀트리온': 'Biotech', // 셀트리온: 바이오
+      '오리엔트바이오': 'Biotech', // 오리엔트바이오: 바이오
+      '미래에셋생명': 'Insurance', // 미래에셋생명: 보험
+      '삼보산업': 'Industry', // 삼보산업: 산업
+      '한화생명': 'Insurance', // 한화생명: 보험
+      '현대차': 'Automotive', // 현대차: 자동차
+      '기아': 'Automotive', // 기아: 자동차
+      '한국전력': 'Energy', // 한국전력: 에너지
+      'POSCO홀딩스': 'Steel', // POSCO홀딩스: 철강
+      '삼성전자': 'Electronics', // 삼성전자: 전자
+      'SK하이닉스': 'Electronics', // SK하이닉스: 반도체
+      'YG PLUS': 'Entertainment', // YG PLUS: 엔터테인먼트
+      'JYP Ent.': 'Entertainment', // JYP Ent.: 엔터테인먼트
+      '에스엠': 'Entertainment', // 에스엠: 엔터테인먼트
+      'CJ CGV': 'Entertainment', // CJ CGV: 엔터테인먼트
+      'GS건설': 'Construction', // GS건설: 건설
+      'KD': 'Industry', // KD: 산업
+      '대한항공': 'Airline', // 대한항공: 항공
+      'CJ대한통운': 'Logistics', // CJ대한통운: 물류
+      '제주항공': 'Airline', // 제주항공: 항공
+      'SK이노베이션': 'Energy', // SK이노베이션: 에너지
+      'S-Oil': 'Energy', // S-Oil: 에너지
+      '롯데케미칼': 'Chemical', // 롯데케미칼: 화학
+      'LG화학': 'Chemical', // LG화학: 화학
+      '에스에너지': 'Energy', // 에스에너지: 에너지
+      '메가스터디교육': 'Education', // 메가스터디교육: 교육
+      '웅진씽크빅': 'Education', // 웅진씽크빅: 교육
+      'KB금융': 'Finance', // KB금융: 금융
+      '우리금융지주': 'Finance', // 우리금융지주: 금융
+    },
     selectedStock: '삼성전자',
     stockMapping: {
       '삼성에스디에스': '018260',

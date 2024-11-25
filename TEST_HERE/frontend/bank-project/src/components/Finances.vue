@@ -1,5 +1,10 @@
 <template>
   <div>
+    <!-- MapView로 이동하는 버튼 -->
+    <div style="margin-top: 20px;">
+      <button @click="goToMapView" class="btn btn-primary">Go to Map</button>
+    </div>
+
     <h1>상품 목록</h1>
     
     <!-- 카테고리 탭 -->
@@ -113,6 +118,12 @@ const pagination = ref({
   max_page_no: 1,
   now_page_no: 1,
 });
+
+// MapView로 이동하는 함수
+const goToMapView = () => {
+  window.location.href = '/mapview';
+};
+
 
 // 상품 데이터 가져오기
 const fetchProducts = async (category, subcategory = '전체') => {

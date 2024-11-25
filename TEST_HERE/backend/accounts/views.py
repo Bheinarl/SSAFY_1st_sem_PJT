@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate
 from django.conf import settings
 
 from .models import CurrencyAlert, CustomUser
-from .serializers import CustomUserDetailsSerializer
+from .serializers import CustomUserDetailsSerializer, CustomRegisterSerializer
 
 import json
 import requests
@@ -185,6 +185,7 @@ def login(request):
 @permission_classes([IsAuthenticated])
 def profile(request):
     user = request.user  # 인증된 사용자
+    print(user)
     serializer = CustomUserDetailsSerializer(user)  # 사용자 데이터를 직렬화
     return Response(serializer.data)
 

@@ -1,10 +1,15 @@
 <template>
   <div>
-    <h1>Leaderboard</h1>
+    <div class="leaderboard-header">
+      <h1>Leaderboard</h1>
+      <h6 id="notice">nickname 미설정 시 username으로 기록</h6>
+    </div>
     <div v-if="loading">Loading...</div>
     <div v-else class="leaderboard">
       <div v-for="user in leaderboard" :key="user.username">
-        <p class="rank" v-if="user.max_score">{{ user.username }} : {{ user.max_score }}</p>
+        <p class="rank" v-if="user.max_score">
+          {{ user.nickname || user.username }} : {{ user.max_score }}
+        </p>
       </div>
     </div>
   </div>
@@ -36,6 +41,13 @@ onMounted(fetchLeaderboard);
 </script>
 
 <style scoped>
+
+.leaderboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .leaderboard {
   counter-reset: rank;
 }
@@ -49,5 +61,10 @@ onMounted(fetchLeaderboard);
 .rank::before {
   content: counter(rank) ". ";
   font-weight: bold;
+}
+
+#notice {
+  font-size: 15px;
+  color: gray;
 }
 </style>

@@ -29,7 +29,7 @@
           v-for="subcategory in fundSubcategories" 
           :key="subcategory" 
           @click="changeSubCategory(subcategory)"
-          :class="{ active: selectedSubcategory === subcategory }"
+          :class="getSubcategoryClass(subcategory)"
         >
           {{ subcategory }}
         </button>
@@ -102,8 +102,7 @@ const selectedCategory = ref('deposits'); // 기본 카테고리 설정
 const selectedSubcategory = ref('전체'); // 기본 서브카테고리 설정
 const showFundsSubcategories = ref(false); // 펀드 하위 카테고리 표시 여부
 
-const fundSubcategories = ['전체', '재간접', '주식형', '혼합채권형', '채권형', '혼합자산', '파생상품', '부동산', '특별자산', '단기금융', '혼합주식형', '변액보험']
-
+const fundSubcategories = ['전체', '채권형', '단기금융', '혼합채권형', '혼합자산', '변액보험', '혼합주식형', '주식형', '파생상품', '부동산', '특별자산', '재간접']
 
 const products = ref([]); // 전체 상품 데이터
 const paginatedProducts = ref([]); // 페이지네이션된 상품 데이터
@@ -174,8 +173,63 @@ const changeCategory = (category) => {
   fetchProducts(category);
 };
 
+
+const userType = ref(''); // 사용자 유형을 저장할 변수
+
+// 현재 사용자를 저장할 변수
+const loadCurrentUser = async () => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    // 토큰이 없으면 로그인 페이지로 리다이렉트
+    router.push('/login');
+    return;
+  }
+  
+  try {
+    const response = await fetch('http://127.0.0.1:8000/accounts/get_current_user/', {
+      method: 'GET',
+      headers: {
+        Authorization: `Token ${token}`,
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    userType.value = data.my_investor_type;  // 로그인된 사용자 정보 저장
+    // getUserTypeClass(userType.value);
+  } catch (error) {
+    console.error('사용자 정보를 불러오는 중 오류가 발생했습니다:', error);
+  }
+};
+
+// 사용자의 투자 유형에 따라 서브카테고리별 색상 클래스를 반환
+const getSubcategoryClass = (subcategory) => {
+  if (userType.value === '안정 추구형') {
+    if (['채권형', '단기금융'].includes(subcategory)) {
+      return 'green-bg';
+    }
+  } else if (userType.value === '균형 투자형') {
+    if (['혼합채권형', '혼합자산', '변액보험'].includes(subcategory)) {
+      return 'blue-bg';
+    }
+  } else if (userType.value === '공격 투자형') {
+    if (['주식형', '혼합주식형'].includes(subcategory)) {
+      return 'yellow-bg';
+    }
+  } else if (userType.value === '투기형') {
+    if (['재간접', '파생상품', '부동산', '특별자산'].includes(subcategory)) {
+      return 'red-bg';
+    }
+  }
+  return ''; // 기본값은 빈 문자열
+};
+
 // 컴포넌트가 마운트될 때 기본적으로 데이터 가져오기
-onMounted(() => {
+onMounted(async() => {
+  await loadCurrentUser();
   fetchProducts(selectedCategory.value);
 });
 </script>
@@ -198,6 +252,26 @@ nav button.active {
   background-color: #007bff;
   color: white;
   border-color: #007bff;
+}
+
+.green-bg {
+  background-color: #90EE90;
+  color: black;
+}
+
+.blue-bg {
+  background-color: #ADD8E6;
+  color: black;
+}
+
+.yellow-bg {
+  background-color: #FFFFE0;
+  color: black;
+}
+
+.red-bg {
+  background-color: #FFCCCB;
+  color: black;
 }
 
 .table-container {

@@ -417,14 +417,31 @@ const earningRate = computed(() => {
 /* @@@@@@@@@@@@@@@@@@@ 투자 유형 관련 수정 시작 @@@@@@@@@@@@@@@@@@@ */
 const calculateRiskLevel = computed(() => {
   const { buyCount, sellCount, holdingPeriod } = tradePattern.value;
+
+  // 1. 거래 빈도와 평균 보유 기간 계산
   const tradingFrequency = (buyCount + sellCount) / currentDay.value;
-  const avgHoldingPeriod = holdingPeriod.length > 0 
-    ? holdingPeriod.reduce((a, b) => a + b, 0) / holdingPeriod.length 
-    : 0;
-  console.log("buyCount, sellCount, holdingPeriod,tradingFrequency,avgHoldingPeriod",buyCount, sellCount, holdingPeriod,tradingFrequency,avgHoldingPeriod);
-  // 위험 선호도 계산 (0~1 사이 값)
-  return (tradingFrequency * 0.4 + (1 - avgHoldingPeriod/10) * 0.6);
+  const avgHoldingPeriod =
+    holdingPeriod.length > 0
+      ? holdingPeriod.reduce((a, b) => a + b, 0) / holdingPeriod.length
+      : 0;
+
+  // 2. 재무자산 비율 계산
+  const totalAssets = cash.value + portfolioValue.value; // 총 자산
+  const financialAssetsRatio = portfolioValue.value / totalAssets; // 재무자산 비율
+  console.log(
+    "Risk Level Debug:",
+    `Trading Frequency: ${tradingFrequency}, Avg Holding Period: ${avgHoldingPeriod}, Financial Assets Ratio: ${financialAssetsRatio}`
+  );
+
+  // 3. 위험 선호도 계산 (0~1 사이 값)
+  // 가중치를 조절하여 각 항목의 중요도를 반영
+  return (
+    tradingFrequency * 0.3 + // 거래 빈도에 30% 반영
+    (1 - avgHoldingPeriod / 10) * 0.4 + // 보유 기간에 40% 반영
+    financialAssetsRatio * 0.3 // 재무자산 비율에 30% 반영
+  );
 });
+
 
 
 /* @@@@@@@@@@@@@@@@@@@ 투자 유형 관련 수정 끝 @@@@@@@@@@@@@@@@@@@ */
@@ -545,15 +562,30 @@ async function nextDay() {
     currentDay.value++; // 마지막 날짜까지 진행
     updateChart(); // 차트 업데이트
     console.log('stockData는 이렇게 출력됩니다.', stockData.value);
+
     const finalPortfolioValue = Object.keys(portfolio.value).reduce((total, stock) => {
-    const closePrice = stockData.value[stock]?.[9]?.close_price || 0; // 10일차 close_price 사용
-    const selectedQuantity = portfolio.value[stock].transactions.reduce((totalQuantity, transaction) => totalQuantity + transaction.quantity, 0);  // 보유 수량
-    return total + (selectedQuantity * closePrice);
+      const closePrice = stockData.value[stock]?.[9]?.close_price || 0; // 10일차 close_price 사용
+      const selectedQuantity = portfolio.value[stock].transactions.reduce(
+        (totalQuantity, transaction) => totalQuantity + transaction.quantity,0);  // 보유 수량
+        return total + (selectedQuantity * closePrice);
     }, 0);
     finalTotalValue.value = cash.value + finalPortfolioValue; // 최종 자산 계산
     console.log('Cash:', cash.value);
     console.log('Final Portfolio Value:', finalPortfolioValue);
     console.log('Final Total Value:', finalTotalValue.value);
+
+
+    // 🔥 보유 기간 업데이트 (마지막 날까지 보유한 주식 포함)
+    Object.keys(portfolio.value).forEach((stock) => {
+      const transactions = portfolio.value[stock].transactions;
+      transactions.forEach((transaction) => {
+        const holdingDays = 10 - transaction.day; // 마지막 날(10일) 기준 보유 기간 계산
+        tradePattern.value.holdingPeriod.push(holdingDays); // 보유 기간 기록
+      });
+    });
+    console.log('Updated holdingPeriod:', tradePattern.value.holdingPeriod);
+
+
 
     const response = await fetch('http://127.0.0.1:8000/accounts/update_max_score/', {
       method: 'POST',

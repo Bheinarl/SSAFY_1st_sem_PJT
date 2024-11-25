@@ -5,6 +5,11 @@
       <button @click="goToMapView" class="btn btn-primary">Go to Map</button>
     </div>
 
+    <!-- 투자자 유형 표시 -->
+    <div>
+      <h2>투자자 유형: <span>{{ userType }}</span></h2>
+    </div>
+
     <h1>상품 목록</h1>
     
     <!-- 카테고리 탭 -->
@@ -65,7 +70,10 @@
       <tbody v-if="selectedCategory == 'deposits' || selectedCategory == 'savings'">
         <tr v-for="(product, index) in paginatedProducts" :key="index">
           <td>{{ product.fin_prdt_nm }}</td>
-          <td>{{ product.kor_co_nm }}</td>
+          <!-- 💰💰💰금융회사명을 바로 카카오맵에서 키워드 검색💰💰💰 -->
+          <td @click="searchInMap(product.kor_co_nm)" style="cursor: pointer; color: blue; text-decoration: underline;">
+            {{ product.kor_co_nm }}
+          </td>
           <td>{{ product.join_member }}</td>
           <td>{{ product.mtrt_int }}</td>
           <td>{{ product.join_way }}</td>
@@ -101,6 +109,9 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 // 상태 변수
 const selectedCategory = ref('funds'); // 기본 카테고리 설정
@@ -242,6 +253,12 @@ onMounted(async() => {
   await loadCurrentUser();
   fetchProducts(selectedCategory.value);
 });
+
+// KakaoMap.vue로 키워드를 전달하며 이동
+const searchInMap = (keyword) => {
+  router.push({ path: '/mapview', query: { keyword } });
+};
+
 </script>
 
 <style scoped>

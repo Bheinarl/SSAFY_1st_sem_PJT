@@ -19,7 +19,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 @csrf_exempt
-def set_alert(request):
+def set_alert(request):  # 알림 설정 API
     try:
         if request.method == 'POST':
             data = json.loads(request.body)
@@ -38,7 +38,7 @@ def set_alert(request):
         print(f"알림 설정 중 오류 발생: {e}")
         return JsonResponse({'error': '알림 설정 중 오류가 발생했습니다.'}, status=500)
 
-def check_exchange_rate(request):
+def check_exchange_rate(request):  
     print("check_exchange_rate 함수 호출됨")
     print(f'리퀘스트 : {request.GET}')
     currency = request.GET.get('currency')
@@ -51,7 +51,7 @@ def check_exchange_rate(request):
         able_day = datetime.now() - timedelta(days=1)
     elif now.weekday() == 6:
         able_day = datetime.now() - timedelta(days=2)
-    # 오전 11시 이전이라면 오늘을 기준으로 어제 데이터 사용
+    # 오전 11시 이전이라면 오늘을 기준으로 어제(월요일 오전 11시라면 지난 금요일) 데이터 사용
     elif now.weekday() == 0 and datetime.now().hour < 11:
         able_day = datetime.now() - timedelta(days=3)
     elif datetime.now().hour < 11:
@@ -127,15 +127,15 @@ def update_max_score(request):
 
         print(max_score)
         print(user.max_score)
-        if max_score is None:
+        if max_score is None:  
             return Response({'error': 'totalValue 필드가 전달되지 않았습니다.'}, status=400)
         if my_investor_type is None:
             return Response({'error': 'totalValue 필드가 전달되지 않았습니다.'}, status=400)
         
-        user.my_investor_type = my_investor_type
+        user.my_investor_type = my_investor_type  # my_investor_type 업데이트
         user.save()
 
-        if max_score > user.max_score:
+        if max_score > user.max_score:  # 최고 점수 업데이트
           user.max_score = max_score
           user.save()
           return Response({'message': 'Max score updated successfully'}, status=status.HTTP_200_OK)
@@ -144,7 +144,7 @@ def update_max_score(request):
 
 
 @api_view(['POST'])
-def register(request):
+def register(request):  # 회원가입 API
     username = request.data.get('username')
     password = request.data.get('password')
     nickname = request.data.get('nickname')
@@ -161,7 +161,7 @@ def register(request):
         age=age,  # age 필드 추가
         my_investor_type=my_investor_type  # my_investor_type 필드 추가
     )
-    token, created = Token.objects.get_or_create(user=user)
+    token, created = Token.objects.get_or_create(user=user)  # Token 생성
     return Response({'token': token.key}, status=status.HTTP_201_CREATED)
 
 

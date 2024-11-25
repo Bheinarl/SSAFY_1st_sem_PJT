@@ -2,6 +2,7 @@ from django.http import JsonResponse
 import requests
 from .models import DepositProduct, SavingProduct, FundProduct
 
+# 펀드 상품 데이터 가져오기
 def fetch_and_save_funds_products(request): 
     print('fetch_and_save_funds_products')
 
@@ -39,13 +40,13 @@ def fetch_and_save_funds_products(request):
                     fndNm=item.get('fndNm', '')  # 펀드 명
                 )
 
-        except requests.exceptions.RequestException as e:
+        except requests.exceptions.RequestException as e:  # 요청 실패 예외 처리
             print(f"Error fetching data for category {category}: {e}")
             return JsonResponse({
                 "message": "Error fetching data.",
                 "error": str(e)
             }, status=500)
-        except ValueError as e:
+        except ValueError as e:  # 응답 데이터가 비어있는 경우 예외 처리
             print(f"Error fetching data for category {category}: {e}")
             return JsonResponse({
                 "message": "Error fetching data.",
@@ -57,6 +58,7 @@ def fetch_and_save_funds_products(request):
         "fetched_categories": len(categories),
     }, status=201)
 
+# 펀드 상품 필터링
 def get_filtered_funds_products(request, subcategory):
     try:
         if subcategory == '전체':
@@ -71,6 +73,7 @@ def get_filtered_funds_products(request, subcategory):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
+# 예금/적금 상품 데이터 가져오기
 def fetch_and_save_deposit_savings_products(request, category):
     print('fetch_and_save_deposit_savings_products')
     # 기본 API URL 설정
@@ -125,7 +128,7 @@ def fetch_and_save_deposit_savings_products(request, category):
             total_count = result.get("total_count", 0)
             max_page_no = result.get("max_page_no", 1)
 
-            # 각 페이지를 순차적으로 처리
+            # 데이터가 제공하는 최대 페이지까지 각 페이지를 순차적으로 처리
             for page_no in range(1, max_page_no + 1):
                 params['pageNo'] = page_no
                 response = requests.get(api_url, params=params)
@@ -183,11 +186,11 @@ def fetch_and_save_deposit_savings_products(request, category):
         print('response 데이터:', response_data['pagination'])
         return JsonResponse(response_data, safe=False)
     
-    except Exception as e:
+    except Exception as e:  # 예외 처리
         print(f"Error fetching products: {e}")
         return JsonResponse({"error": "Internal Server Error"}, status=500)
 
-
+# 예금/적금 상품 필터링
 def get_filtered_deposit_savings_products(request, category):
 
     # 해당 category에 맞는 데이터 가져오기

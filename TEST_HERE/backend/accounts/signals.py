@@ -4,6 +4,6 @@ from rest_framework.authtoken.models import Token
 from django.conf import settings
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
-def create_auth_token(sender, instance=None, created=False, **kwargs):
+def create_auth_token(sender, instance=None, created=False, **kwargs):  # 유저가 생성되면 토큰을 생성
     if created:
         Token.objects.create(user=instance)

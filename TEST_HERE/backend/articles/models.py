@@ -4,13 +4,13 @@ from django.db import models
 class Post(models.Model):
     title = models.CharField(max_length=255)
     content = models.TextField()
-    likes = models.IntegerField(default=0)
+    likes = models.IntegerField(default=0)  # 좋아요 수
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,  # 커스텀 유저 모델을 참조
-        on_delete=models.CASCADE,
+        on_delete=models.CASCADE,  # 사용자가 삭제되면 게시글도 삭제
         related_name='posts',  # 사용자가 작성한 게시글에 접근 가능
     )
-    liked_users = models.ManyToManyField(
+    liked_users = models.ManyToManyField(  # 좋아요를 누른 사용자 목록
         settings.AUTH_USER_MODEL,  # 커스텀 유저 모델을 참조
         related_name='liked_posts',  # 사용자가 좋아요를 누른 게시글에 접근 가능
         blank=True,  # 좋아요를 누르지 않은 사용자는 빈 목록

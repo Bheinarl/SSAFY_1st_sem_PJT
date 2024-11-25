@@ -150,7 +150,7 @@ def register(request):
     password = request.data.get('password')
     nickname = request.data.get('nickname')
     age = request.data.get('age')
-    interests = request.data.get('interests')
+    my_investor_type = request.data.get('my_investor_type')
 
     if CustomUser.objects.filter(username=username).exists():
         return Response({'error': 'User already exists'}, status=status.HTTP_400_BAD_REQUEST)
@@ -160,7 +160,7 @@ def register(request):
         password=password,
         nickname=nickname,  # nickname 필드 추가
         age=age,  # age 필드 추가
-        interests=interests  # interests 필드 추가
+        my_investor_type=my_investor_type  # my_investor_type 필드 추가
     )
     token, created = Token.objects.get_or_create(user=user)
     return Response({'token': token.key}, status=status.HTTP_201_CREATED)
@@ -210,6 +210,6 @@ def get_current_user(request):
         'email': request.user.email,
         'nickname': request.user.nickname,
         'age': request.user.age,
-        'interests': request.user.interests,
+        'my_investor_type': request.user.my_investor_type,
         # 추가적인 사용자 정보도 반환 가능
     })

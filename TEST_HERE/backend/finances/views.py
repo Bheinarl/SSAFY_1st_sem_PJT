@@ -8,7 +8,7 @@ def fetch_and_save_funds_products(request):
     # API 기본 URL 및 서비스 키 설정
     # base_api_url = 'https://apis.data.go.kr/1160100/service/GetFundProductInfoService/getStandardCodeInfo?serviceKey=Z0etJ6Sv%2BIOfdba2SlwmsGsJfrut7XaOO50AMFe%2BMwH2ksB8ID5EZMniJwBYBTzUPpEJw87qpDY%2B54CHiw7R%2Fw%3D%3D&resultType=json&fndTp='
     # service_key = 'Z0etJ6Sv%2BIOfdba2SlwmsGsJfrut7XaOO50AMFe%2BMwH2ksB8ID5EZMniJwBYBTzUPpEJw87qpDY%2B54CHiw7R%2Fw%3D%3D'
-    categories = ['재간접', '주식형', '혼합채권형', '채권형', '혼합자산', '파생상품', '부동산', '특별자산', '단기금융', '혼합주식형', '변액보험']
+    categories = ['채권형', '단기금융', '혼합채권형', '혼합자산', '변액보험', '혼합주식형', '주식형', '파생상품', '부동산', '특별자산', '재간접']
 
     # 기존 데이터 확인
     existing_data_count = FundProduct.objects.count()

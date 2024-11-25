@@ -4,7 +4,7 @@
     <div v-if="loading">Loading...</div>
     <div v-else class="leaderboard">
       <div v-for="user in leaderboard" :key="user.username">
-        <p class="rank">{{ user.username }} : {{ user.max_score }}</p>
+        <p class="rank" v-if="user.max_score">{{ user.username }} : {{ user.max_score }}</p>
       </div>
     </div>
   </div>
@@ -16,11 +16,6 @@ import axios from 'axios';
 
 const leaderboard = ref([]);
 const loading = ref(true);
-
-// user.nickname이 존재하면 user.nickname을, 아니면 user.username을 반환
-const getNickname = (user) => user.nickname || user.username;
-// 근데 내가 가지고 있는 데이터는 user.nickname밖에 없어요.
-
 
 const fetchLeaderboard = async () => {
   try {

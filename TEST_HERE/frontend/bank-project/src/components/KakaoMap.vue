@@ -25,7 +25,6 @@
 </template>
 
 <script>
-// script 시작 부분에 이미지 import 추가
 import markerCurrent from '@/assets/markers/marker-current.png'
 import markerDefault from '@/assets/markers/marker-default.png'
 import markerSelected from '@/assets/markers/marker-selected.png'

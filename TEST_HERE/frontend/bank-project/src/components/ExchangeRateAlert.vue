@@ -92,8 +92,7 @@ export default {
       try {
         const response = await fetch(`http://127.0.0.1:8000/accounts/check_exchange_rate/?currency=${currency.value}`);
         const data = await response.json();
-        // console.log("API 응답 데이터:", data); // 추가된 디버깅 로그
-        // console.log(response); // 추가된 디버깅 로그
+
         if (response.ok) {
           if (data.current_rate !== undefined) {
             exchangeRate.value = data.current_rate;
@@ -113,17 +112,6 @@ export default {
         exchangeRate.value = null;
       }
     };
-
-    // async fetchExchangeRate() {
-    //   try {
-    //     const response = await fetch("http://127.0.0.1:8000/accounts/check_exchange_rate/");
-    //     const data = await response.json();
-    //     this.exchangeRate = data.current_rate;
-    //     this.showAlert = data.alert;
-    //   } catch (error) {
-    //     console.error("환율 데이터를 가져오는 중 오류가 발생했습니다.", error);
-    //   } 
-    // },
 
     return {
       currency,

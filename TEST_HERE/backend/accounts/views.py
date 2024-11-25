@@ -1,21 +1,22 @@
-from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth.decorators import login_required
-import json
-from .models import CurrencyAlert
+from django.contrib.auth import authenticate
 from django.conf import settings
+
+from .models import CurrencyAlert, CustomUser
+from .serializers import CustomUserDetailsSerializer
+
+import json
 import requests
+
 from datetime import datetime, timedelta
-from rest_framework.authtoken.models import Token
-from rest_framework.response import Response
+
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.authtoken.models import Token
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
-from .models import CustomUser
-from django.contrib.auth import authenticate
-from .serializers import CustomUserDetailsSerializer
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 @csrf_exempt
 def set_alert(request):
@@ -42,7 +43,6 @@ def check_exchange_rate(request):
     print(f'리퀘스트 : {request.GET}')
     currency = request.GET.get('currency')
     api_url = f"https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey={settings.EXCHANGE_RATE_API_KEY}&data=AP01"
-    # api_url = "https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey=TUwyZMxyTt6XP6rTujYY02UCuSPWDHDb&data=AP01&searchdate=20241114"
 
     # 현재 날짜 시간 수신
     now = datetime.now()
@@ -66,7 +66,7 @@ def check_exchange_rate(request):
         
         data = response.json()
         print(currency)
-        # USD 환율 데이터 추출
+        # 환율 데이터 추출
         currency_data = next((item for item in data if item['cur_unit'] == currency), None)
         if not currency_data:
             return JsonResponse({'error': '환율 데이터를 찾을 수 없습니다.'}, status=500)
@@ -90,7 +90,7 @@ def check_exchange_rate(request):
         return JsonResponse({'error': '알 수 없는 오류가 발생했습니다.'}, status=500)
 
 def get_exchange_rate(request):
-    # 환율 API URL 및 API 키 (예시: 한국 수출입은행 API 사용)
+    # 환율 API URL 및 API 키 (한국 수출입은행 API 사용)
     api_url = f"https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey={settings.EXCHANGE_RATE_API_KEY}&data=AP01"
     # 오전 11시 이전이라면 오늘을 기준으로 어제 데이터 사용
     now = datetime.now()
@@ -120,8 +120,7 @@ def get_exchange_rate(request):
 @permission_classes([IsAuthenticated]) 
 def update_max_score(request):
     if request.method == 'POST':
-        # print(request.user)
-        # print(request.user.is_authenticated)
+        
         user = request.user
         max_score = request.data.get('max_score')
         my_investor_type = request.data.get('my_investor_type')
@@ -134,7 +133,7 @@ def update_max_score(request):
             return Response({'error': 'totalValue 필드가 전달되지 않았습니다.'}, status=400)
         
         user.my_investor_type = my_investor_type
-        user.save()  # 오류나면 여기
+        user.save()
 
         if max_score > user.max_score:
           user.max_score = max_score
@@ -164,6 +163,7 @@ def register(request):
     )
     token, created = Token.objects.get_or_create(user=user)
     return Response({'token': token.key}, status=status.HTTP_201_CREATED)
+
 
 @api_view(['POST'])
 def login(request):

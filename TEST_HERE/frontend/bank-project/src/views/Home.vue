@@ -59,5 +59,4 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* 페이지 전용 스타일 추가 가능 */
 </style>

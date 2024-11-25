@@ -117,7 +117,6 @@
                       <h4 v-if="beforePrice === 0">---</h4>
                       <h4 v-if="beforePrice < 0" class="color-blue">▼ {{ -beforePrice }}</h4>
                       <p v-if="currentDay < 11">Max Buyable Shares: {{ maxBuyableShares }}</p> <!-- 최대 매수 가능 수량 -->
-                      <!-- <p>Max Sellable Shares: {{ maxSellableShares }}</p> 최대 매도 가능 수량 -->
                     </div>
 
                     <!-- 매수/매도량 입력 -->
@@ -145,7 +144,6 @@
                 <br>
                 <h3>Your Holdings</h3>
                 <div>
-                  <!-- 0 shares 는 표시하지 않도록 변경 -->
                   <template v-for="key in Object.keys(portfolio)" :key="key">
                     <div v-if="totalQuantity[key] > 0">
                       {{ key }}: {{ totalQuantity[key] }} shares  <span v-if="keyBeforePrice[key] > 0" class="color-red">▲{{ keyBeforePrice[key] }}</span><span v-if="keyBeforePrice[key] === 0">--</span><span v-if="keyBeforePrice[key] < 0" class="color-blue">▼{{ -keyBeforePrice[key] }}</span>
@@ -193,13 +191,11 @@
 
 <script setup>
 /* --------------------------- Imports --------------------------- */
-import { ref, computed, onMounted, watch } from 'vue';
-import { addDays, format } from 'date-fns';
+import { ref, computed, onMounted } from 'vue';
 import { useStockStore } from '@/stores/StockStore';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 import Chart from 'chart.js/auto';
-// import api from '@/api';
 
 /* --------------------------- State --------------------------- */
 const stockStore = useStockStore();
@@ -233,7 +229,6 @@ const stockData = ref({
     '메가스터디교육' : [], '웅진씽크빅' : [], 'KB금융' : [], '우리금융지주' : [],
 });
 
-/* @@@@@@@@@@@@@@@@@@@ 투자 유형 관련 수정 시작 @@@@@@@@@@@@@@@@@@@ */
 const tradePattern = ref({
   totalTrades: 0,          // 총 거래 횟수
   buyCount: 0,             // 매수 횟수
@@ -244,7 +239,6 @@ const tradePattern = ref({
   reactionToNews: 0        // 뉴스 반응도 // 이건 긍정적, 부정적 뉴스 키워드 반응 // 안쓰고있지만! 추후🙄
 });
 
-/* @@@@@@@@@@@@@@@@@@@ 투자 유형 관련 수정 끝 @@@@@@@@@@@@@@@@@@@ */
 
 /* --------------------------- Computed Values --------------------------- */
 
@@ -406,7 +400,6 @@ const earningRate = computed(() => {
   // 수익률 계산 = 평가 금액 / 총 거래 금액 - 1
   const result = {}
   for (const key in portfolio.value) {
-    // const selectedQuantity = portfolio.value[key]?.quantity
     const selectedQuantity = portfolio.value[key].transactions.reduce((totalQuantity, transaction) => totalQuantity + transaction.quantity, 0);
     const selectedTransaction = portfolio.value[key].transactions.reduce((totalTransaction, transaction) => totalTransaction + (transaction.quantity * transaction.price), 0);
     if (currentDay.value > 10) {
@@ -492,8 +485,8 @@ const investorType = ref('');
 
 
 /* --------------------------- Functions --------------------------- */
-// Random Date Fetch
 
+// Random Date Fetch
 async function fetchRandomDate() {
   try {
     const response = await axios.get('http://127.0.0.1:8000/api/stocks/generate_random_date/');
@@ -629,30 +622,12 @@ async function nextDay() {
     });
     console.log('Updated holdingPeriod:', tradePattern.value.holdingPeriod);
 
-
-    // // 날짜 범위 계산
-    // const startDateValue = startDate.value; // 시작 날짜
-    // const endDateValue = stockData.value[selectedStock.value]?.[9]?.date || 'unknown'; // 종료 날짜
-    // console.log(`Date Range: ${startDateValue} ~ ${endDateValue}`); // 디버깅용
-
-
     const riskLevel = calculateRiskLevel.value;
-    // let investorType; //////////////////////////////////////여기 문제!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // console.log(riskLevel);
-    // if (riskLevel < 0.3) investorType = '안정 추구형';
-    // else if (riskLevel < 0.6) investorType = '균형 투자형';
-    // else if (riskLevel < 0.8) investorType = '공격 투자형';
-    // else investorType = '투기형';
 
-    // let investorType; //////////////////////////////////////여기 문제!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    if (riskLevel < 0.3) investorType.value = '안정 추구형';
+    if (riskLevel < 0.3) investorType.value = '안정 추구형'; /* 아무것도 안하면 -INF : 안정 추구형이 나오도록 했음  */
     else if (riskLevel < 0.6) investorType.value = '균형 투자형';
     else if (riskLevel < 0.8) investorType.value = '공격 투자형';
     else investorType.value = '투기형';
-
-    /*
-    아무것도 안하면 -INF : 안정 추구형이 나오도록 했음 
-    */
 
     const response = await fetch('http://127.0.0.1:8000/accounts/update_max_score/', {
       method: 'POST',
@@ -673,7 +648,6 @@ async function nextDay() {
   }
 }
 
-
 // 새로고침 없이 게임 초기화
 function restartGame() {
   currentDay.value = 1;
@@ -687,8 +661,7 @@ function restartGame() {
 }
 
 function goFinanceRecommend() {
-  // finances 페이지로 이동
-  router.push('/finances');
+  router.push('/finances');  // finances 페이지로 이동
 }
 
 
@@ -697,7 +670,6 @@ onMounted(async () => {
   await fetchRandomDate();
   updateStockUrl();
   initializeChart();
-  // updateNews();
 });
 
 
@@ -734,21 +706,14 @@ function executeTrade(type) {
       
       console.log(`매수 완료: ${volume}주, 가격: ${price}`);
 
-      /* @@@@@@@@@@@@@@@@@@@ 투자 유형 관련 수정 시작 @@@@@@@@@@@@@@@@@@@ */
-      // console.log("사든 팔든 일단 이거 출력해라(사고있음)");
-      // console.log("portfolio",portfolio);
-      // console.log("portfolio.value",portfolio.value);
-      // console.log("portfolio.value[selectedStock.value].transactions",portfolio.value[selectedStock.value].transactions);
-      // console.log("tradePattern@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",tradePattern);
-      // console.log("volume",volume);
       tradePattern.value.buyCount += volume;
       tradePattern.value.totalTrades += volume;
       // 업종 선호도 기록
       const sector = stockStore.stockSectors[selectedStock.value];
       tradePattern.value.sectorPreference[sector] = (tradePattern.value.sectorPreference[sector] || 0) + 1;
-      // console.log("tradePattern@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",tradePattern);
+
       console.log("transactions 확인하기 : ", portfolio.value[selectedStock.value].transactions);
-      /* @@@@@@@@@@@@@@@@@@@ 투자 유형 관련 수정 끝 @@@@@@@@@@@@@@@@@@@ */
+
     } else {
       alert('Not enough cash or invalid quantity for buying.'); // 에러 메시지
     }
@@ -797,7 +762,6 @@ function executeTrade(type) {
     tradePattern.value.sellCount += volume;
     tradePattern.value.totalTrades += volume;
 
-    // console.log('tradePattern after sell:', tradePattern.value);
   } else {
     alert('Not enough shares to sell.');
   }
@@ -823,11 +787,6 @@ console.log('tradePattern@@@@@@@@@@@@@@', tradePattern.value);
 </script>
 
 <style scoped>
-/* .chart-section {
-  width: 80%;
-  height: 300px;
-  margin: 0 auto;
-} */
 
 .trade-button {
   margin-right: 10px;

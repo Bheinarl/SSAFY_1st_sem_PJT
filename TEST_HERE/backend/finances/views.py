@@ -5,9 +5,6 @@ from .models import DepositProduct, SavingProduct, FundProduct
 def fetch_and_save_funds_products(request): 
     print('fetch_and_save_funds_products')
 
-    # API 기본 URL 및 서비스 키 설정
-    # base_api_url = 'https://apis.data.go.kr/1160100/service/GetFundProductInfoService/getStandardCodeInfo?serviceKey=Z0etJ6Sv%2BIOfdba2SlwmsGsJfrut7XaOO50AMFe%2BMwH2ksB8ID5EZMniJwBYBTzUPpEJw87qpDY%2B54CHiw7R%2Fw%3D%3D&resultType=json&fndTp='
-    # service_key = 'Z0etJ6Sv%2BIOfdba2SlwmsGsJfrut7XaOO50AMFe%2BMwH2ksB8ID5EZMniJwBYBTzUPpEJw87qpDY%2B54CHiw7R%2Fw%3D%3D'
     categories = ['채권형', '단기금융', '혼합채권형', '혼합자산', '변액보험', '혼합주식형', '주식형', '파생상품', '부동산', '특별자산', '재간접']
 
     # 기존 데이터 확인
@@ -20,18 +17,9 @@ def fetch_and_save_funds_products(request):
 
     # API 호출 및 데이터 저장
     for category in categories:
-        # params = {
-        #     'serviceKey': service_key,
-        #     'resultType': 'json',
-        #     'pageNo': 1,
-        #     'numOfRows': 20,  # 한 번에 가져올 데이터 수
-        #     'ftnTp': category
-        # }
         base_api_url = 'https://apis.data.go.kr/1160100/service/GetFundProductInfoService/getStandardCodeInfo?serviceKey=Z0etJ6Sv%2BIOfdba2SlwmsGsJfrut7XaOO50AMFe%2BMwH2ksB8ID5EZMniJwBYBTzUPpEJw87qpDY%2B54CHiw7R%2Fw%3D%3D&resultType=json&pageNo=1&numOfRows=50&fndTp='
         base_api_url += category
-        # print(base_api_url)  # 디버깅용 출력
         try:
-            # response = requests.get(base_api_url, params=params)
             response = requests.get(base_api_url)
             response.raise_for_status()  # 요청 실패 시 예외 발생
 
@@ -68,15 +56,6 @@ def fetch_and_save_funds_products(request):
         "message": "Data fetched and saved successfully.",
         "fetched_categories": len(categories),
     }, status=201)
-        
-
-# def get_filtered_funds_products(request):
-#     products = FundProduct.objects.all()
-
-#     response_data = {
-#         "products": list(products.values('fndNm', 'fndTp')),
-#     }
-#     return JsonResponse(response_data)
 
 def get_filtered_funds_products(request, subcategory):
     try:
@@ -210,9 +189,7 @@ def fetch_and_save_deposit_savings_products(request, category):
 
 
 def get_filtered_deposit_savings_products(request, category):
-    """
-    category: 'deposits' 또는 'savings'
-    """
+
     # 해당 category에 맞는 데이터 가져오기
     if category == 'deposits':
         products = DepositProduct.objects.all()

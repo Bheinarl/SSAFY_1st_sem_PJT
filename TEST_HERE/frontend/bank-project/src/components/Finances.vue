@@ -210,7 +210,6 @@ const loadCurrentUser = async () => {
     
     const data = await response.json();
     userType.value = data.my_investor_type;  // 로그인된 사용자 정보 저장
-    // getUserTypeClass(userType.value);
   } catch (error) {
     console.error('사용자 정보를 불러오는 중 오류가 발생했습니다:', error);
   }
@@ -253,7 +252,6 @@ nav {
 
 nav button {
   padding: 10px 20px;
-  /* margin-right: 10px; */
   border: 1px solid #ccc;
   background-color: #f9f9f9;
   cursor: pointer;

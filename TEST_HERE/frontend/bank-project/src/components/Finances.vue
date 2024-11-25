@@ -5,6 +5,10 @@
       <button @click="goToMapView" class="btn btn-primary">Go to Map</button>
     </div>
 
+    <!-- 특정 단어 클릭 -->
+    <button @click="searchInMap('은행')">은행</button>
+        
+
     <!-- 투자자 유형 표시 -->
     <div>
       <h2>투자자 유형: <span>{{ userType }}</span></h2>
@@ -106,6 +110,9 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 // 상태 변수
 const selectedCategory = ref('funds'); // 기본 카테고리 설정
@@ -247,6 +254,12 @@ onMounted(async() => {
   await loadCurrentUser();
   fetchProducts(selectedCategory.value);
 });
+
+// KakaoMap.vue로 키워드를 전달하며 이동
+const searchInMap = (keyword) => {
+  router.push({ path: '/mapview', query: { keyword } });
+};
+
 </script>
 
 <style scoped>

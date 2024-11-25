@@ -6,13 +6,15 @@ import Login from '@/views/Login.vue';
 import ExchangeRateAlert from '@/components/ExchangeRateAlert.vue';
 import GameReal from '@/views/GameReal.vue';
 import Finances from '@/components/Finances.vue';
-import MapView from '@/views/MapView.vue';
+// import MapView from '@/views/MapView.vue';
 
 import Board from '@/views/Board.vue';
 import PostDetail from '@/views/PostDetail.vue';
 import PostCreate from '@/views/PostCreate.vue'; // 글 작성 페이지 추가
 import PostEdit from '@/views/PostEdit.vue'; // 글 수정 페이지 추가
 import LeaderBoard from '@/components/LeaderBoard.vue';
+
+import KakaoMap from '@/components/KakaoMap.vue'; // components에서 경로 수정
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -29,9 +31,11 @@ const router = createRouter({
     { path: '/login', component: Login },
     { path: '/exchange-rate-alert', component: ExchangeRateAlert },
     { path: '/gamereal', component: GameReal },
-    { path: '/mapview', component: MapView },
+    // { path: '/mapview', component: MapView },
     { path: '/finances', component: Finances },
     { path: '/leaderboard', component: LeaderBoard },
+
+    { path: '/mapview', component: KakaoMap  },
   ]
 })
 

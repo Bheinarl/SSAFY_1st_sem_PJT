@@ -18,7 +18,8 @@ def fetch_news(request):
         date_str = start_date.strftime('%Y%m%d')
 
         # URL에 날짜 파라미터 추가
-        url = f"https://finance.naver.com/news/mainnews.naver?date={date_str}"
+        # url = f"https://finance.naver.com/news/mainnews.naver?date={date_str}"
+        url = f"https://finance.naver.com/news/news_list.naver?mode=LSS2D&section_id=101&section_id2=258&date={date_str}"
         response = requests.get(url)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')

@@ -17,11 +17,6 @@ import axios from 'axios';
 const leaderboard = ref([]);
 const loading = ref(true);
 
-// user.nickname이 존재하면 user.nickname을, 아니면 user.username을 반환
-const getNickname = (user) => user.nickname || user.username;
-// 근데 내가 가지고 있는 데이터는 user.nickname밖에 없어요.
-
-
 const fetchLeaderboard = async () => {
   try {
     const response = await axios.get('http://127.0.0.1:8000/accounts/leaderboard/', {

@@ -36,10 +36,7 @@ class CustomRegisterSerializer(serializers.ModelSerializer):
 # 사용자 프로필을 가져올 때 사용할 CustomUserDetailsSerializer
 class CustomUserDetailsSerializer(serializers.ModelSerializer):
     username = serializers.CharField(read_only=True)
-    # nickname = serializers.CharField(read_only=True)
-    # age = serializers.SerializerMethodField()
     max_score = serializers.IntegerField(read_only=True)
-    # interests = serializers.CharField()
 
     class Meta:
         model = CustomUser

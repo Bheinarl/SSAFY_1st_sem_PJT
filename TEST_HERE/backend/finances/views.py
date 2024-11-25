@@ -1,9 +1,99 @@
 from django.http import JsonResponse
 import requests
-from .models import DepositProduct, SavingProduct
+from .models import DepositProduct, SavingProduct, FundProduct
 
-def fetch_and_save_products(request, category):
-    print('fetch_and_save_products')
+def fetch_and_save_funds_products(request): 
+    print('fetch_and_save_funds_products')
+
+    # API 기본 URL 및 서비스 키 설정
+    # base_api_url = 'https://apis.data.go.kr/1160100/service/GetFundProductInfoService/getStandardCodeInfo?serviceKey=Z0etJ6Sv%2BIOfdba2SlwmsGsJfrut7XaOO50AMFe%2BMwH2ksB8ID5EZMniJwBYBTzUPpEJw87qpDY%2B54CHiw7R%2Fw%3D%3D&resultType=json&fndTp='
+    # service_key = 'Z0etJ6Sv%2BIOfdba2SlwmsGsJfrut7XaOO50AMFe%2BMwH2ksB8ID5EZMniJwBYBTzUPpEJw87qpDY%2B54CHiw7R%2Fw%3D%3D'
+    categories = ['재간접', '주식형', '혼합채권형', '채권형', '혼합자산', '파생상품', '부동산', '특별자산', '단기금융', '혼합주식형', '변액보험']
+
+    # 기존 데이터 확인
+    existing_data_count = FundProduct.objects.count()
+    if existing_data_count > 0:
+        return JsonResponse({
+            "message": "Data already exists. Fetching skipped.",
+            "existing_count": existing_data_count
+        }, status=200)
+
+    # API 호출 및 데이터 저장
+    for category in categories:
+        # params = {
+        #     'serviceKey': service_key,
+        #     'resultType': 'json',
+        #     'pageNo': 1,
+        #     'numOfRows': 20,  # 한 번에 가져올 데이터 수
+        #     'ftnTp': category
+        # }
+        base_api_url = 'https://apis.data.go.kr/1160100/service/GetFundProductInfoService/getStandardCodeInfo?serviceKey=Z0etJ6Sv%2BIOfdba2SlwmsGsJfrut7XaOO50AMFe%2BMwH2ksB8ID5EZMniJwBYBTzUPpEJw87qpDY%2B54CHiw7R%2Fw%3D%3D&resultType=json&pageNo=1&numOfRows=50&fndTp='
+        base_api_url += category
+        # print(base_api_url)  # 디버깅용 출력
+        try:
+            # response = requests.get(base_api_url, params=params)
+            response = requests.get(base_api_url)
+            response.raise_for_status()  # 요청 실패 시 예외 발생
+
+            if response.text.strip() == "":
+                raise ValueError("Empty response")
+            
+            data = response.json()
+            
+            # API 응답에서 데이터 추출
+            items = data.get('response', {}).get('body', {}).get('items', {}).get('item', [])
+            
+            for item in items:
+                # FundProduct 모델에 데이터 저장
+                FundProduct.objects.create(
+                    fndTp=item.get('fndTp', ''),  # 펀드 유형
+                    asoStdCd=item.get('asoStdCd', ''),  # 상품 분류 코드
+                    fndNm=item.get('fndNm', '')  # 펀드 명
+                )
+
+        except requests.exceptions.RequestException as e:
+            print(f"Error fetching data for category {category}: {e}")
+            return JsonResponse({
+                "message": "Error fetching data.",
+                "error": str(e)
+            }, status=500)
+        except ValueError as e:
+            print(f"Error fetching data for category {category}: {e}")
+            return JsonResponse({
+                "message": "Error fetching data.",
+                "error": str(e)
+            }, status=500)
+
+    return JsonResponse({
+        "message": "Data fetched and saved successfully.",
+        "fetched_categories": len(categories),
+    }, status=201)
+        
+
+# def get_filtered_funds_products(request):
+#     products = FundProduct.objects.all()
+
+#     response_data = {
+#         "products": list(products.values('fndNm', 'fndTp')),
+#     }
+#     return JsonResponse(response_data)
+
+def get_filtered_funds_products(request, subcategory):
+    try:
+        if subcategory == '전체':
+            products = FundProduct.objects.all()
+        else:
+            products = FundProduct.objects.filter(fndTp=subcategory)
+
+        response_data = {
+            "products": list(products.values('fndNm', 'fndTp', 'asoStdCd')),
+        }
+        return JsonResponse(response_data, status=200)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+def fetch_and_save_deposit_savings_products(request, category):
+    print('fetch_and_save_deposit_savings_products')
     # 기본 API URL 설정
     api_url = 'http://finlife.fss.or.kr/finlifeapi/depositProductsSearch.json'
     if category == 'deposits':
@@ -119,7 +209,7 @@ def fetch_and_save_products(request, category):
         return JsonResponse({"error": "Internal Server Error"}, status=500)
 
 
-def get_filtered_products(request, category):
+def get_filtered_deposit_savings_products(request, category):
     """
     category: 'deposits' 또는 'savings'
     """
@@ -136,3 +226,4 @@ def get_filtered_products(request, category):
         "products": list(products.values('fin_prdt_nm', 'kor_co_nm', 'join_member', 'mtrt_int', 'join_way')),
     }
     return JsonResponse(response_data)
+

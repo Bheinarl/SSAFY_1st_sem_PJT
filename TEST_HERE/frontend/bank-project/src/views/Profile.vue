@@ -28,7 +28,7 @@
       <div v-else>
         <p><strong>Nickname:</strong> {{ profile.nickname }}</p>
         <p><strong>Age:</strong> {{ profile.age }}</p>
-        <p><strong>Interests:</strong> {{ profile.interests }}</p>
+        <p><strong>My investor type:</strong> {{ profile.my_investor_type }}</p>
         <p><strong>Max Score:</strong> {{ profile.max_score }}</p>
         <button @click="enableEdit">Edit Profile</button>
       </div>

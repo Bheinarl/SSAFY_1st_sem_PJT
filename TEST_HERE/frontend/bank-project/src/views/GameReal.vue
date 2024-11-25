@@ -613,25 +613,6 @@ async function nextDay() {
     console.log('Updated holdingPeriod:', tradePattern.value.holdingPeriod);
 
 
-
-    const response = await fetch('http://127.0.0.1:8000/accounts/update_max_score/', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Token ${localStorage.getItem('token')}`, // 토큰을 헤더에 포함
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ max_score: finalTotalValue.value }) // 최종 자산을 서버로 전송
-    });
-
-    alert(`Game over. Your total value is ₩${finalTotalValue.value}`); 
-    if (response.ok) {
-      console.log('Game over. Your total value is ₩', finalTotalValue.value); 
-    } else {
-      console.error('Failed to update max score:', response.statusText);
-    }
-
-
-    
     const riskLevel = calculateRiskLevel.value;
     let investorType;
     console.log(riskLevel);
@@ -640,50 +621,66 @@ async function nextDay() {
     else if (riskLevel < 0.8) investorType = '공격 투자형';
     else investorType = '투기형';
     /*
-    아무것도 안하면 -INF : 안정 추구형이 나오도록 했음
-    
-    
+    아무것도 안하면 -INF : 안정 추구형이 나오도록 했음 
     */
 
+    const response = await fetch('http://127.0.0.1:8000/accounts/update_max_score/', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Token ${localStorage.getItem('token')}`, // 토큰을 헤더에 포함
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ max_score: finalTotalValue.value, my_investor_type: investorType }) // 최종 자산을 서버로 전송
+    });
 
-
-    // 분석 결과 서버로 전송
-    const analysisData = {
-      investor_type: investorType,
-      risk_level: riskLevel,
-      trade_pattern: tradePattern.value,
-      final_value: finalTotalValue.value
-    };
-
-    try {
-      await axios.post('http://127.0.0.1:8000/api/analysis/save/', analysisData);
-    } catch (error) {
-      console.error('Failed to save analysis:', error);
+    // alert(`Game over. Your total value is ₩${finalTotalValue.value}`); 
+    alert(`게임 종료!\n최종 자산: ₩${finalTotalValue.value}\n투자자 유형: ${investorType}`);
+    if (response.ok) {
+      console.log('Game over. Your total value is ₩', finalTotalValue.value); 
+    } else {
+      console.error('Failed to update max score:', response.statusText);
     }
 
-    alert(`게임 종료!\n최종 자산: ₩${finalTotalValue.value}\n투자자 유형: ${investorType}`);
 
-    /* @@@@@@@@@@@@@@@@@@@ 투자 유형 관련 수정 끝 @@@@@@@@@@@@@@@@@@@ */
+    
+
+
+
+    // // 분석 결과 서버로 전송
+    // const analysisData = {
+    //   investor_type: investorType,
+    //   risk_level: riskLevel,
+    //   trade_pattern: tradePattern.value,
+    //   final_value: finalTotalValue.value
+    // };
+
+    // try {
+    //   await axios.post('http://127.0.0.1:8000/api/analysis/save/', analysisData);
+    // } catch (error) {
+    //   console.error('Failed to save analysis:', error);
+    // }
+
+    // /* @@@@@@@@@@@@@@@@@@@ 투자 유형 관련 수정 끝 @@@@@@@@@@@@@@@@@@@ */
 
 
 
 
   }
 
-  if (currentDay.value === 10) {
-    const investorType = analyzeInvestorType();
-    const analysis = {
-      type: investorType,
-      pattern: tradePattern.value,
-      finalValue: finalTotalValue.value
-    };
+  // if (currentDay.value === 10) {
+  //   const investorType = analyzeInvestorType();
+  //   const analysis = {
+  //     type: investorType,
+  //     pattern: tradePattern.value,
+  //     finalValue: finalTotalValue.value
+  //   };
     
-    // 분석 결과 서버로 전송
-    await axios.post('http://127.0.0.1:8000/api/analysis/save/', analysis);
+  //   // 분석 결과 서버로 전송
+  //   await axios.post('http://127.0.0.1:8000/api/analysis/save/', analysis);
     
-    // 결과 표시
-    showAnalysisResult(analysis); 
-  }
+  //   // 결과 표시
+  //   showAnalysisResult(analysis); 
+  // }
 
 }
 

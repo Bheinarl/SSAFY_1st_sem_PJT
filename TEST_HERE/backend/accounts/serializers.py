@@ -43,7 +43,7 @@ class CustomUserDetailsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ('username', 'nickname', 'age','interests', 'max_score')  # 필요한 필드를 직접 지정
+        fields = ('username', 'nickname', 'age','my_investor_type', 'max_score')  # 필요한 필드를 직접 지정
 
     def get_age(self, obj):
         return obj.age if obj.age is not None else '비공개'

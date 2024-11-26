@@ -1,47 +1,35 @@
 <script setup>
-
 import Navbar from '@/components/Navbar.vue';
 import { RouterView } from 'vue-router';
-
 </script>
 
 <template>
   <header>
+    <Navbar />
   </header>
-  
-  <main>
-    <div id="app">
-      <Navbar />
+  <body>
+    <main>
       <RouterView />
-    </div>
-  </main>
+    </main>
+  </body>
 </template>
 
 <style scoped>
+/* 기본 배경색 설정 */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #ffa29c;; /* 페이지 배경 */
+  font-family: Arial, sans-serif;
+}
+
 header {
-  line-height: 1.5;
+  background-color: #feebd6; /* Navbar 배경색 */
 }
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
+/* main의 여백 제거 */
+main {
+  padding: 20px;
+  min-height: calc(100vh - 60px); /* 전체 화면 높이에서 Navbar 제외 */
 }
 </style>

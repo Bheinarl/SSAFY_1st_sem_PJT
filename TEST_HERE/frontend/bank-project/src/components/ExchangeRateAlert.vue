@@ -1,8 +1,8 @@
 <template>
-  <div>
-    <h2>환율 알림 설정</h2>
-    <form @submit.prevent="setAlert">
-      <select v-model="currency">
+  <div class="exchange-container">
+    <h2 class="title">환율 알림 설정</h2>
+    <form @submit.prevent="setAlert" class="alert-form">
+      <select v-model="currency" class="select">
         <option value="" disabled>환율을 알아볼 외화를 선택하세요</option>
         <option value="CAD">CAD - 캐나다 달러</option>
         <option value="AED">AED - 아랍에미리트 디르함</option>
@@ -28,20 +28,22 @@
         <option value="USD">USD - 미국 달러</option>
       </select>
       <br>
-      <div>목표 환율 : <input v-model="targetRate" type="number" :placeholder="placeholderText"  />
-        <button type="submit">알림 설정</button>
+      <div class="target-rate">
+        <label for="rate-input">목표 환율:</label>
+        <input id="rate-input" v-model="targetRate" type="number" class="input" :placeholder="placeholderText" />
+        <button type="submit" class="button">알림 설정</button>
       </div>
     </form>
-    <p v-if="alertSet">환율 알림이 설정되었습니다!</p>
+    <p v-if="alertSet" class="success-message">환율 알림이 설정되었습니다!</p>
 
-    <h2>현재 환율 정보</h2>
-    <button @click="fetchExchangeRate">환율 가져오기</button>
-    <div v-if="exchangeRate !== null">
+    <h2 class="title">현재 환율 정보</h2>
+    <button @click="fetchExchangeRate" class="button fetch-button">환율 가져오기</button>
+    <div v-if="exchangeRate !== null" class="rate-card">
       <p>{{ targetCurrency }} 기준 환율 (KRW): {{ exchangeRate }}</p>
-      <p v-if="showAlert" class="alert">환율이 목표 이하로 내려갔습니다! 현재 환율: {{ exchangeRate }}</p>
+      <p v-if="showAlert" class="alert-message">환율이 목표 이하로 내려갔습니다! 현재 환율: {{ exchangeRate }}</p>
     </div>
     <div v-else>
-      <p>환율 정보를 불러올 수 없습니다. 다시 시도해 주세요.</p>
+      <p class="error-message">환율 정보를 불러올 수 없습니다. 다시 시도해 주세요.</p>
     </div>
   </div>
 </template>
@@ -121,8 +123,94 @@ const fetchExchangeRate = async () => {
 </script>
 
 <style scoped>
-.alert {
-  color: red;
+.exchange-container {
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  font-family: 'Arial', sans-serif;
+}
+
+.title {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.alert-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.select {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background: #fff;
+  transition: border-color 0.3s ease;
+}
+
+.select:focus {
+  border-color: #007bff;
+}
+
+.input {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-top: 5px;
+  flex: 1;
+}
+
+.button {
+  padding: 10px 15px;
+  font-size: 16px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.button:hover {
+  background-color: #0056b3;
+}
+
+.fetch-button {
+  margin: 20px 0;
+  width: 100%;
+}
+
+.success-message {
+  color: #28a745;
+  font-size: 16px;
+  margin-top: 10px;
+  text-align: center;
+}
+
+.error-message {
+  color: #dc3545;
+  text-align: center;
+}
+
+.rate-card {
+  background: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+  text-align: center;
+}
+
+.alert-message {
+  color: #ffc107;
   font-weight: bold;
 }
 </style>

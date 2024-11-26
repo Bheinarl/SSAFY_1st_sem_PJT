@@ -41,7 +41,7 @@
     <button @click="fetchExchangeRate" class="button fetch-button">환율 가져오기</button>
     <div v-if="exchangeRate !== null" class="rate-card">
       <p>{{ targetCurrency }} 기준 환율 (KRW): {{ exchangeRate }}</p>
-      <p v-if="showAlert" class="alert-message">환율이 목표 이하로 내려갔습니다! 현재 환율: {{ exchangeRate }}</p>
+      <p v-if="showAlert" class="alert-message">환율이 목표 이하로 내려갔습니다!</p>
     </div>
     <div v-else>
       <p class="error-message">환율 정보를 불러올 수 없습니다. 다시 시도해 주세요.</p>
@@ -127,17 +127,19 @@ const fetchExchangeRate = async () => {
 <style scoped>
 .exchange-container {
   max-width: 600px;
-  margin: 20px auto;
-  padding: 20px;
-  background: #f9f9f9;
+  margin: 50px auto; /* 상단 간격 추가 */
+  padding: 30px;
+  background: #ffffff; /* 흰색 배경 */
   border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* 그림자 강조 */
   font-family: 'Arial', sans-serif;
+  border: 2px solid #004aad; /* 테두리 추가 */
 }
 
 .title {
-  font-size: 24px;
-  color: #333;
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #004aad;
   margin-bottom: 20px;
   text-align: center;
 }
@@ -145,74 +147,100 @@ const fetchExchangeRate = async () => {
 .alert-form {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 15px; /* 간격 넉넉하게 조정 */
+  margin-bottom: 20px; /* 폼과 아래 콘텐츠 간격 */
 }
 
 .select {
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ddd;
+  padding: 12px;
+  font-size: 1rem;
+  border: 1px solid #d0d7e6;
   border-radius: 5px;
-  background: #fff;
+  background: #f9fbff;
   transition: border-color 0.3s ease;
 }
 
 .select:focus {
-  border-color: #007bff;
+  border-color: #004aad;
+  outline: none;
 }
 
 .input {
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ddd;
+  padding: 12px;
+  font-size: 1rem;
+  border: 1px solid #d0d7e6;
   border-radius: 5px;
-  margin-top: 5px;
-  flex: 1;
+  background: #f9fbff;
+  transition: border-color 0.3s ease;
+}
+
+.input:focus {
+  border-color: #004aad;
+  outline: none;
 }
 
 .button {
-  padding: 10px 15px;
-  font-size: 16px;
-  background-color: #007bff;
-  color: #fff;
+  padding: 12px 20px;
+  font-size: 1rem;
+  background-color: #e38e49;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  transition: background-color 0.3s ease;
+}
+
+.button:hover {
+  background-color: #ffb172;
+}
+
+.fetch-button {
+  width: 100%;
+  padding: 12px 20px;
+  font-size: 1rem;
+  background-color: #397edb;
+  color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
-.button:hover {
-  background-color: #0056b3;
-}
-
-.fetch-button {
-  margin: 20px 0;
-  width: 100%;
+.fetch-button:hover {
+  background-color: #265ba8;
 }
 
 .success-message {
   color: #28a745;
-  font-size: 16px;
-  margin-top: 10px;
+  font-size: 1rem;
   text-align: center;
+  font-weight: bold;
 }
 
 .error-message {
+  margin-top: 10px;
+  font-weight: bold;
   color: #dc3545;
+  font-size: 1rem;
   text-align: center;
 }
 
 .rate-card {
-  background: #fff;
-  padding: 15px;
+  background: #f9fbff;
+  font-weight: bold;
+  padding: 20px;
   border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid #d0d7e6;
   margin-top: 20px;
   text-align: center;
 }
 
 .alert-message {
-  color: #ffc107;
+  color: #e38e49;
   font-weight: bold;
+  margin-top: 10px;
 }
+
 </style>

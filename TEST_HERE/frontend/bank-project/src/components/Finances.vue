@@ -44,16 +44,15 @@
 
       <div class="category-info">
         <template v-if="selectedCategory === 'funds'">
-          <ul>
-            <li>안정형 / 균형형 / 공격형 / 투기형 4가지 유형별 맞춤 상품이 강조되어 표시됩니다.</li>
-          </ul>
+          <!-- 😌🧐😏🤑 -->
+          안정 추구형😌 / 균형 투자형🧐 / 공격 투자형😏 / 투기형🤑 <br> 4가지 유형별 맞춤 상품이 강조되어 표시됩니다!
         </template>
         <template v-else-if="selectedCategory === 'deposits' || selectedCategory === 'savings'">
-          <ul>
-            <li>당신이 원하는 상품, 집에 가는 길에 가입하고 싶다면?</li>
-            <li>원하는 상품의 금융회사명을 클릭하여 가장 가까운 지점을 확인하세요.</li>
-            <li>현재 위치 기준으로 다른 은행을 검색하고 싶다면 아래 버튼을 클릭하세요.</li>
-          </ul>
+          
+          <span>💡 당신이 원하는 상품, 집에 가는 길에 가입하고 싶다면?<br>
+          원하는 상품의 <span class="highlight-1">금융회사명</span>을 클릭하여 가장 가까운 지점을 확인하세요.<br></span>
+
+          <span>💡 현재 위치 기준으로 다른 은행을 검색하고 싶다면 <span class="highlight-2">아래 버튼</span>을 클릭하세요.</span>
           <button @click="goToMapView" class="btn map-btn">지도에서 보기</button>
         </template>
       </div>
@@ -314,6 +313,17 @@ const searchInMap = (keyword) => {
   color: #E38E49; /* 강조 텍스트 색상 */
 }
 
+.highlight-1 {
+  color: #E38E49; /* 강조 색상 */
+  font-weight: bold; /* 굵게 */
+  text-decoration: underline; /* 밑줄 */
+}
+
+.highlight-2 {
+  color: #fcd666; /* 강조 색상 */
+  font-weight: bold; /* 굵게 */
+}
+
 .no-type {
   color: #D4EBF8; /* 텍스트 색상 통일 */
 }
@@ -359,7 +369,7 @@ const searchInMap = (keyword) => {
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   max-width: 600px;
-  text-align: left;
+  text-align: center;
 }
 
 .category-info ul {
@@ -376,9 +386,9 @@ const searchInMap = (keyword) => {
 .map-btn {
   margin-top: 10px;
   padding: 10px 20px;
-  background-color: #D4EBF8;
-  color: #0A3981;
-  border: 1px solid #D4EBF8;
+  background-color: #fcd666 !important;
+  /* color: #000000  */
+  border: 1px solid #fcd666 !important;
   border-radius: 5px;
   cursor: pointer;
   font-weight: bold;
@@ -386,7 +396,8 @@ const searchInMap = (keyword) => {
 }
 
 .map-btn:hover {
-  background-color: #E38E49;
+  background-color: #ffe082 !important;
+  border: 1px solid #ffe082 !important;
   color: #fff;
 }
 
@@ -518,6 +529,7 @@ const searchInMap = (keyword) => {
 
 .product-card .clickable {
   color: #E38E49;
+  font-weight: bold;
   cursor: pointer;
   text-decoration: underline;
 }

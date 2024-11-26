@@ -1,20 +1,28 @@
 <template>
-  <header> <Navbar /> </header>
-  <div>
-    <h1>{{ post.title }}</h1>
-    <p>{{ post.content }}</p>
-    <p>작성자: {{ post.author }}</p>
-    <p>좋아요: {{ post.likes }}</p>
-    <button @click="toggleLike">{{ isLiked ? '좋아요 취소' : '좋아요' }}</button>
-    
-    <div v-if="isAuthor">  <!-- 작성자와 현재 사용자 일치 시에만 표시 -->
-      <button @click="deletePost">삭제</button>
-      <button @click="editPost">수정</button>
+  <header>
+    <Navbar />
+  </header>
+  <div class="post-detail-container">
+    <h1 class="post-title">{{ post.title }}</h1>
+    <p class="post-meta">
+      <span class="post-author">작성자: {{ post.author }}</span>
+      <span class="post-likes">좋아요: {{ post.likes }}</span>
+    </p>
+    <p class="post-content">{{ post.content }}</p>
+
+    <div class="button-group">
+      <button @click="toggleLike" class="like-button">
+        {{ isLiked ? '좋아요 취소' : '좋아요' }}
+      </button>
+      <button v-if="isAuthor"@click="deletePost" class="delete-button">삭제</button>
+      <button v-if="isAuthor"@click="editPost" class="edit-button">수정</button>
+      
     </div>
 
-    <router-link to="/posts">뒤로가기</router-link>
+    <router-link to="/posts" class="back-link">뒤로가기</router-link>
   </div>
 </template>
+
 
 <script setup>
 import Navbar from '@/components/Navbar.vue';
@@ -144,3 +152,117 @@ onMounted(() => {
   loadCurrentUser();  // 로그인된 사용자 정보 로드
 });
 </script>
+
+<style scoped>
+/* 컨테이너 스타일 */
+.post-detail-container {
+  width: 800px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: #f9fbff;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  font-family: 'Arial', sans-serif;
+  color: #333;
+}
+
+/* 제목 스타일 */
+.post-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #004aad;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* 내용 스타일 */
+.post-content {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  text-align: justify;
+}
+
+/* 메타 정보 */
+.post-meta {
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.post-author {
+  font-weight: bold;
+  color: #397edb;
+}
+
+.post-likes {
+  font-weight: bold;
+  color: #e38e49;
+}
+
+.button-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px; /* 버튼 사이 간격 설정 */
+  margin-bottom: 20px;
+}
+
+
+.like-button,
+.delete-button,
+.edit-button {
+  padding: 10px 15px;
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+/* 좋아요 버튼 */
+.like-button {
+  background-color: #e38e49;
+  color: white;
+}
+
+.like-button:hover {
+  background-color: #ff7043;
+}
+
+/* 삭제 버튼 */
+.delete-button {
+  background-color: #dc3545;
+  color: white;
+}
+
+.delete-button:hover {
+  background-color: #c82333;
+}
+
+/* 수정 버튼 */
+.edit-button {
+  background-color: #007bff;
+  color: white;
+}
+
+.edit-button:hover {
+  background-color: #0056b3;
+}
+
+/* 뒤로가기 링크 */
+.back-link {
+  display: block;
+  text-align: center;
+  font-size: 1rem;
+  color: #004aad;
+  margin-top: 20px;
+  text-decoration: none;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+</style>

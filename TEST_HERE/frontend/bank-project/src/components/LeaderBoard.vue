@@ -103,6 +103,7 @@ onMounted(fetchLeaderboard);
 .leaderboard-header h6 {
   font-size: 0.9rem;
   color: #e38e49;
+  font-weight: bold;
 }
 
 /* 순위표 테이블 */

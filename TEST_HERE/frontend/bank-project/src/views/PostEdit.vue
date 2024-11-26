@@ -1,17 +1,29 @@
 <template>
   <header> <Navbar /> </header>
-  <div>
-    <h1>게시글 수정</h1>
-    <form @submit.prevent="updatePost">
-      <div>
+  <div class="edit-container">
+    <h1 class="title">게시글 수정</h1>
+    <form @submit.prevent="updatePost" class="edit-form">
+      <div class="form-group">
         <label for="title">제목</label>
-        <input id="title" v-model="title" required />
+        <input
+          id="title"
+          v-model="title"
+          required
+          class="form-input"
+          placeholder="제목을 입력하세요"
+        />
       </div>
-      <div>
+      <div class="form-group">
         <label for="content">내용</label>
-        <textarea id="content" v-model="content" required></textarea>
+        <textarea
+          id="content"
+          v-model="content"
+          required
+          class="form-textarea"
+          placeholder="내용을 입력하세요"
+        ></textarea>
       </div>
-      <button type="submit">수정하기</button>
+      <button type="submit" class="btn-submit">수정하기</button>
     </form>
   </div>
 </template>
@@ -82,3 +94,89 @@ onMounted(() => {
   loadPost();
 });
 </script>
+
+<style scoped>
+/* 컨테이너 스타일 */
+.edit-container {
+  width: 800px;
+  margin: 30px auto;
+  padding: 20px;
+  background: #f9fbff;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  font-family: 'Arial', sans-serif;
+  color: #333;
+}
+
+/* 제목 스타일 */
+.title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  text-align: center;
+  color: #004aad;
+  margin-bottom: 20px;
+}
+
+/* 폼 그룹 스타일 */
+.form-group {
+  margin-bottom: 20px;
+}
+
+/* 폼 레이블 */
+label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+/* 폼 입력 스타일 */
+.form-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #004aad;
+  box-shadow: 0 0 4px rgba(0, 74, 173, 0.3);
+}
+
+/* 텍스트 영역 스타일 */
+.form-textarea {
+  width: 100%;
+  height: 120px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1rem;
+  resize: vertical;
+}
+
+.form-textarea:focus {
+  outline: none;
+  border-color: #004aad;
+  box-shadow: 0 0 4px rgba(0, 74, 173, 0.3);
+}
+
+/* 제출 버튼 스타일 */
+.btn-submit {
+  width: 100%;
+  padding: 12px 0;
+  font-size: 1rem;
+  font-weight: bold;
+  color: white;
+  background-color: #004aad;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-submit:hover {
+  background-color: #002f6c;
+}
+</style>

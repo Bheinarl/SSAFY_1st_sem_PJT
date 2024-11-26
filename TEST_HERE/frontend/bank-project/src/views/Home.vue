@@ -22,8 +22,52 @@
 
 <script setup>
 import { useRouter } from 'vue-router';
+import { onMounted } from 'vue';
+import axios from 'axios';
 
 const router = useRouter();
+
+// 기존 데이터 로드 함수들
+async function updateStockUrl() {
+  const apiUrl = 'http://127.0.0.1:8000/stocks/api/stocks/list/';
+  console.log('API URL:', apiUrl);
+  try {
+    await axios.get(apiUrl);
+  } catch (error) {
+    console.error('Error fetching stock data:', error);
+  }
+}
+const fetchDataAndSaveDeposits = async () => {
+  try {
+    await axios.get('http://127.0.0.1:8000/finances/api/fetch_and_save_products/deposits');
+    console.log('데이터 수신 및 저장 완료');
+  } catch (error) {
+    console.error('데이터 수신 실패:', error);
+  }
+};
+const fetchDataAndSaveSavings = async () => {
+  try {
+    await axios.get('http://127.0.0.1:8000/finances/api/fetch_and_save_products/savings');
+    console.log('데이터 수신 및 저장 완료');
+  } catch (error) {
+    console.error('데이터 수신 실패:', error);
+  }
+};
+const fetchDataAndSaveFunds = async () => {
+  try {
+    await axios.get('http://127.0.0.1:8000/finances/api/fetch_and_save_products/funds');
+    console.log('데이터 수신 및 저장 완료');
+  } catch (error) {
+    console.error('데이터 수신 실패:', error);
+  }
+};
+// onMounted에서 기존 기능 호출
+onMounted(async () => {
+  await updateStockUrl();
+  await fetchDataAndSaveDeposits();
+  await fetchDataAndSaveSavings();
+  await fetchDataAndSaveFunds();
+});
 
 const goToRegister = () => {
   router.push('/register');
@@ -33,6 +77,7 @@ const goToLogin = () => {
   router.push('/login');
 };
 </script>
+
 
 <style scoped>
 /* 텍스트 컨테이너 */

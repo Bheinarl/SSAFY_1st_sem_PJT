@@ -66,6 +66,11 @@
         :key="subcategory" 
         @click="changeSubCategory(subcategory)"
         :class="['subcategory-btn', getSubcategoryClass(subcategory)]"
+        :style="{ 
+  backgroundColor: getSubcategoryClass(subcategory) === 'usertype-selected' ? '#E38E49' : '',
+  borderColor: getSubcategoryClass(subcategory) === 'usertype-selected' ? '#E38E49' : ''
+
+         }"
       >
         {{ subcategory }}
       </button>
@@ -265,19 +270,19 @@ const loadCurrentUser = async () => {
 const getSubcategoryClass = (subcategory) => {
   if (userType.value === '안정 추구형') {
     if (['채권형', '단기금융'].includes(subcategory)) {
-      return 'green-bg';
+      return 'usertype-selected';
     }
   } else if (userType.value === '균형 투자형') {
     if (['혼합채권형', '혼합자산', '변액보험'].includes(subcategory)) {
-      return 'blue-bg';
+      return 'usertype-selected';
     }
   } else if (userType.value === '공격 투자형') {
     if (['주식형', '혼합주식형'].includes(subcategory)) {
-      return 'yellow-bg';
+      return 'usertype-selected';
     }
   } else if (userType.value === '투기형') {
     if (['재간접', '파생상품', '부동산', '특별자산'].includes(subcategory)) {
-      return 'red-bg';
+      return 'usertype-selected';
     }
   }
   return ''; // 기본값은 빈 문자열
@@ -581,5 +586,15 @@ const searchInMap = (keyword) => {
   color: #ffffff;
 }
 
+.usertype-selected {
+  padding: 10px 20px;
+  border: 1px solid #D4EBF8;
+  border-radius: 5px;
+  background-color: #D4EBF8;
+  color: #0A3981;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
 
 </style>

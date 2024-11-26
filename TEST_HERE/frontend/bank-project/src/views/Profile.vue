@@ -41,11 +41,13 @@
         </div>
         <div class="detail-row">
           <span class="label">Nickname:</span>
-          <span class="value">{{ profile.nickname }}</span>
+          <span class="value" v-if="profile.my_investor_type">{{ profile.nickname }}</span>
+          <span class="value" v-else>-</span>
         </div>
         <div class="detail-row">
           <span class="label">Age:</span>
-          <span class="value">{{ profile.age }}</span>
+          <span class="value" v-if="profile.my_investor_type">{{ profile.age }}</span>
+          <span class="value" v-else>-</span>
         </div>
         <div class="detail-row">
           <span class="label">My investor type:</span>

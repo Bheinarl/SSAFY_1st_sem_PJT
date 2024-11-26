@@ -1,33 +1,36 @@
 <template>
   <header> <Navbar /> </header>
   <div class="map-wrapper">
-    <!-- 카카오맵이 표시될 div -->
-    <div id="map"></div>
-
-    <!-- 컨트롤 영역 (현재 위치 버튼, 검색창+검색버튼) -->
-    <div class="control-container"> 
-      <button class="location-btn" @click="moveToCurrentLocation">
-        현재 위치
-      </button>
+    <!-- 컨트롤 영역 -->
+    <div class="control-container">
+      <button class="location-btn" @click="moveToCurrentLocation">현재 위치</button>
       <div class="search-container">
-        <input v-model="keyword" placeholder="검색어를 입력하세요">
-        <button @click="searchPlaces">검색</button>
+        <input v-model="keyword" placeholder="검색어를 입력하세요" class="search-input" />
+        <button @click="searchPlaces" class="search-btn">검색</button>
       </div>
     </div>
-    
-     <!-- 검색 결과 목록 (검색 결과가 있을 때만 표시) -->
+
+    <!-- 카카오맵 -->
+    <div id="map"></div>
+
+    <!-- 검색 결과 목록 -->
     <div class="search-results" v-if="searchResults.length">
-      <div class="result-item" v-for="(place, index) in searchResults" :key="index" @click="moveToPlace(place)">
-        <h3>{{ place.place_name }}</h3>
-        <p class="address">{{ place.address_name }}</p>
-        <p class="category">{{ place.category_name }}</p>
-        <p class="distance">{{ place.distance.toFixed(2) }} km</p>
-        <p class="phone">{{ place.phone ? place.phone : '전화번호 없음' }}</p>
+      <div
+        class="result-item"
+        v-for="(place, index) in searchResults"
+        :key="index"
+        @click="moveToPlace(place)"
+      >
+        <h3 class="result-title">{{ place.place_name }}</h3>
+        <p class="result-info address">{{ place.address_name }}</p>
+        <p class="result-info category">{{ place.category_name }}</p>
+        <p class="result-info distance">거리: {{ place.distance.toFixed(2) }} km</p>
+        <p class="result-info phone">{{ place.phone || '전화번호 없음' }}</p>
       </div>
     </div>
   </div>
-  
 </template>
+
 
 <script setup>
 import Navbar from '@/components/Navbar.vue';
@@ -76,8 +79,9 @@ const moveToCurrentLocation = () => {
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
         const moveLatLng = new window.kakao.maps.LatLng(lat, lng);
+
         map.value.setCenter(moveLatLng);
-        map.value.setLevel(2);
+        map.value.setLevel(4);
 
         const currentMarkerImage = new window.kakao.maps.MarkerImage(
           markerCurrent,
@@ -87,7 +91,8 @@ const moveToCurrentLocation = () => {
         if (currentMarker.value) { // 기존 마커 제거
           currentMarker.value.setMap(null);
         }
-
+        
+        // 현재 위치 마커 추가
         currentMarker.value = new window.kakao.maps.Marker({
           position: moveLatLng,
           map: map.value,
@@ -146,7 +151,7 @@ const createMap = (lat, lng) => {
   const container = document.getElementById('map');
   const options = {
     center: new window.kakao.maps.LatLng(lat, lng),
-    level: 3
+    level: 4
   };
   map.value = new window.kakao.maps.Map(container, options);
 };
@@ -198,6 +203,9 @@ const searchPlaces = () => {
 
       searchResults.value = sortedResult;
       displayMarkers(sortedResult);
+      
+      // 검색 결과 컨테이너 스타일 업데이트
+      updateSearchResultStyles();
     } else {
       console.error('검색 실패:', status);
       searchResults.value = [];
@@ -210,7 +218,7 @@ const searchPlaces = () => {
 const displayMarkers = (places) => {
   markers.value.forEach(marker => marker.setMap(null)); // 기존 마커 해제
   markers.value = [];
-  map.value.setLevel(5);
+  map.value.setLevel(6);
 
   const defaultMarkerImage = new window.kakao.maps.MarkerImage(
     markerDefault,
@@ -242,7 +250,7 @@ const displayMarkers = (places) => {
 // 선택한 장소로 이동
 const moveToPlace = (place) => {
   const moveLatLng = new window.kakao.maps.LatLng(place.y, place.x);
-  map.value.setLevel(3);
+  map.value.setLevel(4);
   map.value.setCenter(moveLatLng);
 
   const defaultMarkerImage = new window.kakao.maps.MarkerImage(
@@ -263,105 +271,137 @@ const moveToPlace = (place) => {
     }
   });
 };
+
+
+
+const updateSearchResultStyles = () => {
+  const searchResultContainer = document.querySelector('.search-results');
+  if (searchResultContainer) {
+    searchResultContainer.style.position = 'absolute';
+    searchResultContainer.style.bottom = '10px';
+    searchResultContainer.style.left = '50%';
+    searchResultContainer.style.transform = 'translateX(-50%)';
+    searchResultContainer.style.width = '90%';
+    searchResultContainer.style.maxWidth = '1200px';
+    searchResultContainer.style.maxHeight = '300px';
+    searchResultContainer.style.overflowY = 'auto';
+    searchResultContainer.style.zIndex = '10';
+    searchResultContainer.style.background = '#fff';
+    searchResultContainer.style.borderRadius = '10px';
+    searchResultContainer.style.padding = '15px';
+    searchResultContainer.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.2)';
+  }
+};
+
+
+
 </script>
 
 
 <style scoped>
 .map-wrapper {
   width: 100%;
-  height: 100%;
+  height: 100vh; /* 화면 전체 높이 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #1F509A; /* 배경색 */
   padding: 20px;
-  position: relative;
+  box-sizing: border-box; /* padding 포함한 크기 계산 */
 }
 
 #map {
   width: 100%;
-  height: 600px;
-  margin-bottom: 20px;
+  max-width: 1200px; /* 지도의 최대 너비 */
+  height: calc(100vh - 250px); /* 전체 높이에서 컨트롤 영역을 제외한 높이 */
+  margin: 0 auto;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 }
 
 .control-container {
-  position: absolute;
-  top: 30px;
-  left: 30px;
-  z-index: 1;
-  background: white;
-  padding: 10px;
-  border-radius: 4px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 1200px; /* 컨트롤 영역도 지도 너비에 맞춤 */
+  margin-bottom: 20px;
+  text-align: center;
+  background-color: #ffffff;
+  padding: 15px 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  justify-content: space-between; /* 버튼과 검색창 배치 */
 }
 
 .location-btn {
-  padding: 8px 16px;
-  margin-bottom: 10px;
-  background-color: #4a90e2;
-  color: white;
+  padding: 10px 20px;
+  background-color: #E38E49;
+  color: #ffffff;
   border: none;
-  border-radius: 4px;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: bold;
   cursor: pointer;
-  width: 100%;
+  transition: background-color 0.3s ease;
 }
 
 .location-btn:hover {
-  background-color: #357abd;
+  background-color: #D4EBF8;
+  color: #0A3981;
 }
 
 .search-container {
   display: flex;
-  gap: 8px;
+  flex: 1;
+  gap: 10px;
 }
 
-input {
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  flex-grow: 1;
+.search-input {
+  padding: 10px;
+  border: 2px solid #D4EBF8;
+  border-radius: 5px;
+  flex: 1;
+  font-size: 1rem;
 }
 
-button {
-  padding: 8px 16px;
-  background-color: #4a90e2;
-  color: white;
+.search-input:focus {
+  outline: none;
+  border-color: #E38E49;
+}
+
+.search-btn {
+  padding: 10px 20px;
+  background-color: #D4EBF8;
+  color: #0A3981;
   border: none;
-  border-radius: 4px;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: bold;
   cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
-button:hover {
-  background-color: #357abd;
-}
-
-.map-wrapper {
-  width: 100%;
-  height: 100%;
-  padding: 20px;
-}
-
-#map {
-  width: 100%;
-  height: 600px;
-  margin-bottom: 20px;
-}
-
-.search-container {
-  margin-bottom: 20px;
-}
-
-input {
-  padding: 8px;
-  margin-right: 10px;
-  width: 300px;
-}
-
-button {
-  padding: 8px 16px;
+.search-btn:hover {
+  background-color: #E38E49;
+  color: #ffffff;
 }
 
 .search-results {
-  max-height: 400px;
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 1200px;
+  max-height: 300px;
   overflow-y: auto;
-  border: 1px solid #0026ff;
-  border-radius: 4px;
+  z-index: 10;
+  background: #fff;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 
 .result-item {
@@ -375,31 +415,32 @@ button {
   background-color: #a1bfff;
 }
 
-.result-item h3 {
-  margin: 0 0 8px 0;
-  font-size: 16px;
+.result-title {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #1F509A;
+}
+
+.result-info {
+  font-size: 0.9rem;
   color: #333;
 }
 
-.result-item p {
-  margin: 4px 0;
-  font-size: 14px;
-  color: #666;
+.result-info.address {
+  color: #555;
 }
 
-.result-item .address {
-  color: #2c5282;
+.result-info.category {
+  color: #999;
 }
 
-.result-item .category {
-  color: #718096;
-}
-
-.result-item .phone {
-  color: #4a5568;
-}
-.result-item .distance {
-  color: #2b6cb0;
+.result-info.distance {
+  color: #E38E49;
   font-weight: bold;
 }
+
+.result-info.phone {
+  color: #777;
+}
+
 </style>

@@ -1,14 +1,24 @@
 <template>
-    <nav>
-      <!-- <router-link to="/">Home</router-link><span v-show="!isAuthenticated"> | </span> -->
-      <router-link v-show="!isAuthenticated" to="/register">Register</router-link><span v-show="!isAuthenticated"> | </span>
-      <router-link v-show="isAuthenticated" to="/profile">Profile</router-link><span v-show="isAuthenticated"> | </span>
-      <router-link v-show="isAuthenticated" to="/posts">게시판</router-link><span v-show="isAuthenticated"> | </span>
-      <button v-show="isAuthenticated" @click="goGame">goGameReal</button><span v-show="isAuthenticated"> | </span>
-      <button v-show="isAuthenticated" @click="goFinances">Finances</button><span v-show="isAuthenticated"> | </span>
-      <button v-show="isAuthenticated" @click="goLeaderBoard">LeaderBoard</button><span v-show="isAuthenticated"> | </span>
-      <button v-show="isAuthenticated" @click="logout">Logout</button><span v-show="isAuthenticated"> | </span>
-    </nav>
+  <nav class="navbar">
+    <!-- 왼쪽 메뉴 -->
+    <div class="left-menu">
+      <span v-show="isAuthenticated" @click="goFinances" class="nav-item">Finances</span>
+      <span v-show="isAuthenticated">|</span>
+      <span v-show="isAuthenticated" @click="goGame" class="nav-item">goGameReal</span>
+      <span v-show="isAuthenticated">|</span>
+      <span v-show="isAuthenticated" @click="goLeaderBoard" class="nav-item">LeaderBoard</span>
+      <span v-show="isAuthenticated">|</span>
+      <router-link v-show="isAuthenticated" to="/posts" class="nav-item">게시판</router-link>
+    </div>
+
+    <!-- 오른쪽 메뉴 -->
+    <div class="right-menu">
+      <router-link v-show="isAuthenticated" to="/profile" class="nav-item">Profile</router-link>
+      <span v-show="isAuthenticated">|</span>
+      <span v-show="isAuthenticated" @click="logout" class="nav-item">Logout</span>
+    </div>
+  </nav>
+
 </template>
 
 <script setup>
@@ -25,38 +35,51 @@ const logout = () => {
 };
 
 const goGame = () => {
-    router.push('/gamereal');
+  router.push('/gamereal');
 };
 
 const goFinances = () => {
-    router.push('/finances');
+  router.push('/finances');
 };
 
 const goLeaderBoard = () => {
-    router.push('/leaderboard');
+  router.push('/leaderboard');
 };
 
-// 로그인 상태가 변경되면 Navbar 업데이트
 watch(() => router.currentRoute, () => {
-    isAuthenticated.value = !!localStorage.getItem('token');
+  isAuthenticated.value = !!localStorage.getItem('token');
 });
 </script>
 
-
 <style scoped>
-nav {
-    padding: 1em;
-    background-color: #f8f9fa;
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background-color: #feebd6; /* Navbar 배경색 */
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
-nav a {
-    margin-right: 10px;
-    text-decoration: none;
-    color: #007bff;
+
+.left-menu,
+.right-menu {
+  display: flex;
+  gap: 15px;
 }
-button {
-    background: none;
-    border: none;
-    color: #007bff;
-    cursor: pointer;
+
+.nav-item {
+  cursor: pointer;
+  color: #000000; /* 기본 글자 색상 */
+  font-weight: bold;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.nav-item:hover {
+  color: #ee6463; /* hover 시 강조 색상 */
+}
+
+span {
+  color: #000000; /* 구분자 색상 */
 }
 </style>

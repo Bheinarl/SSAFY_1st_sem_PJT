@@ -4,13 +4,13 @@
     <h1>User Profile</h1>
     <div v-if="loading">Loading...</div>
     <div v-else>
-      <div v-if="isEditing">
+      <div v-if="isEditing" class="form-container">
         <form @submit.prevent="updateProfile">
-          <div>
+          <div class="form-group">
             <label for="nickname">Nickname</label>
             <input type="text" v-model="profile.nickname" id="nickname" />
           </div>
-          <div>
+          <div class="form-group">
             <label for="age">Age</label>
             <input type="number" v-model="profile.age" id="age" />
           </div>
@@ -18,17 +18,19 @@
             <label for="max_score">Max Score</label>
             <input type="number" v-model="profile.max_score" id="max_score" disabled />
           </div>
-          <button type="submit">Save Changes</button>
-          <button type="button" @click="cancelEdit">Cancel</button>
+          <div class="button-group">
+            <button type="submit" class="btn save">Save Changes</button>
+            <button type="button" @click="cancelEdit" class="btn cancel">Cancel</button>
+          </div>
         </form>
       </div>
-      <div v-else>
+      <div v-else class="profile-details">
         <p><strong>Username:</strong> {{ profile.username }}</p>
         <p><strong>Nickname:</strong> {{ profile.nickname }}</p>
         <p><strong>Age:</strong> {{ profile.age }}</p>
         <p><strong>My investor type:</strong> {{ profile.my_investor_type }}</p>
         <p><strong>Max Score:</strong> {{ profile.max_score }}</p>
-        <button @click="enableEdit">Edit Profile</button>
+        <button @click="enableEdit" class="btn edit">Edit Profile</button>
       </div>
     </div>
   </div>
@@ -39,7 +41,6 @@ import Navbar from '@/components/Navbar.vue';
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 
-// 프로필 데이터 초기화
 const profile = ref({
   username: '',
   nickname: '',
@@ -49,9 +50,8 @@ const profile = ref({
 });
 
 const loading = ref(true);
-const isEditing = ref(false); // 수정 모드 상태
+const isEditing = ref(false);
 
-// 로그인한 사용자 정보 가져오기
 const fetchProfile = async () => {
   try {
     const response = await axios.get('http://127.0.0.1:8000/accounts/profile/', {
@@ -59,20 +59,19 @@ const fetchProfile = async () => {
         Authorization: `Token ${localStorage.getItem('token')}`,
       },
     });
-    profile.value = response.data; // 응답 데이터로 프로필 업데이트
+    profile.value = response.data;
   } catch (error) {
     console.error('Failed to fetch profile:', error);
   } finally {
-    loading.value = false; // 로딩 완료
+    loading.value = false;
   }
 };
 
-// 프로필 수정 처리
 const updateProfile = async () => {
   try {
     const response = await axios.patch(
       'http://127.0.0.1:8000/accounts/update_profile/',
-      profile.value, // 변경된 프로필 데이터 전송
+      profile.value,
       {
         headers: {
           Authorization: `Token ${localStorage.getItem('token')}`,
@@ -80,27 +79,84 @@ const updateProfile = async () => {
       }
     );
     alert('Profile updated successfully!');
-    isEditing.value = false; // 수정 모드 종료
+    isEditing.value = false;
   } catch (error) {
     console.error('Failed to update profile:', error);
   }
 };
 
-// 수정 취소 처리
 const cancelEdit = () => {
-  isEditing.value = false; // 수정 모드 종료
-  fetchProfile(); // 수정 취소 시 원래 값으로 되돌리기
+  isEditing.value = false;
+  fetchProfile();
 };
 
-// 수정 모드 활성화
 const enableEdit = () => {
-  isEditing.value = true; // 수정 모드 활성화
+  isEditing.value = true;
 };
 
-// 컴포넌트가 마운트될 때 프로필 데이터 가져오기
 onMounted(fetchProfile);
 </script>
 
 <style scoped>
+.profile-container {
+  background-color: #fff4f1; /* 배경 색상 */
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
 
+.title {
+  color: #ee6463;
+  font-weight: bold;
+}
+
+.profile-details,
+.form-container {
+  margin-top: 20px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+input,
+textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ffa29c;
+  border-radius: 5px;
+  background-color: #feebd6;
+}
+
+input:focus,
+textarea:focus {
+  outline: none;
+  border-color: #ee6463;
+}
+
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn.save {
+  background-color: #ee6463;
+  color: white;
+}
+
+.btn.cancel {
+  background-color: #ffa29c;
+  color: black;
+}
+
+.btn.edit {
+  background-color: #ffa29c;
+  color: black;
+}
+.template {
+  background-color: #ffa29c;
+}
 </style>

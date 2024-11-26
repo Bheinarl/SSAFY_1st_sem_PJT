@@ -1,4 +1,5 @@
 <template>
+  <header> <Navbar /> </header>
   <div>
     <h1>{{ post.title }}</h1>
     <p>{{ post.content }}</p>
@@ -16,6 +17,7 @@
 </template>
 
 <script setup>
+import Navbar from '@/components/Navbar.vue';
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 

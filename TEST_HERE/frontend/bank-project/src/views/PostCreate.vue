@@ -1,4 +1,5 @@
 <template>
+  <header> <Navbar /> </header>
   <div>
     <h1>글 작성하기</h1>
     <form @submit.prevent="createPost">
@@ -16,6 +17,7 @@
 </template>
   
 <script setup>
+import Navbar from '@/components/Navbar.vue';
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 

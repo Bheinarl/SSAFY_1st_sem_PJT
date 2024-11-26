@@ -1,4 +1,5 @@
 <template>
+  <header> <Navbar /> </header>
   <div>
     <!-- Header Section -->
     <div class="header">
@@ -209,7 +210,7 @@ import { useStockStore } from '@/stores/StockStore';
 import { useRouter, RouterView } from 'vue-router';
 import axios from 'axios';
 import Chart from 'chart.js/auto';
-
+import Navbar from '@/components/Navbar.vue';
 /* --------------------------- State --------------------------- */
 const stockStore = useStockStore();
 const router = useRouter();

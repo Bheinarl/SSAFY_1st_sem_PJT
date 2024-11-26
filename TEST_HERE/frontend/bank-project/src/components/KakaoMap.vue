@@ -203,6 +203,9 @@ const searchPlaces = () => {
 
       searchResults.value = sortedResult;
       displayMarkers(sortedResult);
+      
+      // 검색 결과 컨테이너 스타일 업데이트
+      updateSearchResultStyles();
     } else {
       console.error('검색 실패:', status);
       searchResults.value = [];
@@ -268,6 +271,30 @@ const moveToPlace = (place) => {
     }
   });
 };
+
+
+
+const updateSearchResultStyles = () => {
+  const searchResultContainer = document.querySelector('.search-results');
+  if (searchResultContainer) {
+    searchResultContainer.style.position = 'absolute';
+    searchResultContainer.style.bottom = '10px';
+    searchResultContainer.style.left = '50%';
+    searchResultContainer.style.transform = 'translateX(-50%)';
+    searchResultContainer.style.width = '90%';
+    searchResultContainer.style.maxWidth = '1200px';
+    searchResultContainer.style.maxHeight = '300px';
+    searchResultContainer.style.overflowY = 'auto';
+    searchResultContainer.style.zIndex = '10';
+    searchResultContainer.style.background = '#fff';
+    searchResultContainer.style.borderRadius = '10px';
+    searchResultContainer.style.padding = '15px';
+    searchResultContainer.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.2)';
+  }
+};
+
+
+
 </script>
 
 
@@ -377,20 +404,15 @@ const moveToPlace = (place) => {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 
-
 .result-item {
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #D4EBF8;
-  border-radius: 5px;
-  background-color: #F9F9F9;
-  transition: background-color 0.3s ease, transform 0.3s ease;
+  padding: 15px;
+  border-bottom: 1px solid #5683ff;
   cursor: pointer;
+  transition: background-color 0.2s;
 }
 
 .result-item:hover {
-  background-color: #D4EBF8;
-  transform: translateY(-5px);
+  background-color: #a1bfff;
 }
 
 .result-title {

@@ -1,113 +1,140 @@
 <template>
-  <header> <Navbar /> </header>
-  
-  <div>
-    <!-- MapView로 이동하는 버튼 -->
-    <div style="margin-top: 20px;">
-      <button @click="goToMapView" class="btn btn-primary">Go to Map</button>
-    </div>
+  <header><Navbar /></header>
+  <div class="product-page">
 
     <!-- 투자자 유형 표시 -->
-    <div>
-      <h2 v-if="userType">투자자 유형: <span>{{ userType }}</span></h2>
-      <h2 v-else>투자자 유형: 모의투자게임을 통해 당신의 투자 유형을 확인하고 맞춤 상품을 추천받으세요! </h2>
+    <div class="investor-type">
+      <h2 v-if="userType">
+        투자자 유형: <span class="highlight">{{ userType }}</span>
+      </h2>
+      <h2 v-else>
+        <span>
+          투자자 유형: - 
+          아직 게임을 하지 않았다면? 모의투자게임하고 당신에게 맞는 펀드를 추천받으세요
+        </span>
+        <div class="top-section">
+          <button @click="goToGame" class="btn primary-btn">게임하러가기</button>
+        </div>
+      </h2>
     </div>
 
-    <h1>상품 목록</h1>
-    
     <!-- 카테고리 탭 -->
-    <nav>
-      <button 
-        @click="changeCategory('funds')" 
-        :class="{ active: selectedCategory === 'funds' }"
-      >
-        펀드
-      </button>
-      <button 
-        @click="changeCategory('deposits')" 
-        :class="{ active: selectedCategory === 'deposits' }"
-      >
-        정기예금
-      </button>
-      <button 
-        @click="changeCategory('savings')" 
-        :class="{ active: selectedCategory === 'savings' }"
-      >
-        적금
-      </button>
-    </nav>
-    <nav>
-      <div v-if="selectedCategory === 'funds' && showFundsSubcategories" class="subcategories">
+    <nav class="category-nav">
+
+      <div>
         <button 
-          v-for="subcategory in fundSubcategories" 
-          :key="subcategory" 
-          @click="changeSubCategory(subcategory)"
-          :class="getSubcategoryClass(subcategory)"
+          @click="changeCategory('funds')" 
+          :class="{ active: selectedCategory === 'funds' }"
         >
-          {{ subcategory }}
+          펀드
+        </button>
+        <button 
+          @click="changeCategory('deposits')" 
+          :class="{ active: selectedCategory === 'deposits' }"
+        >
+          정기예금
+        </button>
+        <button 
+          @click="changeCategory('savings')" 
+          :class="{ active: selectedCategory === 'savings' }"
+        >
+          적금
         </button>
       </div>
+
+
+      <div class="category-info">
+        <template v-if="selectedCategory === 'funds'">
+          <ul>
+            <li>안정형 / 균형형 / 공격형 / 투기형 4가지 유형별 맞춤 상품이 강조되어 표시됩니다.</li>
+          </ul>
+        </template>
+        <template v-else-if="selectedCategory === 'deposits' || selectedCategory === 'savings'">
+          <ul>
+            <li>당신이 원하는 상품, 집에 가는 길에 가입하고 싶다면?</li>
+            <li>원하는 상품의 금융회사명을 클릭하여 가장 가까운 지점을 확인하세요.</li>
+            <li>현재 위치 기준으로 다른 은행을 검색하고 싶다면 아래 버튼을 클릭하세요.</li>
+          </ul>
+          <button @click="goToMapView" class="btn map-btn">지도에서 보기</button>
+        </template>
+      </div>
+
     </nav>
 
-    <!-- 로딩 상태 표시 -->
-    <div v-if="loading">로딩 중...</div>
+    <!-- 서브카테고리 -->
+    <div v-if="selectedCategory === 'funds' && showFundsSubcategories" class="subcategory-nav">
+      <button 
+        v-for="subcategory in fundSubcategories" 
+        :key="subcategory" 
+        @click="changeSubCategory(subcategory)"
+        :class="['subcategory-btn', getSubcategoryClass(subcategory)]"
+      >
+        {{ subcategory }}
+      </button>
+    </div>
 
-    <!-- 에러 메시지 표시 -->
+    <!-- 로딩 상태 -->
+    <div v-if="loading" class="loading">로딩 중...</div>
+
+    <!-- 에러 메시지 -->
     <div v-if="error" class="error">{{ error }}</div>
 
-    <!-- 상품 목록 -->
-    <table v-if="paginatedProducts.length > 0">
-      <thead>
-        <tr v-if="selectedCategory == 'deposits' || selectedCategory == 'savings'">
-          <th>상품명</th>
-          <th>금융회사명</th>
-          <th>가입대상</th>
-          <th>만기 후 이자율</th>
-          <th>가입방법</th>
-        </tr>
-        <tr v-else-if="selectedCategory == 'funds'">
-          <th>상품명</th>
-          <th>펀드 유형</th>
-        </tr>
-      </thead>
-      <tbody v-if="selectedCategory == 'deposits' || selectedCategory == 'savings'">
-        <tr v-for="(product, index) in paginatedProducts" :key="index">
-          <td>{{ product.fin_prdt_nm }}</td>
-          <!-- 💰💰💰금융회사명을 바로 카카오맵에서 키워드 검색💰💰💰 -->
-          <td @click="searchInMap(product.kor_co_nm)" style="cursor: pointer; color: blue; text-decoration: underline;">
+    <!-- 상품 카드 -->
+    <div class="product-list">
+      <div 
+        v-for="(product, index) in paginatedProducts" 
+        :key="index" 
+        class="product-card"
+      >
+        <h3 class="product-name">{{ product.fin_prdt_nm || product.fndNm }}</h3>
+        <p v-if="selectedCategory !== 'funds'">
+          금융회사명: 
+          <span 
+            class="clickable" 
+            @click="searchInMap(product.kor_co_nm)"
+          >
             {{ product.kor_co_nm }}
-          </td>
-          <td>{{ product.join_member }}</td>
-          <td>{{ product.mtrt_int }}</td>
-          <td>{{ product.join_way }}</td>
-        </tr>
-      </tbody>
-      <tbody v-else-if="selectedCategory == 'funds'">
-        <tr v-for="(product, index) in paginatedProducts" :key="index">
-          <td><a :href="'https://www.funddoctor.co.kr/afn/fund/fprofile.jsp?fund_cd=' + product.asoStdCd">{{ product.fndNm }}</a></td>
-          <td>{{ product.fndTp }}</td>
-        </tr>
-      </tbody>
-    </table>
+          </span>
+        </p>
+        <p v-if="selectedCategory !== 'funds'">가입대상: {{ product.join_member }}</p>
+        <p v-if="selectedCategory !== 'funds'">만기 후 이자율: {{ product.mtrt_int }}</p>
+        <p v-if="selectedCategory !== 'funds'">가입방법: {{ product.join_way }}</p>
+        <p v-if="selectedCategory === 'funds'">펀드 유형: {{ product.fndTp }}</p>
+        <a 
+          v-if="selectedCategory === 'funds'" 
+          :href="'https://www.funddoctor.co.kr/afn/fund/fprofile.jsp?fund_cd=' + product.asoStdCd" 
+          target="_blank"
+          class="details-link"
+        >
+          자세히 보기
+        </a>
+      </div>
+    </div>
 
     <!-- 페이지네이션 -->
-    <div v-if="pagination.total_count > 0">
+    <div class="pagination" v-if="pagination.total_count > 0">
       <button 
         @click="changePage(pagination.now_page_no - 1)" 
         :disabled="pagination.now_page_no === 1"
+        class="pagination-btn"
       >
         이전
       </button>
-      <span>{{ pagination.now_page_no }} / {{ pagination.max_page_no }}</span>
+      <span class="pagination-info">{{ pagination.now_page_no }} / {{ pagination.max_page_no }}</span>
       <button 
         @click="changePage(pagination.now_page_no + 1)" 
         :disabled="pagination.now_page_no === pagination.max_page_no"
+        class="pagination-btn"
       >
         다음
       </button>
     </div>
+
+
+
   </div>
 </template>
+
 
 <script setup>
 import Navbar from '@/components/Navbar.vue';
@@ -138,6 +165,12 @@ const pagination = ref({
 const goToMapView = () => {
   window.location.href = '/mapview';
 };
+
+// Game으로 이동하는 함수
+const goToGame = () => {
+  window.location.href = '/gamereal';
+};
+
 
 
 // 상품 데이터 가져오기
@@ -266,68 +299,230 @@ const searchInMap = (keyword) => {
 </script>
 
 <style scoped>
-nav {
+.category-nav {
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 20px;
+}
+
+.category-info {
+  background-color: #ffffff; /* 배경색 변경 */
+  color: #1F509A; /* 텍스트 색상 */
+  padding: 15px 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  text-align: left;
+}
+
+.category-info ul {
+  list-style-type: disc;
+  margin: 0 0 10px 20px;
+  padding: 0;
+  font-size: 0.9rem;
+}
+
+.category-info ul li {
+  margin-bottom: 5px;
+}
+
+.map-btn {
+  margin-top: 10px;
+  padding: 10px 20px;
+  background-color: #D4EBF8;
+  color: #0A3981;
+  border: 1px solid #D4EBF8;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.map-btn:hover {
+  background-color: #E38E49;
+  color: #fff;
+}
+
+.category-buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  justify-content: center; /* 버튼을 가운데 정렬 */
+}
+
+.category-buttons button {
+  padding: 10px 20px;
+  border: 1px solid #D4EBF8;
+  border-radius: 5px;
+  background-color: #D4EBF8;
+  color: #0A3981;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.category-buttons button.active {
+  background-color: #E38E49;
+  color: #fff;
+  border-color: #E38E49;
+}
+
+.category-buttons button:hover {
+  background-color: #E38E49;
+  color: #fff;
+}
+
+.category-description {
+  margin-top: -10px;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+  color: #ffffff;
+  text-align: center;
+  background-color: rgba(228, 115, 45, 0.8);
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.product-page {
+  padding: 20px;
+  background-color: #1F509A; /* 메인 배경색 */
+  color: #fff; /* 기본 텍스트 색상 */
+  font-family: 'Arial', sans-serif;
+  min-height: 100vh;
+}
+
+.top-section {
+  text-align: center;
   margin-bottom: 20px;
 }
 
-nav button {
+.investor-type {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.investor-type h2 {
+  font-size: 1.5rem;
+  color: #D4EBF8;
+}
+
+.investor-type .highlight {
+  color: #E38E49;
+  font-weight: bold;
+}
+
+.category-nav, .subcategory-nav {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.category-nav button, .subcategory-btn {
   padding: 10px 20px;
-  border: 1px solid #ccc;
-  background-color: #f9f9f9;
+  border: 1px solid #D4EBF8;
+  border-radius: 5px;
+  background-color: #D4EBF8;
+  color: #0A3981;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.category-nav button.active, .subcategory-btn:hover {
+  background-color: #E38E49;
+  color: #ffffff;
+  border-color: #E38E49;
+}
+
+.product-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.product-card {
+  background-color: #fff;
+  color: #000;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+}
+
+.product-card .product-name {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #1F509A;
+}
+
+.product-card p {
+  margin: 5px 0;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.product-card .clickable {
+  color: #E38E49;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.product-card .details-link {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 0.9rem;
+  color: #1F509A;
+  font-weight: bold;
+  text-decoration: underline;
   cursor: pointer;
 }
 
-nav button.active {
-  background-color: #007bff;
-  color: white;
-  border-color: #007bff;
+.pagination {
+  display: flex;
+  justify-content: center; /* 가운데 정렬 */
+  align-items: center;
+  gap: 10px; /* 버튼 사이 간격 */
+  margin-top: 20px; /* 위쪽 여백 */
+  padding: 10px 0; /* 전체 컨테이너 패딩 */
 }
 
-.green-bg {
-  background-color: #90EE90;
-  color: black;
+.pagination-btn {
+  padding: 10px 15px;
+  border: 1px solid #D4EBF8;
+  background-color: #D4EBF8;
+  color: #0A3981;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
 }
 
-.blue-bg {
-  background-color: #ADD8E6;
-  color: black;
+.pagination-btn:disabled {
+  background-color: #ccc; /* 비활성화 상태 배경 */
+  color: #666; /* 비활성화 상태 텍스트 */
+  cursor: not-allowed;
 }
 
-.yellow-bg {
-  background-color: #FFFFE0;
-  color: black;
+.pagination-btn:hover:not(:disabled) {
+  background-color: #E38E49;
+  color: #fff;
 }
 
-.red-bg {
-  background-color: #FFCCCB;
-  color: black;
+.pagination-info {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #ffffff;
 }
 
-.table-container {
-  margin-top: 20px;
-}
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-thead th {
-  background-color: #5b6269;
-  color: white;
-  padding: 10px;
-  border: 1px solid #c2bd77;
-}
-
-tbody td {
-  border: 1px solid #b82c2c;
-  padding: 10px;
-}
-
-.no-data {
-  margin-top: 20px;
-  color: gray;
-  text-align: center;
-}
 </style>

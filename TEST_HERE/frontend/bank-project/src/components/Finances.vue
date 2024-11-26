@@ -2,21 +2,20 @@
   <header><Navbar /></header>
   <div class="product-page">
 
-    <!-- 투자자 유형 표시 -->
-    <div class="investor-type">
-      <h2 v-if="userType">
-        투자자 유형: <span class="highlight">{{ userType }}</span>
-      </h2>
-      <h2 v-else>
-        <span>
-          투자자 유형: - 
-          아직 게임을 하지 않았다면? 모의투자게임하고 당신에게 맞는 펀드를 추천받으세요
-        </span>
-        <div class="top-section">
-          <button @click="goToGame" class="btn primary-btn">게임하러가기</button>
-        </div>
-      </h2>
-    </div>
+  <!-- 투자자 유형 표시 -->
+  <div class="investor-type">
+    <h2 class="investor-heading">
+      투자자 유형 : 
+      <span v-if="userType" class="highlight">{{ userType }}</span>
+      <span v-else class="no-type">아직 게임을 하지 않았습니다!</span>
+    </h2>
+    <p v-if="!userType" class="investor-description">
+      모의투자게임을 통해 당신에게 맞는 펀드를 추천받으세요.
+    </p>
+    <button v-if="!userType" @click="goToGame" class="btn primary-btn">게임하러가기</button>
+  </div>
+
+
 
     <!-- 카테고리 탭 -->
     <nav class="category-nav">
@@ -299,6 +298,52 @@ const searchInMap = (keyword) => {
 </script>
 
 <style scoped>
+.investor-type {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #ffffff; /* 기본 텍스트 색상 */
+}
+
+.investor-heading {
+  font-size: 1.5rem; /* 제목 크기 */
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.highlight {
+  color: #E38E49; /* 강조 텍스트 색상 */
+}
+
+.no-type {
+  color: #D4EBF8; /* 텍스트 색상 통일 */
+}
+
+.investor-description {
+  font-size: 1rem;
+  margin-bottom: 15px; /* 설명 텍스트 간격 */
+}
+
+.primary-btn {
+  padding: 12px 24px;
+  background-color: #E38E49; /* 버튼 배경색 */
+  color: #ffffff; /* 버튼 텍스트 색상 */
+  border: none;
+  border-radius: 25px; /* 둥근 버튼 스타일 */
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.primary-btn:hover {
+  background-color: #D4EBF8; /* 호버 시 밝은 파란색 배경 */
+  color: #0A3981; /* 호버 시 텍스트 색상 */
+}
+
+.primary-btn:focus {
+  outline: 3px solid #D4EBF8; /* 포커스 시 강조 */
+}
+
 .category-nav {
   display: flex;
   flex-direction: column;

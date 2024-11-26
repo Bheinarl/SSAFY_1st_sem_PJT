@@ -1,205 +1,200 @@
 <template>
-  <div>
-    <!-- Header Section -->
-    <div class="header">
-      <div class="container">
-        <h1>10-Day Stock Investment Game</h1>
-      </div>
-    </div>
-  
+  <div class="game-container">
+    <!-- Navbar (Not Modified) -->
+    <nav class="navbar">
+      <!-- Navbar 내용은 건드리지 않음 -->
+    </nav>
 
-    <!-- News Section -->
-    <div class="news-container" v-if="currentDay < 11"> <!--10일차까지만 표시되어야함-->
-      
-      <h3>Latest News</h3>
-      <ul>
-        <!-- 주식 관련 최신 뉴스 제목을 최대 10개 출력 -->
-        <li v-for="(title, index) in newsTitles" :key="index">
-          {{ title }}
-        </li>
-        <!-- 뉴스 데이터가 로드되지 않았을 때 출력 -->
-        <h5 v-if="newsTitles.length === 0">해당 날짜의 뉴스를 로딩 중입니다.</h5>
-      </ul>
-      
-      <!-- ExchangeRateAlert로 이동하는 버튼 -->
-      <button @click="goToExchangeRateAlert" class="btn btn-primary" style="margin-top: 10px;"> 환율 알림 기능 </button>
+    <div class="sidebar">
+  <h2 class="game-title">모의 투자 게임</h2>
 
-    </div>
-
-
-    <!-- Game UI Section -->
-    <div class="container">
-      <!-- 현재 날짜를 표시하는 섹션 -->
-      <div class="day-counter"  v-if="currentDay < 11"> Day <span>{{ currentDay }}</span> / 10 </div> <!-- 10일차까지 표시 -->
-      <div class="day-counter"  v-if="currentDay > 10"> Day <span>10</span> / 10 <!-- 게임 종료 후 결과 표시 -->
-        <div>최종 자산: {{finalTotalValue}} </div>
-        <div>투자자 유형: {{investorType}} </div>
-        <div>실제 주식 데이터 기간 : {{startDateValue}} ~ {{endDateValue}}</div>
-        <button @click="goFinanceRecommend" class="btn btn-primary">당신에게 맞는 펀드 상품 추천 바로가기</button>
-        <button @click="restartGame" class="btn btn-primary">Restart Game</button>
-      </div>
-
-      
-      <div class="game-container">
-        <!-- 전체 수익률, 평가 손익 등을 표시하는 표 -->
-        <table class="table align-middle entire-earning-rate" style="margin: 10px;">
-          <tr>
-            <th>전체 수익률</th>
-            <th>평가 손익</th>
-            <th>잔고 평가</th>
-            <th>시드 머니</th>
-            <th>주문 가능</th>
-            <th>추정 자산</th>
-          </tr>
-          <tr>
-            <!-- 각 데이터에 따라 색상 변화 -->
-            <td :class="{'color-red': totalEarningRate > 0, 'color-blue': totalEarningRate < 0}">{{ totalEarningRate.toFixed(2) }}%</td>
-            <td :class="{'color-red': totalEvaluationProfit > 0, 'color-blue': totalEvaluationProfit < 0}">{{ totalEvaluationProfit }}</td>
-
-            <td>{{ portfolioValue }}</td>
-            <td>{{ seedMoney }}</td>
-            <td>{{ cash }}</td>
-            <td>{{ totalValue }}</td>
-          </tr>
-        </table>
-        
-        <!-- 차트 및 거래 패널 -->
-        <div class="container">
-          <div class="row">
-            <div class="chart-section col-8">
-              <canvas id="chart"></canvas> <!-- 주가 데이터를 표시하는 차트 -->
-            </div>
-            <div class="col-4">
-              <div class="trading-panel"> <!-- 주식 거래 패널 -->
-                <select v-model="selectedStock" @change="updateStockUrl"> <!-- 선택할 수 있는 주식 목록 -->
-                  <option value='삼성에스디에스'>삼성에스디에스</option>
-                  <option value='넥슨게임즈'>넥슨게임즈</option>
-                  <option value='카카오'>카카오</option>
-                  <option value='NAVER'>NAVER</option>
-                  <option value='CJ제일제당'>CJ제일제당</option>
-                  <option value='농심'>농심</option>
-                  <option value='하이트진로'>하이트진로</option>
-                  <option value='오뚜기'>오뚜기</option>
-                  <option value='SK텔레콤'>SK텔레콤</option>
-                  <option value='KT'>KT</option>
-                  <option value='삼성바이오로직스'>삼성바이오로직스</option>
-                  <option value='셀트리온'>셀트리온</option>
-                  <option value='오리엔트바이오'>오리엔트바이오</option>
-                  <option value='미래에셋생명'>미래에셋생명</option>
-                  <option value='삼보산업'>삼보산업</option>
-                  <option value='한화생명'>한화생명</option>
-                  <option value='현대차'>현대차</option>
-                  <option value='기아'>기아</option>
-                  <option value='한국전력'>한국전력</option>
-                  <option value='POSCO홀딩스'>POSCO홀딩스</option>
-                  <option value='삼성전자'>삼성전자</option>
-                  <option value='SK하이닉스'>SK하이닉스</option>
-                  <option value='YG PLUS'>YG PLUS</option>
-                  <option value='JYP Ent.'>JYP Ent.</option>
-                  <option value='에스엠'>에스엠</option>
-                  <option value='CJ CGV'>CJ CGV</option>
-                  <option value='GS건설'>GS건설</option>
-                  <option value='KD'>KD</option>
-                  <option value='대한항공'>대한항공</option>
-                  <option value='CJ대한통운'>CJ대한통운</option>
-                  <option value='제주항공'>제주항공</option>
-                  <option value='SK이노베이션'>SK이노베이션</option>
-                  <option value='S-Oil'>S-Oil</option>
-                  <option value='롯데케미칼'>롯데케미칼</option>
-                  <option value='LG화학'>LG화학</option>
-                  <option value='에스에너지'>에스에너지</option>
-                  <option value='메가스터디교육'>메가스터디교육</option>
-                  <option value='웅진씽크빅'>웅진씽크빅</option>
-                  <option value='KB금융'>KB금융</option>
-                  <option value='우리금융지주'>우리금융지주</option>
-                </select>
-                
-                <br>
-                
-                <div>
-                  <!-- 선택한 주식 정보 -->
-                  <div class="stock-info">
-                    <h3>Current Price: ₩<span>{{ currentPrice }}</span></h3>
-
-                    <!-- 전일 대비 주가 변화 -->
-                    <h4 v-if="beforePrice > 0" class="color-red">▲ {{ beforePrice }}</h4>
-                    <h4 v-if="beforePrice === 0">---</h4>
-                    <h4 v-if="beforePrice < 0" class="color-blue">▼ {{ -beforePrice }}</h4>
-
-                    <p v-if="currentDay < 11">Max Buyable Shares: {{ maxBuyableShares }}</p>  <!-- 최대 매수 가능 수량 -->
-                  </div>
-
-                  <!-- 매수/매도량 입력 -->
-                  <input 
-                    type="number" 
-                    v-model.number="tradeVolume" 
-                    @input="validateInput"
-                    placeholder="Enter quantity"
-                    v-if="currentDay < 11"
-                  />
-
-                  <!-- 매수/매도 거래 버튼 -->
-                  <div class="trade-buttons" style="margin-top: 5px;"  v-if="currentDay < 11">
-                    <button class="trade-button" @click="executeTrade('buy')" v-if="currentPrice !== 0">Buy</button>
-                    <button class="trade-button" v-else>Buy</button>
-                    <button class="trade-button" @click="executeTrade('sell')"v-if="currentPrice !== 0">Sell</button>
-                    <button class="trade-button" v-else>Sell</button>
-                    
-                  </div>
-                </div>
-
-              </div><!--traing-panel 끝-->
-
-              
-              <div class="portfolio"> <!-- 보유 종목 표시 -->
-                <br>
-                <h3>Your Holdings</h3>
-                <div>
-                  <template v-for="key in Object.keys(portfolio)" :key="key">
-                    <div v-if="totalQuantity[key] > 0">
-                      {{ key }}: {{ totalQuantity[key] }} shares  <span v-if="keyBeforePrice[key] > 0" class="color-red">▲{{ keyBeforePrice[key] }}</span><span v-if="keyBeforePrice[key] === 0">--</span><span v-if="keyBeforePrice[key] < 0" class="color-blue">▼{{ -keyBeforePrice[key] }}</span>
-                      <br>
-                    </div>
-                  </template>
-                </div>
-              </div><!-- portfolio 끝-->
-
-              <!-- 다음 날로 이동 버튼 -->
-              <button v-if="currentDay < 11 && currentPrice === 0">Next Day</button>
-              <button @click="nextDay" v-else-if="currentDay < 11">Next Day</button>
-
-            </div><!-- col-4 끝 -->
-          </div><!-- row 끝-->
-        </div><!-- container 끝 -->
-      </div><!-- game-container 끝 -->
-    </div><!--container 끝-->
+  <!-- Current Day Section -->
+  <div class="day-counter">
+    <p v-if="currentDay < 11">Day <span>{{ currentDay }}</span> / 10</p>
+    <p v-if="currentDay > 10">Day <span>10</span> / 10</p>
+    <button v-if="currentDay < 11" @click="nextDay" class="next-day-button">Next Day</button>
   </div>
-  
-  <table class="table align-middle entire-earning-rate" style="margin: 10px;">
+
+  <!-- Final Results Section -->
+  <div v-if="currentDay > 10" class="final-results">
+    <div class="result-item">최종 자산: <span>₩{{ finalTotalValue }}</span></div>
+    <div class="result-item">투자자 유형: <span>{{ investorType }}</span></div>
+    <div class="result-item">
+      실제 주식 데이터 기간:
+      <p>{{ startDateValue }} ~ {{ endDateValue }}</p>
+    </div>
+    <div class="result-buttons">
+      <button @click="goFinanceRecommend" class="recommend-button">
+        펀드 상품 추천 바로가기
+      </button>
+      <button @click="restartGame" class="restart-button">Restart Game</button>
+    </div>
+  </div>
+
+  <!-- Earnings Section -->
+  <table class="table vertical-earning-rate">
     <thead>
       <tr>
-        <th>종목</th>
-        <th>보유량</th>
-        <th>매입 단가</th>
-        <th>평가 금액</th>
-        <th>평가 손익</th>
-        <th>수익률</th>
+        <th colspan="2">전체 수익률</th>
       </tr>
     </thead>
-
     <tbody>
-      <template v-for="key in Object.keys(portfolio)" :key="key">
-        <tr v-if="totalQuantity[key] !== 0">
-          <td>{{ key }}</td>
-          <td>{{ totalQuantity[key] }}</td>
-          <td>{{ purchasePrice[key].toFixed(0) }}</td>
-          <td>{{ evaluationPrice[key].toFixed(0) }}</td>
-          <td :class="{'color-red': evaluationProfit[key] > 0, 'color-blue': evaluationProfit[key] < 0}">{{ evaluationProfit[key].toFixed(0) }}</td>
-          <td :class="{'color-red': earningRate[key] > 0, 'color-blue': earningRate[key] < 0}">{{ earningRate[key].toFixed(2) }}</td>
-        </tr>
-      </template>
+      <tr>
+        <th>전체 수익률</th>
+        <td :class="{ 'positive': totalEarningRate > 0, 'negative': totalEarningRate < 0 }">
+          {{ totalEarningRate.toFixed(2) }}%
+        </td>
+      </tr>
+      <tr>
+        <th>평가 손익</th>
+        <td :class="{ 'positive': totalEvaluationProfit > 0, 'negative': totalEvaluationProfit < 0 }">
+          {{ totalEvaluationProfit }}
+        </td>
+      </tr>
+      <tr>
+        <th>잔고 평가</th>
+        <td>{{ portfolioValue }}</td>
+      </tr>
+      <tr>
+        <th>시드 머니</th>
+        <td>{{ seedMoney }}</td>
+      </tr>
+      <tr>
+        <th>주문 가능</th>
+        <td>{{ cash }}</td>
+      </tr>
+      <tr>
+        <th>추정 자산</th>
+        <td>{{ totalValue }}</td>
+      </tr>
     </tbody>
   </table>
+
+  <!-- Buttons Section -->
+  <div class="button-group">
+    <button @click="goToExchangeRateCalculator">환율 계산기</button>
+    <button @click="goToLeaderboard">랭킹</button>
+  </div>
+</div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- 뉴스 섹션 -->
+      <div class="news-section">
+        <h3>Latest News</h3>
+        <ul>
+          <li v-for="(title, index) in newsTitles" :key="index">{{ title }}</li>
+          <h5 v-if="newsTitles.length === 0">해당 날짜의 뉴스를 로딩 중입니다.</h5>
+        </ul>
+      </div>
+
+      <!-- 차트 섹션 -->
+      <div class="charts-section">
+        <canvas id="chart"></canvas>
+      </div>
+
+      <!-- 거래 및 보유 종목 섹션 -->
+      <div class="trade-and-holdings">
+        <!-- 거래 패널 -->
+        <div class="trading-panel"> <!-- 주식 거래 패널 -->
+          <h3>Trading Panel</h3>
+            <select v-model="selectedStock" @change="updateStockUrl"> <!-- 선택할 수 있는 주식 목록 -->
+              <option value='삼성에스디에스'>삼성에스디에스</option>
+              <option value='넥슨게임즈'>넥슨게임즈</option>
+              <option value='카카오'>카카오</option>
+              <option value='NAVER'>NAVER</option>
+              <option value='CJ제일제당'>CJ제일제당</option>
+              <option value='농심'>농심</option>
+              <option value='하이트진로'>하이트진로</option>
+              <option value='오뚜기'>오뚜기</option>
+              <option value='SK텔레콤'>SK텔레콤</option>
+              <option value='KT'>KT</option>
+              <option value='삼성바이오로직스'>삼성바이오로직스</option>
+              <option value='셀트리온'>셀트리온</option>
+              <option value='오리엔트바이오'>오리엔트바이오</option>
+              <option value='미래에셋생명'>미래에셋생명</option>
+              <option value='삼보산업'>삼보산업</option>
+              <option value='한화생명'>한화생명</option>
+              <option value='현대차'>현대차</option>
+              <option value='기아'>기아</option>
+              <option value='한국전력'>한국전력</option>
+              <option value='POSCO홀딩스'>POSCO홀딩스</option>
+              <option value='삼성전자'>삼성전자</option>
+              <option value='SK하이닉스'>SK하이닉스</option>
+              <option value='YG PLUS'>YG PLUS</option>
+              <option value='JYP Ent.'>JYP Ent.</option>
+              <option value='에스엠'>에스엠</option>
+              <option value='CJ CGV'>CJ CGV</option>
+              <option value='GS건설'>GS건설</option>
+              <option value='KD'>KD</option>
+              <option value='대한항공'>대한항공</option>
+              <option value='CJ대한통운'>CJ대한통운</option>
+              <option value='제주항공'>제주항공</option>
+              <option value='SK이노베이션'>SK이노베이션</option>
+              <option value='S-Oil'>S-Oil</option>
+              <option value='롯데케미칼'>롯데케미칼</option>
+              <option value='LG화학'>LG화학</option>
+              <option value='에스에너지'>에스에너지</option>
+              <option value='메가스터디교육'>메가스터디교육</option>
+              <option value='웅진씽크빅'>웅진씽크빅</option>
+              <option value='KB금융'>KB금융</option>
+              <option value='우리금융지주'>우리금융지주</option>
+            </select>
+            <p>Current Price: ₩
+              <span>
+                {{ currentPrice }}
+                <span v-if="beforePrice > 0" class="color-red">▲ {{ beforePrice }}</span>
+                <span v-if="beforePrice === 0">---</span>
+                <span v-if="beforePrice < 0" class="color-blue">▼ {{ -beforePrice }}</span>
+              </span>
+            </p>
+            <p v-if="currentDay < 11">Max Buyable Shares: {{ maxBuyableShares }}</p>  <!-- 최대 매수 가능 수량 -->
+            <p v-if="currentDay < 11">Max Sellable Shares: {{ maxSellableShares  || 0 }}</p>
+          <input
+            type="number"
+            v-model.number="tradeVolume"
+            @input="validateInput"
+            placeholder="Enter quantity"
+          />
+          <button @click="executeTrade('buy')">Buy</button>
+          <button @click="executeTrade('sell')">Sell</button>
+        </div>
+
+        <!-- 보유 종목 섹션 -->
+        <div class="portfolio">
+          <div class="table-main">
+            <table class="table align-middle entire-earning-rate">
+              <thead>
+                <tr>
+                  <th>종목</th>
+                  <th>전날 대비</th>
+                  <th>보유량</th>
+                  <th>매입 단가</th>
+                  <th>평가 금액</th>
+                  <th>평가 손익</th>
+                  <th>수익률</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <template v-for="key in Object.keys(portfolio)" :key="key">
+                  <tr v-if="totalQuantity[key] !== 0">
+                    <td>{{ key }}</td>
+                    <td><span v-if="keyBeforePrice[key] > 0" class="positive">▲{{ keyBeforePrice[key] }}</span><span v-if="keyBeforePrice[key] === 0">--</span><span v-if="keyBeforePrice[key] < 0" class="negative">▼{{ -keyBeforePrice[key] }}</span></td>
+                    <td>{{ totalQuantity[key] }}</td>
+                    <td>{{ purchasePrice[key].toFixed(0) }}</td>
+                    <td>{{ evaluationPrice[key].toFixed(0) }}</td>
+                    <td :class="{'positive': evaluationProfit[key] > 0, 'negative': evaluationProfit[key] < 0}">{{ evaluationProfit[key].toFixed(0) }}</td>
+                    <td :class="{'positive': earningRate[key] > 0, 'negative': earningRate[key] < 0}">{{ earningRate[key].toFixed(2) }}</td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -217,8 +212,8 @@ const router = useRouter();
 
 // 상태 관리 변수
 const currentDay = ref(1);  // 현재 날짜 (1~10일)
-const seedMoney = 100000000  // 초기 자본금 (₩100,000,000), 상수로 두어 변경 불가능
-const cash = ref(100000000); // 초기 현금 (₩100,000,000)
+const seedMoney = 10000000  // 초기 자본금 (₩100,000,000), 상수로 두어 변경 불가능
+const cash = ref(10000000); // 초기 현금 (₩100,000,000)
 const portfolio = ref({});  // 보유 주식 정보 (주식 이름: 수량)
 const selectedStock = ref('삼성에스디에스');  // 선택된 주식
 const tradeVolume = ref(0); // 거래량 (사용자 입력)
@@ -272,6 +267,11 @@ const portfolioValue = computed(() => {
 
 // 최대 매수 가능 수량 계산: (현금 / 현재 주가)
 const maxBuyableShares = computed(() => (currentPrice.value > 0 ? Math.floor(cash.value / currentPrice.value) : 0));
+
+const maxSellableShares = computed(() => {
+  const totalQuantity = portfolio.value[selectedStock.value]?.transactions.reduce((totalQuantity, transaction) => totalQuantity + transaction.quantity, 0);
+  return totalQuantity;
+});
 
 // 총 자산 = 현금 + 포트폴리오 가치
 const totalValue = computed(() => {
@@ -669,14 +669,7 @@ async function nextDay() {
 
 // 새로고침 없이 게임 초기화
 function restartGame() {
-  currentDay.value = 1;  // 현재 날짜 초기화
-  cash.value = 100000000;  // 초기 현금 (₩100,000,000)
-  finalTotalValue.value = 0;  // 최종 자산 초기화
-  portfolio.value = {};  // 보유 주식 초기화
-  investorType = ""; // 투자자 유형 초기화
-  alert("Game has been restarted!");  // 게임 재시작 메시지
-  updateStockUrl();  // 주식 데이터 업데이트
-  initializeChart();  // 차트 초기화
+ location.reload();  // 새로고침
 }
 
 function goFinanceRecommend() {
@@ -809,21 +802,226 @@ console.log('tradePattern@@@@@@@@@@@@@@', tradePattern.value);
 </script>
 
 <style scoped>
-
-.trade-button {
-  margin-right: 10px;
+/* 전체 배경색 */
+.game-container {
+  display: flex;
+  flex-direction: row;
+  background-color: #fff4f1;
+  height: 100vh;
+  color: #333;
+  overflow: hidden; /* 내용이 넘치면 스크롤 추가 */
 }
 
-.final-score {
+/* 왼쪽 사이드바 스타일 */
+/* Sidebar Layout */
+.sidebar {
+  width: 20%;
+  background-color: #ffa29c;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  height: 100%;
+  box-sizing: border-box;
+  overflow-y: auto;
+  border-right: 2px solid #e86a6a;
+}
+
+/* Game Title */
+.game-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: white;
+  text-align: left;
+  margin-bottom: 25px;
+}
+
+/* Day Counter */
+.day-counter {
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+  color: white;
+}
+
+.next-day-button {
+  margin-top: 10px;
+  background-color: #ee6463;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.next-day-button:hover {
+  background-color: #ff7b7b;
+}
+
+/* Final Results */
+.final-results {
+  margin: 20px 0;
+  padding: 15px;
+  background-color: #feebd6;
+  border-radius: 10px;
+  width: 100%;
+}
+
+.result-item {
+  margin: 10px 0;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.result-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 15px;
+}
+
+.recommend-button,
+.restart-button {
+  padding: 10px 20px;
+  margin: 5px 0;
+  background-color: #ee6463;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.recommend-button:hover,
+.restart-button:hover {
+  background-color: #ff7b7b;
+}
+
+/* Table Style */
+.vertical-earning-rate {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+  border: 1px solid #e86a6a; /* 테두리 색상 변경 */
+  border-radius: 5px;
+  background-color: #fff; /* 깔끔한 흰색 배경 */
+  table-layout: fixed; /* 칸의 비율을 고정 */
+}
+
+.vertical-earning-rate th,
+.vertical-earning-rate td {
+  padding: 10px;
+  border: 1px solid #ffc1c1;
+  font-size: 0.9rem; /* 글자 크기 조정 */
+}
+
+.vertical-earning-rate th {
+  background-color: #ffe3e3;
+  font-weight: bold;
+}
+
+.positive {
+  color: red; /* Green for positive values */
+}
+
+.negative {
+  color: blue; /* Red for negative values */
+}
+
+/* Button Group */
+.button-group {
   margin-top: 20px;
-  color: red;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.color-red {
-  color: red;
+.button-group button {
+  width: 100%;
+  padding: 10px;
+  background-color: #ee6463;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
 }
 
-.color-blue {
-  color: blue;
+.button-group button:hover {
+  background-color: #ff7b7b;
+}
+
+
+/* 메인 콘텐츠 영역 */
+.main-content {
+  flex: 1; /* 사이드바를 제외한 영역을 차지 */
+  padding: 20px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* 뉴스 섹션 */
+.news-section {
+  background-color: #feebd6;
+  padding: 15px;
+  border-radius: 8px;
+  width: 100%; /* 메인 콘텐츠의 너비에 맞춤 */
+  height: 400px;
+  min-height: 300px;
+  max-height: 500px;
+  box-sizing: border-box;
+  overflow: hidden; /* 내용 초과 방지 */
+}
+
+/* 차트 섹션 */
+.chart-section {
+  background-color: #fff4f1;
+  padding: 15px;
+  border-radius: 8px;
+  width: 100%; /* 메인 콘텐츠의 너비에 맞춤 */
+  height: 400px;
+  min-height: 300px;
+  max-height: 500px;
+  box-sizing: border-box;
+  overflow: hidden; /* 내용 초과 방지 */
+}
+
+/* 거래 및 보유 섹션 */
+.trade-and-holdings {
+  display: flex;
+  flex-wrap: wrap; /* 반응형: 화면이 작아지면 줄 바꿈 */
+  justify-content: space-between;
+  gap: 20px; /* 두 섹션 간의 간격 */
+}
+
+.trading-panel,
+.portfolio {
+  width: calc(50% - 10px); /* 두 섹션이 부모 너비를 반씩 차지 */
+  background-color: #feebd6;
+  padding: 15px;
+  border-radius: 8px;
+  box-sizing: border-box;
+  overflow: hidden; /* 내용 초과 방지 */
+}
+
+/* 포트폴리오 섹션 */
+.portfolio {
+  background-color: #ffe3e3; /* 테이블과 유사한 밝은 배경 */
+  color: #333; /* 어두운 글자색으로 가독성 향상 */
+  padding: 15px;
+}
+
+/* 테이블 스타일 */
+.table-main {
+  background-color: transparent;
+  /* 포트폴리오 섹션과 같은 배경 사용 */
+  padding: 0; /* 포트폴리오와 테이블 간 여백 제거 */
+  width: 100%; /* 섹션 너비에 맞춤 */
 }
 </style>

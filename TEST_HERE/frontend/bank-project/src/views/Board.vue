@@ -1,4 +1,5 @@
 <template>
+  <header> <Navbar /> </header>
   <div>
     <h1>게시판</h1>
     <router-link to="/posts/new">글 작성하기</router-link>
@@ -13,6 +14,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import Navbar from '@/components/Navbar.vue';
 
 // Reactive state
 const posts = ref([]);

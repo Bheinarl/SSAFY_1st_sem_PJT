@@ -1,5 +1,6 @@
 <template>
-  <div class="leaderboard-container">
+  <header> <Navbar /> </header>
+  <div>
     <div class="leaderboard-header">
       <h1>Leaderboard</h1>
       <h6 id="notice">nickname 미설정 시 username으로 기록</h6>
@@ -31,7 +32,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
-
+import Navbar from '@/components/Navbar.vue';
 const leaderboard = ref([]);
 const loading = ref(true);
 

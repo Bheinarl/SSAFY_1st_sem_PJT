@@ -1,4 +1,6 @@
 <template>
+  <header> <Navbar /> </header>
+  
   <div>
     <!-- MapView로 이동하는 버튼 -->
     <div style="margin-top: 20px;">
@@ -7,7 +9,8 @@
 
     <!-- 투자자 유형 표시 -->
     <div>
-      <h2>투자자 유형: <span>{{ userType }}</span></h2>
+      <h2 v-if="userType">투자자 유형: <span>{{ userType }}</span></h2>
+      <h2 v-else>투자자 유형: 모의투자게임을 통해 당신의 투자 유형을 확인하고 맞춤 상품을 추천받으세요! </h2>
     </div>
 
     <h1>상품 목록</h1>
@@ -107,6 +110,7 @@
 </template>
 
 <script setup>
+import Navbar from '@/components/Navbar.vue';
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';

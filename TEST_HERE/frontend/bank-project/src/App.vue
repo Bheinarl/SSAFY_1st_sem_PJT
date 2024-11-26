@@ -1,35 +1,25 @@
-<script setup>
-import Navbar from '@/components/Navbar.vue';
-import { RouterView } from 'vue-router';
-</script>
-
 <template>
-  <header>
-    <Navbar />
-  </header>
-  <body>
-    <main>
-      <RouterView />
-    </main>
-  </body>
+  <main class="app-main">
+    <RouterView />
+  </main>
 </template>
 
+<script setup>
+import Navbar from '@/components/Navbar.vue';
+import { computed } from 'vue';
+
+// 토큰 존재 여부 계산
+const showNavbar = computed(() => !!localStorage.getItem('token'));
+console.log(showNavbar.value);
+</script>
+
 <style scoped>
-/* 기본 배경색 설정 */
-body {
-  margin: 0;
-  padding: 0;
-  background-color: #1F509A;; /* 페이지 배경 */
-  font-family: Arial, sans-serif;
-}
-
-header {
-  background-color: #feebd6; /* Navbar 배경색 */
-}
-
-/* main의 여백 제거 */
-main {
-  padding: 20px;
-  min-height: calc(100vh - 60px); /* 전체 화면 높이에서 Navbar 제외 */
+.app-main {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* 화면 전체를 채우도록 설정 */
+  background-color: #1F509A; /* home.vue와 일치 */
+  position: relative; /* 자식 요소의 위치 제어 */
+  overflow: hidden; /* 불필요한 스크롤 방지 */
 }
 </style>

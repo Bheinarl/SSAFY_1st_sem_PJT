@@ -2,13 +2,13 @@
   <nav class="navbar">
     <!-- 왼쪽 메뉴 -->
     <div class="left-menu">
-      <span v-show="isAuthenticated" @click="goFinances" class="nav-item">Finances</span>
+      <span v-show="isAuthenticated" @click="goFinances" class="nav-item">금융상품</span>
       <span v-show="isAuthenticated">|</span>
-      <span v-show="isAuthenticated" @click="goGame" class="nav-item">goGameReal</span>
+      <span v-show="isAuthenticated" @click="goGame" class="nav-item">모의투자게임</span>
       <span v-show="isAuthenticated">|</span>
-      <span v-show="isAuthenticated" @click="goLeaderBoard" class="nav-item">LeaderBoard</span>
+      <span v-show="isAuthenticated" @click="goLeaderBoard" class="nav-item">랭킹</span>
       <span v-show="isAuthenticated">|</span>
-      <router-link v-show="isAuthenticated" to="/posts" class="nav-item">게시판</router-link>
+      <router-link v-show="isAuthenticated" to="/posts" class="nav-item">자유게시판</router-link>
     </div>
 
     <!-- 오른쪽 메뉴 -->
@@ -28,9 +28,9 @@ const router = useRouter();
 const isAuthenticated = ref(!!localStorage.getItem('token'));
 
 const logout = () => {
-  localStorage.removeItem('token');
-  isAuthenticated.value = false;
-  router.push('/login');
+    localStorage.removeItem('token');
+    isAuthenticated.value = false;
+    router.push('/');
 };
 
 const goGame = () => {
@@ -56,7 +56,7 @@ watch(() => router.currentRoute, () => {
   justify-content: space-between;
   align-items: center;
   padding: 15px 20px;
-  background-color: #feebd6; /* Navbar 배경색 */
+  background-color: #1F509A; /* 메인 파란색 배경 */
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
@@ -68,17 +68,17 @@ watch(() => router.currentRoute, () => {
 
 .nav-item {
   cursor: pointer;
-  color: #000000; /* 기본 글자 색상 */
+  color: #D4EBF8; /* 밝은 파란색 텍스트 */
   font-weight: bold;
   text-decoration: none;
   transition: color 0.3s ease;
 }
 
 .nav-item:hover {
-  color: #ee6463; /* hover 시 강조 색상 */
+  color: #E38E49; /* hover 시 따뜻한 주황색 */
 }
 
 span {
-  color: #000000; /* 구분자 색상 */
+  color: #D4EBF8; /* 구분자 색상 */
 }
 </style>

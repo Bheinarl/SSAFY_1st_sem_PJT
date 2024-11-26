@@ -1,4 +1,5 @@
 <template>
+  <header> <Navbar /> </header>
   <div class="exchange-container">
     <h2 class="title">환율 알림 설정</h2>
     <form @submit.prevent="setAlert" class="alert-form">
@@ -49,6 +50,7 @@
 </template>
 
 <script setup>
+import Navbar from '@/components/Navbar.vue';
 import { ref, computed } from 'vue';
 
 const currency = ref('');

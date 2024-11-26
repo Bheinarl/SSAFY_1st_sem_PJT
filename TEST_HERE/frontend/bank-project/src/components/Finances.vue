@@ -1,4 +1,6 @@
 <template>
+  <header> <Navbar /> </header>
+  
   <div>
     <!-- MapView로 이동하는 버튼 -->
     <div style="margin-top: 20px;">
@@ -107,6 +109,7 @@
 </template>
 
 <script setup>
+import Navbar from '@/components/Navbar.vue';
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';

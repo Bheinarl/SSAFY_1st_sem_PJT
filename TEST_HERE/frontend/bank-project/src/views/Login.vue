@@ -24,8 +24,9 @@ const login = async () => {
     });
     console.log('로그인 성공, 토큰:', response.data.key);
     localStorage.setItem('token', response.data.key);
+    
     console.log('토큰은 이렇습니다.', response.data.key);
-    router.push('/'); // 로그인 후 리디렉션
+    router.push('/profile'); // 로그인 후 리디렉션
   } catch (error) {
     console.error('로그인 실패:', error.response.data);
   }

@@ -1,7 +1,8 @@
 <template>
-  <div class="profile-container">
-    <h1 class="title">User Profile</h1>
-    <div v-if="loading" class="loading">Loading...</div>
+  <header> <Navbar /> </header>
+  <div>
+    <h1>User Profile</h1>
+    <div v-if="loading">Loading...</div>
     <div v-else>
       <div v-if="isEditing" class="form-container">
         <form @submit.prevent="updateProfile">
@@ -13,11 +14,7 @@
             <label for="age">Age</label>
             <input type="number" v-model="profile.age" id="age" />
           </div>
-          <div class="form-group">
-            <label for="interests">Interests</label>
-            <textarea v-model="profile.interests" id="interests"></textarea>
-          </div>
-          <div class="form-group">
+          <div>
             <label for="max_score">Max Score</label>
             <input type="number" v-model="profile.max_score" id="max_score" disabled />
           </div>
@@ -40,6 +37,7 @@
 </template>
 
 <script setup>
+import Navbar from '@/components/Navbar.vue';
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 

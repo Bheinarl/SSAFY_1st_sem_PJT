@@ -18,6 +18,7 @@
       <span v-show="isAuthenticated" @click="logout" class="nav-item">Logout</span>
     </div>
   </nav>
+
 </template>
 
 <script setup>
@@ -28,9 +29,9 @@ const router = useRouter();
 const isAuthenticated = ref(!!localStorage.getItem('token'));
 
 const logout = () => {
-  localStorage.removeItem('token');
-  isAuthenticated.value = false;
-  router.push('/login');
+    localStorage.removeItem('token');
+    isAuthenticated.value = false;
+    router.push('/');
 };
 
 const goGame = () => {

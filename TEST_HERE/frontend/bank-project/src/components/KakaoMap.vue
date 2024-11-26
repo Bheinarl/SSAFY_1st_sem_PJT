@@ -1,4 +1,5 @@
 <template>
+  <header> <Navbar /> </header>
   <div class="map-wrapper">
     <!-- 카카오맵이 표시될 div -->
     <div id="map"></div>
@@ -29,11 +30,13 @@
 </template>
 
 <script setup>
+import Navbar from '@/components/Navbar.vue';
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import markerCurrent from '@/assets/markers/marker-current.png';
 import markerDefault from '@/assets/markers/marker-default.png';
 import markerSelected from '@/assets/markers/marker-selected.png';
+
 
 const map = ref(null);  // 카카오맵 인스턴스
 const keyword = ref('');  // 검색 키워드

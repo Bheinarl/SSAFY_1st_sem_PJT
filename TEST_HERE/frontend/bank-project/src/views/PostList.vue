@@ -1,4 +1,5 @@
 <template>
+  <header> <Navbar /> </header>
   <div>
     <h1>게시판</h1>
     <ul v-if="posts.length">
@@ -12,6 +13,7 @@
   
   
 <script setup>
+import Navbar from '@/components/Navbar.vue';
 import { ref, onMounted } from 'vue';
 
 const posts = ref([]);

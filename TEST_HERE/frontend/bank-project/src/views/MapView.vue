@@ -1,10 +1,12 @@
 <template>
+  <header> <Navbar /> </header>
   <div class="map-container">
     <KakaoMap />
   </div>
 </template>
 
 <script setup>
+import Navbar from '@/components/Navbar.vue';
 import KakaoMap from '@/components/KakaoMap.vue';
 </script>
 

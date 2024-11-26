@@ -1,35 +1,21 @@
 <script setup>
 import Navbar from '@/components/Navbar.vue';
+import { ref, computed } from 'vue';
 import { RouterView } from 'vue-router';
+
+// 토큰 존재 여부를 계산
+const showNavbar = computed(() => !!localStorage.getItem('token')); 
+console.log(showNavbar.value)
 </script>
 
 <template>
-  <header>
-    <Navbar />
-  </header>
-  <body>
-    <main>
-      <RouterView />
-    </main>
-  </body>
+  <main>
+    <RouterView />
+  </main>
 </template>
 
 <style scoped>
-/* 기본 배경색 설정 */
-body {
-  margin: 0;
-  padding: 0;
-  background-color: #ffa29c;; /* 페이지 배경 */
-  font-family: Arial, sans-serif;
-}
-
-header {
-  background-color: #feebd6; /* Navbar 배경색 */
-}
-
-/* main의 여백 제거 */
 main {
-  padding: 20px;
-  min-height: calc(100vh - 60px); /* 전체 화면 높이에서 Navbar 제외 */
+  padding: 0;
 }
 </style>

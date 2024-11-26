@@ -2,13 +2,13 @@
   <nav class="navbar">
     <!-- 왼쪽 메뉴 -->
     <div class="left-menu">
-      <span v-show="isAuthenticated" @click="goFinances" class="nav-item">금융상품</span>
+      <span v-show="isAuthenticated" @click="goFinances" class="nav-item">Finances</span>
       <span v-show="isAuthenticated">|</span>
-      <span v-show="isAuthenticated" @click="goGame" class="nav-item">모의투자게임</span>
+      <span v-show="isAuthenticated" @click="goGame" class="nav-item">goGameReal</span>
       <span v-show="isAuthenticated">|</span>
-      <span v-show="isAuthenticated" @click="goLeaderBoard" class="nav-item">랭킹</span>
+      <span v-show="isAuthenticated" @click="goLeaderBoard" class="nav-item">LeaderBoard</span>
       <span v-show="isAuthenticated">|</span>
-      <router-link v-show="isAuthenticated" to="/posts" class="nav-item">자유게시판</router-link>
+      <router-link v-show="isAuthenticated" to="/posts" class="nav-item">게시판</router-link>
     </div>
 
     <!-- 오른쪽 메뉴 -->
@@ -18,6 +18,7 @@
       <span v-show="isAuthenticated" @click="logout" class="nav-item">Logout</span>
     </div>
   </nav>
+
 </template>
 
 <script setup>
@@ -56,7 +57,7 @@ watch(() => router.currentRoute, () => {
   justify-content: space-between;
   align-items: center;
   padding: 15px 20px;
-  background-color: #1F509A; /* 메인 파란색 배경 */
+  background-color: #feebd6; /* Navbar 배경색 */
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
@@ -68,17 +69,17 @@ watch(() => router.currentRoute, () => {
 
 .nav-item {
   cursor: pointer;
-  color: #D4EBF8; /* 밝은 파란색 텍스트 */
+  color: #000000; /* 기본 글자 색상 */
   font-weight: bold;
   text-decoration: none;
   transition: color 0.3s ease;
 }
 
 .nav-item:hover {
-  color: #E38E49; /* hover 시 따뜻한 주황색 */
+  color: #ee6463; /* hover 시 강조 색상 */
 }
 
 span {
-  color: #D4EBF8; /* 구분자 색상 */
+  color: #000000; /* 구분자 색상 */
 }
 </style>

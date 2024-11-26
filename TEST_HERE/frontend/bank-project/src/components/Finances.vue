@@ -9,8 +9,7 @@
 
     <!-- 투자자 유형 표시 -->
     <div>
-      <h2 v-if="userType">투자자 유형: <span>{{ userType }}</span></h2>
-      <h2 v-else>투자자 유형: 모의투자게임을 통해 당신의 투자 유형을 확인하고 맞춤 상품을 추천받으세요! </h2>
+      <h2>투자자 유형: <span>{{ userType }}</span></h2>
     </div>
 
     <h1>상품 목록</h1>

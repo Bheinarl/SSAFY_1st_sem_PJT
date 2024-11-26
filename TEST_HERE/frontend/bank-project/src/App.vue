@@ -5,7 +5,6 @@
 </template>
 
 <script setup>
-import Navbar from '@/components/Navbar.vue';
 import { computed } from 'vue';
 
 // 토큰 존재 여부 계산

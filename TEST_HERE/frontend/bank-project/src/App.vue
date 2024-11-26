@@ -1,47 +1,21 @@
 <script setup>
-
 import Navbar from '@/components/Navbar.vue';
+import { ref, computed } from 'vue';
 import { RouterView } from 'vue-router';
 
+// 토큰 존재 여부를 계산
+const showNavbar = computed(() => !!localStorage.getItem('token')); 
+console.log(showNavbar.value)
 </script>
 
 <template>
-  <header>
-  </header>
-  
   <main>
-    <div id="app">
-      <Navbar />
-      <RouterView />
-    </div>
+    <RouterView />
   </main>
 </template>
 
 <style scoped>
-header {
-  line-height: 1.5;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
+main {
+  padding: 0;
 }
 </style>

@@ -1,4 +1,5 @@
 <template>
+  <header> <Navbar /> </header>
   <div>
     <h1>User Profile</h1>
     <div v-if="loading">Loading...</div>
@@ -12,10 +13,6 @@
           <div>
             <label for="age">Age</label>
             <input type="number" v-model="profile.age" id="age" />
-          </div>
-          <div>
-            <label for="interests">Interests</label>
-            <textarea v-model="profile.interests" id="interests"></textarea>
           </div>
           <div>
             <label for="max_score">Max Score</label>
@@ -38,6 +35,7 @@
 </template>
 
 <script setup>
+import Navbar from '@/components/Navbar.vue';
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 

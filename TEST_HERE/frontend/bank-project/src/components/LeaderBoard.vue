@@ -1,4 +1,5 @@
 <template>
+  <header> <Navbar /> </header>
   <div>
     <div class="leaderboard-header">
       <h1>Leaderboard</h1>
@@ -18,7 +19,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
-
+import Navbar from '@/components/Navbar.vue';
 const leaderboard = ref([]);
 const loading = ref(true);
 

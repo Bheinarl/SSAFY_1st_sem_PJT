@@ -147,7 +147,6 @@ const fetchExchangeRate = async () => {
 .alert-form {
   display: flex;
   flex-direction: column;
-  gap: 15px; /* 간격 넉넉하게 조정 */
   margin-bottom: 20px; /* 폼과 아래 콘텐츠 간격 */
 }
 

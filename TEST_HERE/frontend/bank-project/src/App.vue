@@ -19,7 +19,7 @@ import { RouterView } from 'vue-router';
 body {
   margin: 0;
   padding: 0;
-  background-color: #ffa29c;; /* 페이지 배경 */
+  background-color: #1F509A;; /* 페이지 배경 */
   font-family: Arial, sans-serif;
 }
 

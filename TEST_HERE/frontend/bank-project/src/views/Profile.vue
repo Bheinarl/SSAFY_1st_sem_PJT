@@ -41,17 +41,24 @@
         </div>
         <div class="detail-row">
           <span class="label">Nickname:</span>
-          <span class="value" v-if="profile.my_investor_type">{{ profile.nickname }}</span>
+          <span class="value" v-if="profile.nickname">{{ profile.nickname }}</span>
           <span class="value" v-else>-</span>
         </div>
         <div class="detail-row">
           <span class="label">Age:</span>
-          <span class="value" v-if="profile.my_investor_type">{{ profile.age }}</span>
+          <span class="value" v-if="profile.age">{{ profile.age }}</span>
           <span class="value" v-else>-</span>
         </div>
         <div class="detail-row">
           <span class="label">My investor type:</span>
-          <span class="highlight1" v-if="profile.my_investor_type">{{ profile.my_investor_type }}</span>
+          <span class="highlight1" v-if="profile.my_investor_type">
+            {{ profile.my_investor_type }}
+            <!-- 😌🧐😏🤑 -->
+            <span v-if="profile.my_investor_type ==='안정 추구형'">😌</span>
+            <span v-if="profile.my_investor_type ==='균형 투자형'">🧐</span>
+            <span v-if="profile.my_investor_type ==='공격 투자형'">😏</span>
+            <span v-if="profile.my_investor_type ==='투기형'">🤑</span>
+          </span>
           <span class="highlight2" v-else> GAME을 통해 확인하세요! </span>
         </div>
         <div class="detail-row">

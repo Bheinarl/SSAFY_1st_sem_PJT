@@ -1,184 +1,182 @@
 <template>
-  <header> <Navbar /> </header>
+  <header> 
+    <Navbar />
+  </header>
   <div class="game-container">
-    <!-- Navbar (Not Modified) -->
-    <nav class="navbar">
-      <!-- Navbar 내용은 건드리지 않음 -->
-    </nav>
+    <!-- Sidebar Section -->
+    <aside class="sidebar">
+      <h2 class="game-title">모의 투자 게임📈📉</h2>
+      <h6>시드머니 천만원이 나에게 주어진다면?</h6> <!-- 이거 h6도 통일성 있게 이쁘게 해줘 gpt야!!!!!!!!!!! -->
 
-    <div class="sidebar">
-  <h2 class="game-title">모의 투자 게임</h2>
+      <!-- Day Counter -->
+      <div class="day-container">
+          <div v-if="currentDay < 11" class="progress-container">
+            <div class="day-counter" >
+            <p class="dayyy" v-if="currentDay < 11">Day <span>{{ currentDay }}</span> / 10</p>
+            <p class="dayyy" v-else>Day <span>10</span> / 10</p>
+          </div>
+          <div class="progress-bar">
+            <div v-if="currentDay < 11"class="progress":style="{ width: (currentDay / 10) * 100 + '%' }"></div>
+            <div v-elseclass="progress":style="{ width: 100 + '%' }"></div>
+          </div>
+          <br>
 
-  <!-- Current Day Section -->
-  <div class="day-counter">
-    <p v-if="currentDay < 11">Day <span>{{ currentDay }}</span> / 10</p>
-    <p v-if="currentDay > 10">Day <span>10</span> / 10</p>
-    <button v-if="currentDay < 11" @click="nextDay" class="next-day-button">Next Day</button>
-  </div>
+          <button v-if="currentDay < 11" @click="nextDay"class="btn next-day-btn">다음 날로</button>
+        </div>
 
-  <!-- Final Results Section -->
-  <div v-if="currentDay > 10" class="final-results">
-    <div class="result-item">최종 자산: <span>₩{{ finalTotalValue }}</span></div>
-    <div class="result-item">투자자 유형: <span>{{ investorType }}</span></div>
-    <div class="result-item">
-      실제 주식 데이터 기간:
-      <p>{{ startDateValue }} ~ {{ endDateValue }}</p>
-    </div>
-    <div class="result-buttons">
-      <button @click="goFinanceRecommend" class="recommend-button">
-        펀드 상품 추천 바로가기
-      </button>
-      <button @click="restartGame" class="restart-button">Restart Game</button>
-    </div>
-  </div>
+        <!-- Final Results -->
+        <div v-if="currentDay > 10" class="final-results">
+          <div class="result-item">💰최종 자산: <span>₩{{ finalTotalValue }}</span></div>
+          <div class="result-item">👤투자자 유형:
+            <span>{{ investorType }}</span>
+            <!-- 😌🧐😏🤑 -->
+            <span v-if="investorType ==='안정 추구형'">😌</span>
+            <span v-if="investorType ==='균형 투자형'">🧐</span>
+            <span v-if="investorType ==='공격 투자형'">😏</span>
+            <span v-if="investorType ==='투기형'">🤑</span>
+          </div>
+          <div class="result-item">
+            📆실제 주식 데이터 기간:
+            <p>{{ startDateValue }} ~ {{ endDateValue }}</p>
+          </div>
+          <div class="result-buttons">
+            <button @click="goFinanceRecommend" class="btn recommend-btn">
+              펀드 상품 추천 바로가기
+            </button>
+            <button @click="restartGame" class="btn restart-btn">게임 다시 시작</button>
+          </div>
+        </div>
+      </div>
 
-  <!-- Earnings Section -->
-  <table class="table vertical-earning-rate">
-    <thead>
-      <tr>
-        <th colspan="2">전체 수익률</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <th>전체 수익률</th>
-        <td :class="{ 'positive': totalEarningRate > 0, 'negative': totalEarningRate < 0 }">
-          {{ totalEarningRate.toFixed(2) }}%
-        </td>
-      </tr>
-      <tr>
-        <th>평가 손익</th>
-        <td :class="{ 'positive': totalEvaluationProfit > 0, 'negative': totalEvaluationProfit < 0 }">
-          {{ totalEvaluationProfit }}
-        </td>
-      </tr>
-      <tr>
-        <th>잔고 평가</th>
-        <td>{{ portfolioValue }}</td>
-      </tr>
-      <tr>
-        <th>시드 머니</th>
-        <td>{{ seedMoney }}</td>
-      </tr>
-      <tr>
-        <th>주문 가능</th>
-        <td>{{ cash }}</td>
-      </tr>
-      <tr>
-        <th>추정 자산</th>
-        <td>{{ totalValue }}</td>
-      </tr>
-    </tbody>
-  </table>
+      <!-- Portfolio Overview -->
+      <table class="table portfolio-overview">
+        <thead>
+          <tr>
+            <th colspan="2">📊 전체 포트폴리오 📊</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>전체 수익률</th>
+            <td
+              :class="{
+                'positive': totalEarningRate > 0,
+                'negative': totalEarningRate < 0
+              }"
+            >
+              {{ totalEarningRate.toFixed(2) }}%
+            </td>
+          </tr>
+          <tr>
+            <th>평가 손익</th>
+            <td
+              :class="{
+                'positive': totalEvaluationProfit > 0,
+                'negative': totalEvaluationProfit < 0
+              }"
+            >
+              {{ totalEvaluationProfit }}
+            </td>
+          </tr>
+          <tr>
+            <th>잔고 평가</th>
+            <td>{{ portfolioValue }}</td>
+          </tr>
+          <tr>
+            <th>시드 머니</th>
+            <td>{{ seedMoney }}</td>
+          </tr>
+          <tr>
+            <th>주문 가능</th>
+            <td>{{ cash }}</td>
+          </tr>
+          <tr>
+            <th>추정 자산</th>
+            <td>{{ totalValue }}</td>
+          </tr>
+        </tbody>
+      </table>
 
-  <!-- Buttons Section -->
-  <div class="button-group">
-    <button @click="goToExchangeRateCalculator">환율 계산기</button>
-    <button @click="goToLeaderboard">랭킹</button>
-  </div>
-</div>
+      <!-- Additional Buttons -->
+      <div class="button-group">
+        <button @click="goToExchangeRateCalculator" class="btn">
+          환율 계산기
+        </button>
+        <button @click="goToLeaderboard" class="btn">
+          랭킹 보기
+        </button>
+      </div>
+
+    </aside>
 
     <!-- Main Content -->
-    <div class="main-content">
-      <!-- 뉴스 섹션 -->
+    <section class="main-content">
+
+      <!-- News Section -->
       <div class="news-section">
-        <h3>Latest News</h3>
+        <h3>뉴스</h3>
         <ul>
           <li v-for="(title, index) in newsTitles" :key="index">{{ title }}</li>
           <h5 v-if="newsTitles.length === 0">해당 날짜의 뉴스를 로딩 중입니다.</h5>
         </ul>
       </div>
 
-      <!-- 차트 섹션 -->
+      <!-- Chart Section -->
       <div class="charts-section">
         <canvas id="chart"></canvas>
       </div>
 
-      <!-- 거래 및 보유 종목 섹션 -->
+      <!-- Trading and Portfolio Section -->
       <div class="trade-and-holdings">
-        <!-- 거래 패널 -->
-        <div class="trading-panel"> <!-- 주식 거래 패널 -->
-          <h3>Trading Panel</h3>
-            <select v-model="selectedStock" @change="updateStockUrl"> <!-- 선택할 수 있는 주식 목록 -->
-              <option value='삼성에스디에스'>삼성에스디에스</option>
-              <option value='넥슨게임즈'>넥슨게임즈</option>
-              <option value='카카오'>카카오</option>
-              <option value='NAVER'>NAVER</option>
-              <option value='CJ제일제당'>CJ제일제당</option>
-              <option value='농심'>농심</option>
-              <option value='하이트진로'>하이트진로</option>
-              <option value='오뚜기'>오뚜기</option>
-              <option value='SK텔레콤'>SK텔레콤</option>
-              <option value='KT'>KT</option>
-              <option value='삼성바이오로직스'>삼성바이오로직스</option>
-              <option value='셀트리온'>셀트리온</option>
-              <option value='오리엔트바이오'>오리엔트바이오</option>
-              <option value='미래에셋생명'>미래에셋생명</option>
-              <option value='삼보산업'>삼보산업</option>
-              <option value='한화생명'>한화생명</option>
-              <option value='현대차'>현대차</option>
-              <option value='기아'>기아</option>
-              <option value='한국전력'>한국전력</option>
-              <option value='POSCO홀딩스'>POSCO홀딩스</option>
-              <option value='삼성전자'>삼성전자</option>
-              <option value='SK하이닉스'>SK하이닉스</option>
-              <option value='YG PLUS'>YG PLUS</option>
-              <option value='JYP Ent.'>JYP Ent.</option>
-              <option value='에스엠'>에스엠</option>
-              <option value='CJ CGV'>CJ CGV</option>
-              <option value='GS건설'>GS건설</option>
-              <option value='KD'>KD</option>
-              <option value='대한항공'>대한항공</option>
-              <option value='CJ대한통운'>CJ대한통운</option>
-              <option value='제주항공'>제주항공</option>
-              <option value='SK이노베이션'>SK이노베이션</option>
-              <option value='S-Oil'>S-Oil</option>
-              <option value='롯데케미칼'>롯데케미칼</option>
-              <option value='LG화학'>LG화학</option>
-              <option value='에스에너지'>에스에너지</option>
-              <option value='메가스터디교육'>메가스터디교육</option>
-              <option value='웅진씽크빅'>웅진씽크빅</option>
-              <option value='KB금융'>KB금융</option>
-              <option value='우리금융지주'>우리금융지주</option>
-            </select>
-            <p>Current Price: ₩
-              <span>
-                {{ currentPrice }}
-                <span v-if="beforePrice > 0" class="color-red">▲ {{ beforePrice }}</span>
+        <!-- Trading Panel -->
+        <div class="trading-panel">
+          <h3>주식 거래</h3>
+          <select v-model="selectedStock" @change="updateStockUrl">
+            <option v-for="stock in Object.keys(stockData)" :key="stock" :value="stock">
+              {{ stock }}
+            </option>
+          </select>
+          <p>
+              현재가: ₩
+              <span>{{ currentPrice }}
+                <span v-if="beforePrice > 0" class="positive">▲ {{ beforePrice }}</span>
                 <span v-if="beforePrice === 0">---</span>
-                <span v-if="beforePrice < 0" class="color-blue">▼ {{ -beforePrice }}</span>
+                <span v-if="beforePrice < 0" class="negative">▼ {{ -beforePrice }}</span>
               </span>
-            </p>
-            <p v-if="currentDay < 11">Max Buyable Shares: {{ maxBuyableShares }}</p>  <!-- 최대 매수 가능 수량 -->
-            <p v-if="currentDay < 11">Max Sellable Shares: {{ maxSellableShares  || 0 }}</p>
+          </p>
+          <p v-if="currentDay < 11">최대 매수 가능 수량: {{ maxBuyableShares }}</p>
+          <p v-if="currentDay < 11">최대 매도 가능 수량: {{ maxSellableShares  || 0 }}</p>
           <input
             type="number"
             v-model.number="tradeVolume"
             @input="validateInput"
-            placeholder="Enter quantity"
+            placeholder="수량 입력"
           />
-          <button @click="executeTrade('buy')">Buy</button>
-          <button @click="executeTrade('sell')">Sell</button>
+          <div class="button-group2">
+            <button @click="executeTrade('buy')" class="buy-btn">매수(BUY)</button>
+            <button @click="executeTrade('sell')" class="sell-btn">매도(SELL)</button>
+          </div>
         </div>
 
-        <!-- 보유 종목 섹션 -->
+        <!-- Portfolio Section -->
         <div class="portfolio">
-          <div class="table-main">
-            <table class="table align-middle entire-earning-rate">
-              <thead>
-                <tr>
-                  <th>종목</th>
-                  <th>전날 대비</th>
-                  <th>보유량</th>
-                  <th>매입 단가</th>
-                  <th>평가 금액</th>
-                  <th>평가 손익</th>
-                  <th>수익률</th>
-                </tr>
-              </thead>
+          <h3>보유 종목</h3>
+          <table class="table">
 
-              <tbody>
-                <template v-for="key in Object.keys(portfolio)" :key="key">
+            <thead>
+              <tr>
+                <th>종목</th>
+                <th>전날 대비</th>
+                <th>보유량</th>
+                <th>매입 단가</th>
+                <th>평가 금액</th>
+                <th>평가 손익</th>
+                <th>수익률</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <template v-for="key in Object.keys(portfolio)" :key="key">
                   <tr v-if="totalQuantity[key] !== 0">
                     <td>{{ key }}</td>
                     <td><span v-if="keyBeforePrice[key] > 0" class="positive">▲{{ keyBeforePrice[key] }}</span><span v-if="keyBeforePrice[key] === 0">--</span><span v-if="keyBeforePrice[key] < 0" class="negative">▼{{ -keyBeforePrice[key] }}</span></td>
@@ -188,13 +186,13 @@
                     <td :class="{'positive': evaluationProfit[key] > 0, 'negative': evaluationProfit[key] < 0}">{{ evaluationProfit[key].toFixed(0) }}</td>
                     <td :class="{'positive': earningRate[key] > 0, 'negative': earningRate[key] < 0}">{{ earningRate[key].toFixed(2) }}</td>
                   </tr>
-                </template>
-              </tbody>
-            </table>
-          </div>
+              </template>
+            </tbody>
+            
+          </table>
         </div>
       </div>
-    </div>
+    </section>
   </div>
 </template>
 
@@ -673,12 +671,12 @@ function restartGame() {
  location.reload();  // 새로고침
 }
 
-function goFinanceRecommend() {
-  router.push('/finances');  // finances 페이지로 이동
+function goToExchangeRateCalculator() {
+  router.push('/exchange-rate-alert');  // finances 페이지로 이동
 }
 
-function goToExchangeRateAlert() {
-  router.push('/exchange-rate-alert'); // ExchangeRateAlert 페이지로 이동
+function goToLeaderboard() {
+  router.push('/leaderboard'); // ExchangeRateAlert 페이지로 이동
 }
 
 /* --------------------------- Lifecycle --------------------------- */
@@ -803,90 +801,214 @@ console.log('tradePattern@@@@@@@@@@@@@@', tradePattern.value);
 </script>
 
 <style scoped>
-/* 전체 배경색 */
+/* 전체 레이아웃 */
 .game-container {
   display: flex;
-  flex-direction: row;
-  background-color: #fff4f1;
   height: 100vh;
+  background-color: #f4f9ff;
   color: #333;
-  overflow: hidden; /* 내용이 넘치면 스크롤 추가 */
+  overflow: hidden;
 }
 
-/* 왼쪽 사이드바 스타일 */
-/* Sidebar Layout */
+/* 사이드바 */
 .sidebar {
-  width: 20%;
-  background-color: #ffa29c;
+  width: 25%;
+  background-color: #004aad;
   padding: 20px;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  height: 100%;
+  gap: 30px; /* 요소 간 일정한 간격 */
+  color: white;
   box-sizing: border-box;
   overflow-y: auto;
-  border-right: 2px solid #e86a6a;
+}
+.sidebar h6 {
+  font-size: 1.1rem; /* 적절한 크기 */
+  font-weight: 400; /* 중간 정도의 두께 */
+  color: #d4ebf8; /* 사이드바와 어울리는 밝은 텍스트 색 */
+  text-align: center; /* 텍스트 가운데 정렬 */
+  margin-bottom: 15px; /* 아래 간격 추가 */
+  line-height: 1.5; /* 텍스트 간격 조정 */
 }
 
-/* Game Title */
 .game-title {
-  font-size: 2rem;
+  font-size: 2rem; /* 통일된 글자 크기 */
   font-weight: bold;
-  color: white;
-  text-align: left;
-  margin-bottom: 25px;
+  text-align: center;
+  /* margin-bottom: 20px; */
 }
 
 /* Day Counter */
-.day-counter {
-  margin-bottom: 20px;
+.dayyy {
   font-size: 1.2rem;
-  color: white;
+  font-weight: 600;
+  text-align: center;
 }
 
-.next-day-button {
-  margin-top: 10px;
-  background-color: #ee6463;
-  color: white;
-  border: none;
+
+
+
+
+
+
+
+.progress-bar {
+  width: 80%; /* 막대 길이 조정 */
+  height: 10px;
+  background-color: #e0e0e0;
   border-radius: 5px;
+  margin-top: 10px; /* Day 텍스트와 막대 사이 간격 */
+  overflow: hidden;
+}
+
+.progress {
+  height: 100%;
+  background-color: #E38E49;
+  transition: width 0.3s ease;
+  border-radius: 6px;
+}
+
+.next-day-btn {
+  align-self: center;
+  background-color: #ffb172;
+  color: #004aad;
+  border: none;
+  border-radius: 6px;
   padding: 10px 20px;
-  cursor: pointer;
   font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
-.next-day-button:hover {
-  background-color: #ff7b7b;
+.next-day-btn:hover {
+  background-color: #e38e49;
+  color: white;
 }
 
-/* Final Results */
-.final-results {
-  margin: 20px 0;
-  padding: 15px;
-  background-color: #feebd6;
-  border-radius: 10px;
+/* Portfolio Overview */
+.portfolio-overview {
   width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+  margin: 10px 0;
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.result-item {
-  margin: 10px 0;
-  font-size: 1.1rem;
-  color: #333;
+.portfolio-overview th,
+.portfolio-overview td {
+  padding: 12px;
+  border: 1px solid #ddd;
+}
+
+.portfolio-overview th {
+  background-color: #bcd9ff;
+  color: black;
+}
+
+.portfolio-overview td {
+  font-size: 1rem;
+}
+
+/* 버튼 그룹 */
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.button-group .btn {
+  padding: 10px 20px;
+  background-color: #397edb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.button-group .btn:hover {
+  background-color: #d4ebf8;
+  color: #004aad;
+}
+
+
+/* 공통 컨테이너 스타일 */
+.day-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 150px; /* 동일한 높이 설정 */
+  margin-bottom: 20px; /* 다른 섹션과의 간격 */
+  background-color: #004aad; /* 사이드바와 동일한 배경색 */
+  border-radius: 10px; /* 부드러운 모서리 */
+  padding: 10px; /* 내부 여백 */
+  box-sizing: border-box; /* 패딩 포함 크기 계산 */
+}
+
+/* Day 진행률 섹션 */
+.progress-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+
+
+/* 최종 결과 섹션 */
+.final-results {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%; /* 동일한 높이 적용 */
+  color: white;
+  font-size: 1rem;
+}
+
+.final-results .result-item {
+  margin: 5px 0;
 }
 
 .result-buttons {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  gap: 10px; /* 버튼 간 간격 */
   margin-top: 15px;
 }
 
-.recommend-button,
-.restart-button {
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+
+
+/* 여기까지 왼쪽부분 ---------------------------------------------------------------*/
+
+
+
+
+/* 기타 공통 버튼 등*/
+.btn {
   padding: 10px 20px;
-  margin: 5px 0;
-  background-color: #ee6463;
+  background-color: #397edb;
   color: white;
   border: none;
   border-radius: 5px;
@@ -895,134 +1017,209 @@ console.log('tradePattern@@@@@@@@@@@@@@', tradePattern.value);
   transition: background-color 0.3s ease;
 }
 
-.recommend-button:hover,
-.restart-button:hover {
-  background-color: #ff7b7b;
-}
-
-/* Table Style */
-.vertical-earning-rate {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: center;
-  border: 1px solid #e86a6a; /* 테두리 색상 변경 */
-  border-radius: 5px;
-  background-color: #fff; /* 깔끔한 흰색 배경 */
-  table-layout: fixed; /* 칸의 비율을 고정 */
-}
-
-.vertical-earning-rate th,
-.vertical-earning-rate td {
-  padding: 10px;
-  border: 1px solid #ffc1c1;
-  font-size: 0.9rem; /* 글자 크기 조정 */
-}
-
-.vertical-earning-rate th {
-  background-color: #ffe3e3;
-  font-weight: bold;
+.btn:hover {
+  background-color: #D4EBF8;
 }
 
 .positive {
-  color: red; /* Green for positive values */
+  color: red;
 }
 
 .negative {
-  color: blue; /* Red for negative values */
-}
-
-/* Button Group */
-.button-group {
-  margin-top: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.button-group button {
-  width: 100%;
-  padding: 10px;
-  background-color: #ee6463;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.3s ease;
-}
-
-.button-group button:hover {
-  background-color: #ff7b7b;
+  color: blue;
 }
 
 
-/* 메인 콘텐츠 영역 */
+
+
+
+/* 메인 콘텐츠 */
 .main-content {
-  flex: 1; /* 사이드바를 제외한 영역을 차지 */
-  padding: 20px;
-  box-sizing: border-box;
-  overflow-y: auto;
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 20px;
+  padding: 20px;
+  background-color: #ffffff;
+  box-sizing: border-box;
+  overflow-y: auto;
 }
 
-/* 뉴스 섹션 */
 .news-section {
-  background-color: #feebd6;
-  padding: 15px;
-  border-radius: 8px;
-  width: 100%; /* 메인 콘텐츠의 너비에 맞춤 */
-  height: 400px;
-  min-height: 300px;
-  max-height: 500px;
-  box-sizing: border-box;
-  overflow: hidden; /* 내용 초과 방지 */
+  width: 100%;
+  background-color: #fefefe;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* 차트 섹션 */
-.chart-section {
-  background-color: #fff4f1;
-  padding: 15px;
-  border-radius: 8px;
-  width: 100%; /* 메인 콘텐츠의 너비에 맞춤 */
-  height: 400px;
-  min-height: 300px;
-  max-height: 500px;
-  box-sizing: border-box;
-  overflow: hidden; /* 내용 초과 방지 */
+.charts-section {
+  background-color: #f0f4ff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* 거래 및 보유 섹션 */
+/* 이하 거래 및 보유 종목 ---------------------------------------------------*/
+
+/* 공통 섹션 스타일 */
 .trade-and-holdings {
   display: flex;
-  flex-wrap: wrap; /* 반응형: 화면이 작아지면 줄 바꿈 */
   justify-content: space-between;
-  gap: 20px; /* 두 섹션 간의 간격 */
+  gap: 10px;
+  margin-top: 20px;
+  align-items: flex-start; /* 위쪽 정렬 */
 }
 
-.trading-panel,
+/* 개별 섹션 스타일 */
+.trading-panel{
+  flex: 1;
+  background-color: #f9fbff; /* 부드러운 흰색 배경 */
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden; /* 내용이 넘치지 않도록 */
+  height: 330px; /* 최소 높이를 설정하여 항상 일정 크기 유지 */
+}
+
+/* 주식거래,보유종목 타이틀 스타일 */
+.news-section h3,
+.trading-panel h3,
+.portfolio h3 {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #004aad;
+  margin-bottom: 15px;
+}
+
+/* 주식 거래 섹션 */
+.trading-panel select {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 8px;
+  border: 1px solid #d0d7e6;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.trading-panel p {
+  font-size: 0.9rem;
+  color: #333;
+  margin: 5px 0;
+}
+
+.trading-panel input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #d0d7e6;
+  border-radius: 5px;
+  font-size: 1rem;
+  margin-bottom: 10px;
+}
+
+/* 매수/매도 버튼 */
+/* 버튼 그룹 스타일 */
+.trading-panel .button-group2 {
+  display: flex; /* flexbox로 배치 */
+  justify-content: space-between; /* 버튼들을 양쪽에 균등 배치 */
+  gap: 10px; /* 버튼 간의 간격 */
+  /* width: 100%; 부모 요소에 맞춰 확장 */
+}
+
+/* 매수/매도 버튼 */
+.trading-panel .buy-btn,
+.trading-panel .sell-btn {
+  flex: 1; /* 버튼의 크기를 균등 분배 */
+  width: 150px; /* 버튼 너비 */
+  height: 50px; /* 버튼 높이 */
+  padding: 10px 15px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center; /* 버튼 내 텍스트 정렬 */
+  white-space: nowrap; /* 텍스트 줄바꿈 방지 */
+}
+
+.trading-panel .buy-btn {
+  background-color: #e38e49;
+  color: white;
+}
+
+.trading-panel .buy-btn:hover {
+  background-color: #ffb172;
+}
+
+.trading-panel .sell-btn {
+  background-color: #e38e49;
+  color: white;
+}
+
+.trading-panel .sell-btn:hover {
+  background-color: #ffb172;
+}
+
+
+
+/* 보유 종목 섹션 */
 .portfolio {
-  width: calc(50% - 10px); /* 두 섹션이 부모 너비를 반씩 차지 */
-  background-color: #feebd6;
-  padding: 15px;
-  border-radius: 8px;
-  box-sizing: border-box;
-  overflow: hidden; /* 내용 초과 방지 */
+  flex: 1; /* 균등 분배 */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* 시작 위치로 정렬 */
+  background-color: #f9fbff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  min-height: 330px; /* 최소 높이 */
 }
 
-/* 포트폴리오 섹션 */
-.portfolio {
-  background-color: #ffe3e3; /* 테이블과 유사한 밝은 배경 */
-  color: #333; /* 어두운 글자색으로 가독성 향상 */
-  padding: 15px;
+/* 테이블 최소 높이 설정 */
+.portfolio table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+  font-size: 0.9rem;
+  margin-top: 15px; /* 제목과의 간격 */
+  min-height: 200px; /* 테이블 자체 최소 높이 */
 }
 
-/* 테이블 스타일 */
-.table-main {
-  background-color: transparent;
-  /* 포트폴리오 섹션과 같은 배경 사용 */
-  padding: 0; /* 포트폴리오와 테이블 간 여백 제거 */
-  width: 100%; /* 섹션 너비에 맞춤 */
+.portfolio th,
+.portfolio td {
+  padding: 10px;
+  border: 1px solid #d0d7e6;
+  font-size: 0.9rem;
 }
+
+.portfolio th {
+  background-color: #f0f4ff;
+  font-weight: bold;
+}
+
+/* 데이터가 없을 때 */
+.portfolio .no-data {
+  text-align: center;
+  padding: 20px;
+  font-size: 1rem;
+  color: #999; /* 회색 텍스트 */
+}
+
+
+.portfolio .positive {
+  color: red; /* 상승 표시 */
+}
+
+.portfolio .negative {
+  color: blue; /* 하락 표시 */
+}
+
+
+
+/* -------------------------------------------- */
+
+
+
 </style>

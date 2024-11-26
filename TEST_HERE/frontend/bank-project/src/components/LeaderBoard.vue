@@ -1,9 +1,10 @@
 <template>
   <header> <Navbar /> </header>
   <div>
+    <div class="leaderboard-container">
     <div class="leaderboard-header">
-      <h1>Leaderboard</h1>
-      <h6 id="notice">nickname 미설정 시 username으로 기록</h6>
+      <h1>🏆TOP 10🏆</h1>
+      <h6 id="notice">Nickname 미설정 시 Username으로 기록됩니다!</h6>
     </div>
     <div v-if="loading" class="loading">Loading...</div>
     <div v-else class="leaderboard">
@@ -17,8 +18,13 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="user in leaderboard" :key="user.username">
-              <td class="rank-column">{{ leaderboard.indexOf(user) + 1 }}</td>
+            <!-- 강조 조건 추가 -->
+            <tr
+              v-for="(user, index) in leaderboard"
+              :key="user.username"
+              :class="{ 'first-place': index === 0 }"
+            >
+              <td class="rank-column">{{ index + 1 }}</td>
               <td class="user-column">{{ user.nickname || user.username }}</td>
               <td class="score-column">{{ user.max_score }}</td>
             </tr>
@@ -27,6 +33,7 @@
       </div>
     </div>
   </div>
+</div>
 </template>
 
 <script setup>
@@ -55,129 +62,108 @@ onMounted(fetchLeaderboard);
 </script>
 
 <style scoped>
-/* 전체 페이지 스타일 */
-body {
-  background-color: #1F509A; /* 배경 색상 */
-  font-family: 'Arial', sans-serif;
-  color: white;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+/* 1위 강조 스타일 */
+.first-place {
+  background-color: #fcd666 !important; /* 밝은 노란색 배경 */
+  color: #004aad !important; /* 강조된 파란 글씨 */
+  font-weight: bold; /* 텍스트 굵게 */
 }
 
-/* 순위표를 감싸는 컨테이너 */
+/* 마우스를 올렸을 때 강조 효과 */
+.first-place:hover {
+  background-color: #ffe082 !important; /* 밝은 노란색 강조 */
+  transform: scale(1.05); /* 살짝 커지는 효과 */
+  transition: all 0.2s ease-in-out;
+}
+/* 전체 컨테이너 스타일 */
 .leaderboard-container {
-  width: 90%;
-  max-width: 1200px;
-  background-color: white; /* 메모장 느낌의 배경 */
-  border-radius: 15px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
+  margin: 50px auto;
   padding: 30px;
+  background-color: #f9fbff;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  font-family: 'Arial', sans-serif;
+  color: #333;
 }
 
 /* 헤더 스타일 */
 .leaderboard-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  text-align: center;
   margin-bottom: 20px;
-  background-color: #1F509A;
 }
 
 .leaderboard-header h1 {
-  margin: 0;
-  font-size: 28px;
-  font-weight: 600;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #004aad;
+  margin-bottom: 10px;
 }
 
 .leaderboard-header h6 {
-  font-size: 14px;
-  color: #E38E49;
-  margin: 0;
-  font-weight: 400;
-}
-
-/* 로딩 텍스트 */
-.loading {
-  color: #E38E49;
-  font-size: 18px;
+  font-size: 0.9rem;
+  color: #e38e49;
   font-weight: bold;
-  text-align: center;
-  padding: 20px;
 }
 
-/* 순위표 테이블 스타일 */
-.leaderboard {
-  padding: 20px 0;
-}
-
-.leaderboard-background {
-  background-color: #F8F8F8; /* 메모장 느낌의 배경 */
-  border-radius: 10px;
-  padding: 20px;
-}
-
+/* 순위표 테이블 */
 .leaderboard-table {
   width: 100%;
   border-collapse: collapse;
-  background-color: #0A3981;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.leaderboard-table th,
-.leaderboard-table td {
-  padding: 12px 20px;
   text-align: center;
-  font-size: 18px;
-  font-weight: 600;
+  background-color: #ffffff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .leaderboard-table th {
-  background-color: #1F509A;
-  color: #E38E49;
+  background-color: #004aad;
+  color: #ffffff;
+  padding: 15px;
+  font-size: 1rem;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
 .leaderboard-table td {
-  color: #D4EBF8;
-  border-top: 1px solid #E38E49;
-}
-
-.leaderboard-table tr:hover {
-  background-color: #0A3981; /* 호버 시 색상 변화 */
-}
-
-.leaderboard-table tr:nth-child(even) {
-  background-color: #1F509A; /* 짝수 행 배경색 */
+  padding: 15px;
+  font-size: 1rem;
+  color: #333;
+  border-bottom: 1px solid #d0d7e6;
 }
 
 .leaderboard-table tr:nth-child(odd) {
-  background-color: #0A3981; /* 홀수 행 배경색 */
+  background-color: #f4f9ff;
 }
 
+.leaderboard-table tr:nth-child(even) {
+  background-color: #ffffff;
+}
+
+.leaderboard-table tr:hover {
+  background-color: #e4f1ff; /* 호버 효과 */
+}
+
+/* Rank 컬럼 스타일 */
 .rank-column {
-  font-size: 20px;
-  color: #E38E49; /* 순위 강조 색상 */
+  font-weight: bold;
+  color: #e38e49;
 }
 
-.user-column {
-  font-size: 18px;
-}
-
+.user-column,
 .score-column {
-  font-size: 18px;
+  color: #004aad;
 }
 
-/* 공지사항 스타일 */
-#notice {
-  font-size: 15px;
-  color: gray;
-  margin-top: 10px;
+/* 로딩 텍스트 */
+.loading {
   text-align: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #004aad;
 }
+
+
+
 </style>

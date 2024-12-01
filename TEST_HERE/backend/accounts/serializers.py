@@ -39,10 +39,11 @@ class CustomRegisterSerializer(serializers.ModelSerializer):
 class CustomUserDetailsSerializer(serializers.ModelSerializer):  # UserDetailsSerializer를 상속받아서 사용
     username = serializers.CharField(read_only=True)  # username 필드를 읽기 전용으로 설정
     max_score = serializers.IntegerField(read_only=True)  # max_score 필드를 읽기 전용으로 설정
+    profile_picture = serializers.SerializerMethodField()  # URL로 반환
 
     class Meta:
         model = CustomUser
-        fields = ('username', 'nickname', 'age','my_investor_type', 'max_score')  # 필요한 필드를 직접 지정
+        fields = ('username', 'nickname', 'age','my_investor_type', 'max_score','profile_picture')  # 필요한 필드를 직접 지정
 
     def validate_nickname(self, value):  # nickname 필드에 대한 유효성 검사
         if len(value) > 25:  # 최대 글자수 제한
@@ -65,3 +66,9 @@ class CustomUserDetailsSerializer(serializers.ModelSerializer):  # UserDetailsSe
         representation = super().to_representation(instance)
         print("User Representation:", representation)  # 콘솔에 출력
         return representation
+
+    def get_profile_picture(self, obj):
+    # 사용자가 설정한 이미지가 없으면 기본 이미지 반환
+        if obj.profile_picture:
+            return obj.profile_picture.url
+        return '/static/images/default-user.png'  # 기본 이미지 URL

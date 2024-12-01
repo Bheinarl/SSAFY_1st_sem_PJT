@@ -189,6 +189,9 @@ def profile(request):
     serializer = CustomUserDetailsSerializer(user)  # 사용자 데이터를 직렬화
     return Response(serializer.data)
 
+
+
+from rest_framework.parsers import MultiPartParser, FormParser
 # 프로필 수정 API
 @api_view(['PATCH'])
 @authentication_classes([TokenAuthentication])
@@ -197,10 +200,38 @@ def update_profile(request):
     user = request.user  # 인증된 사용자
     serializer = CustomUserDetailsSerializer(user, data=request.data, partial=True)  # 부분 업데이트
 
+    print("요청 데이터:", request.data)
+    print("요청 파일:", request.FILES)  # 파일 목록 출력
+
     if serializer.is_valid():
+        # 파일이 전송되었는지 확인
+        if 'profile_picture' in request.FILES:
+            print("파일 업로드 확인:", request.FILES['profile_picture'])
+            user.profile_picture = request.FILES['profile_picture']  # 프로필 사진 저장
+            user.save()
         serializer.save()
         return Response(serializer.data)
+    else:
+        print("유효성 검사 실패:", serializer.errors)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+@api_view(['PATCH'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def update_profile_picture(request):
+    user = request.user
+    serializer = CustomUserDetailsSerializer(user, data=request.data, partial=True)
+    if serializer.is_valid():
+        # 프로필 사진이 업로드된 경우 저장
+        if 'profile_picture' in request.FILES:
+            user.profile_picture = request.FILES['profile_picture']
+            user.save()
+        return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 
 # 현재 사용자 정보 조회 API
 @api_view(['GET'])
@@ -230,3 +261,7 @@ def get_leaderboard(request):
         for user in users
     ]
     return Response(leaderboard, status=status.HTTP_200_OK)
+
+
+
+

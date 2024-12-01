@@ -9,6 +9,7 @@ urlpatterns = [
 
 
     path('profile/', views.profile, name='profile'),  # 프로필 엔드포인트
+    path('update_profile_picture/', views.update_profile_picture, name='update_profile_picture'), # 기타 기존 경로들 유지
     path('update_profile/', views.update_profile, name='update_profile'),  # 프로필 수정 엔드포인트
     path('get_current_user/', views.get_current_user, name='get_current_user'),  # 현재 유저 정보 엔드포인트
     path('leaderboard/', views.get_leaderboard, name='get_leaderboard'),  # 리더보드 엔드포인트

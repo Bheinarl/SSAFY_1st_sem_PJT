@@ -17,6 +17,12 @@ class CustomUser(AbstractUser):
     age = models.PositiveIntegerField(null=True, blank=True)  # age 필드 추가
     my_investor_type = models.TextField(null=True, blank=True)  # my_investor_type 필드 추가
     max_score = models.IntegerField(default=0)  # max_score 필드 추가
+    profile_picture = models.ImageField(
+        upload_to='media/images/',
+        default='static/images/default-user.png',  # 기본 이미지 설정
+        blank=True, 
+        null=True
+    )
 
     def __str__(self):
         return self.nickname if self.nickname else self.username  # nickname이 있으면 nickname을, 없으면 username을 반환

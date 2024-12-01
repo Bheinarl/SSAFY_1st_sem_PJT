@@ -5,7 +5,7 @@
   <div class="leaderboard-container">
     <div class="leaderboard-header">
       <h1>🏆 랭킹 보드 🏆</h1>
-      <h6 id="notice">Nickname 미설정 시 Username으로 기록됩니다!</h6>
+      <h6 id="notice">초기 Nickname 미설정 시 Username으로 기록됩니다!</h6>
     </div>
 
     <!-- 상위 3명 -->
@@ -21,7 +21,23 @@
             <span v-else-if="index === 1">🥈</span>
             <span v-else>🥉</span>
           </div>
-          <img :src="user.profile_image || defaultAvatar" alt="User Avatar" class="avatar" />
+          <!-- 프로필 사진 출력 -->
+          <img 
+            :src="user.profile_picture.startsWith('/media/media/') 
+                  ? `http://127.0.0.1:8000${user.profile_picture}` 
+                  : 'http://127.0.0.1:8000/static/images/default-user.png'" 
+            alt="User Avatar" 
+            class="avatar" 
+          />
+
+<!-- 
+          if not user.profile_picture:
+        profile_data['profile_picture'] = f"http://127.0.0.1:8000/static/images/default-user.png"
+    elif user.profile_picture.url.startswith('/media/'):
+        profile_data['profile_picture'] = f"http://127.0.0.1:8000{user.profile_picture.url}" -->
+
+
+
           <h3>{{ user.nickname || user.username }}</h3>
           <p class="score">{{ user.max_score.toLocaleString() }}</p>
         </div>
@@ -82,14 +98,11 @@ import { ref, computed, onMounted } from "vue";
 import axios from "axios";
 import Navbar from "@/components/Navbar.vue";
 
-// 예시 사용자 이미지 (없을 경우 기본 아바타)
-const defaultAvatar = "https://via.placeholder.com/80";
-
 // 랭킹 데이터
 const leaderboard = ref([
-  { username: "user1", nickname: "정글의실력있는투자자", max_score: 23124550745, profile_image: null },
-  { username: "user2", nickname: "바닷가의현명한BTC", max_score: 21127651264, profile_image: null },
-  { username: "user3", nickname: "목장의초명한이더리움", max_score: 19458660153, profile_image: null },
+  // { username: "user1", nickname: "정글의실력있는투자자", max_score: 23124550745, profile_image: null },
+  // { username: "user2", nickname: "바닷가의현명한BTC", max_score: 21127651264, profile_image: null },
+  // { username: "user3", nickname: "목장의초명한이더리움", max_score: 19458660153, profile_image: null },
 ]);
 
 const loading = ref(true);
@@ -98,8 +111,9 @@ const myRank = ref(null);
 
 const topThree = computed(() =>
   leaderboard.value
-    .filter((user) => user.max_score > 0)
-    .slice(0, 3)
+  .filter((user) => user.max_score > 0)
+  .slice(0, 3)
+  
 );
 
 const pagination = ref({
@@ -117,6 +131,7 @@ const paginatedLeaderboard = computed(() => {
 });
 
 const fetchLeaderboard = async () => {
+  console.log(leaderboard.value)
   try {
     const leaderboardResponse = await axios.get("http://127.0.0.1:8000/accounts/leaderboard/", {
       headers: {

@@ -263,7 +263,8 @@ def get_leaderboard(request):
         {
             'username': user.username,
             'nickname': user.nickname,
-            'max_score': user.max_score
+            'max_score': user.max_score,
+            "profile_picture": user.profile_picture.url if user.profile_picture else None,
         }
         for user in users
     ]

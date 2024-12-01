@@ -145,12 +145,12 @@ onMounted(fetchProfile);
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
   background-color: #1F509A; /* 배경색 */
   color: #fff; /* 텍스트 색상 */
   text-align: center;
   font-family: 'Arial', sans-serif;
-  overflow: hidden;
+  height: calc(100vh - 55px); /* Navbar 높이를 뺀 값 */
+  overflow: hidden; /* 강제로 스크롤 제거 */
 }
 
 h1 {
@@ -168,7 +168,6 @@ h1 {
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 박스 그림자 */
   width: 450px;
-  max-width: 400px;
   display: flex;
   flex-direction: column;
   gap: 15px; /* 내부 요소 간격 */

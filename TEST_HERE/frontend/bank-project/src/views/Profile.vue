@@ -17,7 +17,7 @@
         <form @submit.prevent="updateProfile">
           <div class="form-group">
             <label for="nickname">Nickname:</label>
-            <input type="text" v-model="profile.nickname" id="nickname" />
+            <input type="text" v-model="profile.nickname" id="nickname" maxlength="25"/>
           </div>
           <div class="form-group">
             <label for="age">Age:</label>
@@ -113,7 +113,18 @@ const updateProfile = async () => {
     alert('Profile updated successfully!');
     isEditing.value = false;
   } catch (error) {
-    console.error('Failed to update profile:', error);
+    // 에러 메시지를 처리
+    if (error.response && error.response.data) {
+      // 닉네임 중복 에러 처리
+      if (error.response.data.nickname) {
+        alert(error.response.data.nickname[0]); // 서버로부터 오는 에러 메시지 표시
+      } else {
+        alert('Failed to update profile. Please try again.');
+      }
+    } else {
+      console.error('Failed to update profile:', error);
+      alert('An unexpected error occurred.');
+    }
   }
 };
 

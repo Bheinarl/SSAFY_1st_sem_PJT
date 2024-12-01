@@ -13,7 +13,10 @@ console.log(showNavbar.value);
 </script>
 
 <style scoped>
+
 .app-main {
+  margin: 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
   min-height: 100vh; /* 화면 전체를 채우도록 설정 */
@@ -21,4 +24,5 @@ console.log(showNavbar.value);
   position: relative; /* 자식 요소의 위치 제어 */
   overflow: hidden; /* 불필요한 스크롤 방지 */
 }
+
 </style>

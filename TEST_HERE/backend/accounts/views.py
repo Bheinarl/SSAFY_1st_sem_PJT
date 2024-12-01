@@ -219,7 +219,8 @@ def get_current_user(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_leaderboard(request):
-    users = CustomUser.objects.all().order_by('-max_score')[:10]  # 상위 10명
+    # users = CustomUser.objects.all().order_by('-max_score')[:10]  # 상위 10명
+    users = CustomUser.objects.all().order_by('-max_score') # 상위 10명이 아닌 전체 랭킹 볼 수 있도록 변경
     leaderboard = [
         {
             'username': user.username,

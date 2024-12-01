@@ -13,10 +13,11 @@ class CustomRegisterSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ['username', 'nickname', 'password1', 'password2', 'age']
     
-    def validate_nickname(self, value):  # nickname 필드에 대한 유효성 검사
-        if CustomUser.objects.filter(nickname=value).exists():  # 이미 존재하는 nickname인지 확인
-            raise serializers.ValidationError("This nickname is already taken.")
+    def validate_username(self, value):  # username 필드에 대한 유효성 검사
+        if CustomUser.objects.filter(username=value).exists():  # 이미 존재하는 username인지 확인
+            raise serializers.ValidationError("This username is already taken.")
         return value
+
 
     def validate(self, data):  # password1과 password2가 같은지 확인
         if data['password1'] != data['password2']:  # 같지 않으면 에러 발생
@@ -43,8 +44,21 @@ class CustomUserDetailsSerializer(serializers.ModelSerializer):  # UserDetailsSe
         model = CustomUser
         fields = ('username', 'nickname', 'age','my_investor_type', 'max_score')  # 필요한 필드를 직접 지정
 
-    def get_age(self, obj):  # age 필드를 가져올 때 None이면 '비공개'로 반환
-        return obj.age if obj.age is not None else '비공개'
+    def validate_nickname(self, value):  # nickname 필드에 대한 유효성 검사
+        if len(value) > 25:  # 최대 글자수 제한
+            raise serializers.ValidationError("Nickname cannot exceed 25 characters.")
+        if CustomUser.objects.filter(nickname=value).exclude(pk=self.instance.pk).exists():
+            raise serializers.ValidationError("This nickname is already taken.")
+        return value
+
+    def validate(self, data):
+        # nickname 검증
+        if 'nickname' in data:
+            self.validate_nickname(data['nickname'])
+        return data
+
+    # def get_age(self, obj):  # age 필드를 가져올 때 None이면 '비공개'로 반환
+    #     return obj.age if obj.age is not None else '비공개'
 
     def to_representation(self, instance):
         """ 디버깅을 위해 출력해 봄 """

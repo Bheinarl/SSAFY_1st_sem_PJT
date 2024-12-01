@@ -66,7 +66,7 @@
               {{ index + 1 + (pagination.now_page_no - 1) * pagination.items_per_page }}
             </td>
             <td class="user-column">{{ user.nickname || user.username }}</td>
-            <td class="score-column">{{ user.max_score }}</td>
+            <td class="score-column">{{ user.max_score.toLocaleString() }}</td>
           </tr>
         </tbody>
       </table>

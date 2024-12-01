@@ -12,8 +12,41 @@
     <h1>User Profile</h1>
     <div v-if="loading" class="loading">Loading...</div>
     <div v-else>
+      
+      <img 
+        :src="profile.profile_picture" 
+        alt="Profile Picture" 
+        class="profile-pic"
+      />
+
+
       <!-- Editing Form -->
       <div v-if="isEditing" class="form-container">
+        <!-- 여기부터 -->
+      <form @submit.prevent="updateProfile">
+        <div class="form-group">
+          <label for="nickname">Nickname:</label>
+          <input type="text" v-model="profile.nickname" id="nickname" maxlength="25" />
+        </div>
+        <div class="form-group">
+          <label for="age">Age:</label>
+          <input type="number" v-model="profile.age" id="age" />
+        </div>
+        <div class="form-group">
+          <label for="profile_picture">Profile Picture:</label>
+          <input type="file" @change="handleFileUpload" id="profile_picture" />
+        </div>
+        <div class="button-group">
+          <button type="submit" class="btn save">Save Changes</button>
+          <button type="button" @click="cancelEdit" class="btn cancel">Cancel</button>
+        </div>
+      </form>
+
+      <!-- 여기까지 -->
+
+
+
+<!-- 
         <form @submit.prevent="updateProfile">
           <div class="form-group">
             <label for="nickname">Nickname:</label>
@@ -31,7 +64,7 @@
             <button type="submit" class="btn save">Save Changes</button>
             <button type="button" @click="cancelEdit" class="btn cancel">Cancel</button>
           </div>
-        </form>
+        </form> -->
       </div>
       <!-- Profile Details -->
       <div v-else class="profile-details">
@@ -82,10 +115,13 @@ const profile = ref({
   age: '',
   my_investor_type: '',
   max_score: 0,
+  profile_picture: '', // 프로필 사진 URL
 });
+const defaultProfileImage = 'http://127.0.0.1:8000/static/images/default-user.png';
 
 const loading = ref(true);
 const isEditing = ref(false);
+const profilePicture = ref(null);  // 파일 상태 관리
 
 const fetchProfile = async () => {
   try {
@@ -95,38 +131,83 @@ const fetchProfile = async () => {
       },
     });
     profile.value = response.data;
+    console.log(profile.value)
+    // profile_picture가 없거나 잘못된 경우 디폴트 설정
+    if (!profile.value.profile_picture || profile.value.profile_picture.includes('/media/static/')) {
+      profile.value.profile_picture = defaultProfileImage;
+    }
   } catch (error) {
-    console.error('Failed to fetch profile:', error);
+    console.error('Failed to fetch profile:', error.response?.data || error.message);
     alert('Failed to load profile.');
   } finally {
     loading.value = false;
   }
 };
 
+
+
+// const updateProfile = async () => {
+//   try {
+//     await axios.patch('http://127.0.0.1:8000/accounts/update_profile/', profile.value, {
+//       headers: {
+//         Authorization: `Token ${localStorage.getItem('token')}`,
+//       },
+//     });
+//     alert('Profile updated successfully!');
+//     isEditing.value = false;
+//   } catch (error) {
+//     console.error('Failed to update profile:', error);
+//   }
+// };
+
+
+
 const updateProfile = async () => {
+  const formData = new FormData();
+  formData.append('nickname', profile.value.nickname);
+  formData.append('age', profile.value.age);
+
+  // 사용자가 파일을 선택했을 경우만 추가
+  console.log(profilePicture.value)
+  if (profilePicture.value) {
+    console.log(profilePicture.value.name);
+    console.log(profilePicture.value.size);
+    formData.append('profile_picture', profilePicture.value);
+  }
+  
+  // formData 확인
+  for (let pair of formData.entries()) {
+    console.log(`${pair[0]}: ${pair[1]}`);
+  }
+
+
+
   try {
-    await axios.patch('http://127.0.0.1:8000/accounts/update_profile/', profile.value, {
-      headers: {
-        Authorization: `Token ${localStorage.getItem('token')}`,
-      },
-    });
+    const response = await axios.patch(
+      'http://127.0.0.1:8000/accounts/update_profile/',
+      formData,
+      {
+        headers: {
+          Authorization: `Token ${localStorage.getItem('token')}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
     alert('Profile updated successfully!');
     isEditing.value = false;
+    fetchProfile();
   } catch (error) {
-    // 에러 메시지를 처리
-    if (error.response && error.response.data) {
-      // 닉네임 중복 에러 처리
-      if (error.response.data.nickname) {
-        alert(error.response.data.nickname[0]); // 서버로부터 오는 에러 메시지 표시
-      } else {
-        alert('Failed to update profile. Please try again.');
-      }
-    } else {
-      console.error('Failed to update profile:', error);
-      alert('An unexpected error occurred.');
-    }
+    console.error('Failed to update profile:', error.response?.data || error.message);
+    alert('Failed to update profile.');
   }
 };
+
+
+
+const handleFileUpload = (event) => {
+  profilePicture.value = event.target.files[0]; // 사용자가 파일을 선택했을 때 profilePicture 변수에 저장:
+};
+
 
 const cancelEdit = () => {
   isEditing.value = false;

@@ -185,9 +185,16 @@ def login(request):
 @permission_classes([IsAuthenticated])
 def profile(request):
     user = request.user  # 인증된 사용자
-    print(user)
     serializer = CustomUserDetailsSerializer(user)  # 사용자 데이터를 직렬화
-    return Response(serializer.data)
+    
+    # 프로필 사진 경로 설정
+    profile_data = serializer.data
+    if not user.profile_picture:
+        profile_data['profile_picture'] = f"http://127.0.0.1:8000/static/images/default-user.png"
+    elif user.profile_picture.url.startswith('/media/'):
+        profile_data['profile_picture'] = f"http://127.0.0.1:8000{user.profile_picture.url}"
+
+    return Response(profile_data)
 
 
 

@@ -13,9 +13,9 @@ class CustomRegisterSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ['username', 'nickname', 'password1', 'password2', 'age']
     
-    def validate_nickname(self, value):  # nickname 필드에 대한 유효성 검사
-        if CustomUser.objects.filter(nickname=value).exists():  # 이미 존재하는 nickname인지 확인
-            raise serializers.ValidationError("This nickname is already taken.")
+    def validate_username(self, value):  # username 필드에 대한 유효성 검사
+        if CustomUser.objects.filter(username=value).exists():  # 이미 존재하는 username인지 확인
+            raise serializers.ValidationError("This username is already taken.")
         return value
 
     def validate(self, data):  # password1과 password2가 같은지 확인

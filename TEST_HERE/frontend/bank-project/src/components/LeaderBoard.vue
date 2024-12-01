@@ -62,9 +62,8 @@
             :key="user.username"
             :class="{ 'highlight-my-row': user.username === profile.username }"
           >
-            <td class="rank-column">
-              {{ index + 1 + (pagination.now_page_no - 1) * pagination.items_per_page }}
-            </td>
+            <!-- 순위를 rank 값으로 출력 -->
+            <td class="rank-column">{{ user.rank }}</td>
             <td class="user-column">{{ user.nickname || user.username }}</td>
             <td class="score-column">{{ user.max_score.toLocaleString() }}</td>
           </tr>
@@ -130,6 +129,18 @@ const paginatedLeaderboard = computed(() => {
   return filteredLeaderboard.slice(start, end);
 });
 
+
+const calculateRanks = (data) => {
+  let rank = 1;
+  return data.map((user, index, array) => {
+    // 이전 점수와 비교하여 순위 계산
+    if (index > 0 && user.max_score !== array[index - 1].max_score) {
+      rank = index + 1;
+    }
+    return { ...user, rank };
+  });
+};
+
 const fetchLeaderboard = async () => {
   console.log(leaderboard.value)
   try {
@@ -138,7 +149,12 @@ const fetchLeaderboard = async () => {
         Authorization: `Token ${localStorage.getItem("token")}`,
       },
     });
-    leaderboard.value = leaderboardResponse.data || [];
+    // leaderboard.value = leaderboardResponse.data || [];
+    // 순위 계산 후 데이터 설정
+    const sortedLeaderboard = leaderboardResponse.data.sort((a, b) => b.max_score - a.max_score);
+    leaderboard.value = calculateRanks(sortedLeaderboard);
+
+    // 페이지네이션 관련 데이터 업데이트
     pagination.value.total_count = leaderboard.value.filter((user) => user.max_score > 0).length;
     pagination.value.max_page_no = Math.ceil(
       pagination.value.total_count / pagination.value.items_per_page
@@ -151,16 +167,18 @@ const fetchLeaderboard = async () => {
     });
     profile.value = profileResponse.data;
 
-    const rankIndex = leaderboard.value
-      .filter((user) => user.max_score > 0)
-      .findIndex((user) => user.username === profile.value.username);
-    myRank.value = rankIndex !== -1 ? rankIndex + 1 : null;
+    // const rankIndex = leaderboard.value
+    //   .filter((user) => user.max_score > 0)
+    //   .findIndex((user) => user.username === profile.value.username);
+    // myRank.value = rankIndex !== -1 ? rankIndex + 1 : null;
   } catch (error) {
     console.error("데이터 로딩 오류:", error);
   } finally {
     loading.value = false;
   }
 };
+
+
 
 const changePage = (pageNo) => {
   if (pageNo < 1 || pageNo > pagination.value.max_page_no) return;

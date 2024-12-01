@@ -18,9 +18,8 @@
             </tr>
           </thead>
           <tbody>
-            <!-- 강조 조건 추가 -->
             <tr
-              v-for="(user, index) in leaderboard"
+              v-for="(user, index) in filteredLeaderboard"
               :key="user.username"
               :class="{ 'first-place': index === 0 }"
             >
@@ -37,7 +36,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted,computed } from 'vue';
 import axios from 'axios';
 import Navbar from '@/components/Navbar.vue';
 const leaderboard = ref([]);
@@ -59,6 +58,11 @@ const fetchLeaderboard = async () => {
 };
 
 onMounted(fetchLeaderboard);
+
+const filteredLeaderboard = computed(() =>
+  leaderboard.value.filter(user => user.max_score != 0)
+);
+
 </script>
 
 <style scoped>

@@ -23,7 +23,8 @@
           </div>
           <br />
 
-          <button v-if="currentDay < 11" @click="nextDay" class="btn next-day-btn">다음 날로</button>
+          <button v-if="currentDay < 11" @click="nextDay" class="next-day-btn">다음 날로 넘어가기 ⏩</button>
+          <!--✅⏩ -->
         </div>
 
         <!-- Final Results -->
@@ -93,7 +94,7 @@
         </button> -->
 
         <!-- 환율 계산기 버튼 -->
-        <button @click="openModal" class="btn primary-btn">환율 계산기 열기</button>
+        <button @click="openModal" class="btn primary-btn">환율 계산기 열기🔢</button>
         <!-- 환율 계산기 모달 -->
         <Modal :isOpen="isModalOpen" @close="closeModal">
           <ExchangeRateAlert />
@@ -101,7 +102,7 @@
 
 
         <button @click="goToLeaderboard" class="btn">
-          랭킹 보기
+          랭킹 보러가기➰
         </button>
       </div>
 
@@ -153,9 +154,9 @@
           <table class="table">
             <thead>
               <tr>
-                <th>종목</th>
+                <th class="wide-column">종목</th>
                 <th>전날 대비</th>
-                <th>보유량</th>
+                <th class="narrow-column">보유량</th>
                 <th>매입 단가</th>
                 <th>평가 금액</th>
                 <th>평가 손익</th>
@@ -887,7 +888,7 @@ const closeModal = () => {
   height: 10px;
   background-color: #e0e0e0;
   border-radius: 5px;
-  margin-top: 10px; /* Day 텍스트와 막대 사이 간격 */
+  margin-top: 3px; /* Day 텍스트와 막대 사이 간격 */
   overflow: hidden;
 }
 
@@ -900,19 +901,19 @@ const closeModal = () => {
 
 .next-day-btn {
   align-self: center;
-  background-color: #ffb172;
-  color: #004aad;
+  background-color: #e38e49;
+  color: #fff;
   border: none;
   border-radius: 6px;
   padding: 10px 20px;
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: bold;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
 .next-day-btn:hover {
-  background-color: #e38e49;
+  background-color: #ffb172;
   color: white;
 }
 
@@ -1236,6 +1237,16 @@ const closeModal = () => {
   font-weight: bold;
 }
 
+.portfolio th.wide-column,
+.portfolio td.wide-column {
+  width: 20%; /* 종목 열 너비 */
+}
+
+.portfolio th.narrow-column,
+.portfolio td.narrow-column {
+  width: 10%; /* 보유량 열 너비 */
+}
+
 /* 데이터가 없을 때 */
 .portfolio .no-data {
   text-align: center;
@@ -1243,7 +1254,6 @@ const closeModal = () => {
   font-size: 1rem;
   color: #999; /* 회색 텍스트 */
 }
-
 
 .portfolio .positive {
   color: red; /* 상승 표시 */

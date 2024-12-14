@@ -15,10 +15,6 @@
       <!-- Editing Form -->
       <div v-if="isEditing" class="form-container">
         <form @submit.prevent="updateProfile">
-          <div class="detail-row">
-            <span class="label">Username:</span>
-            <span class="value">{{ profile.username }}</span>
-          </div>
           <div class="form-group">
             <label for="nickname">Nickname:</label>
             <input type="text" v-model="profile.nickname" id="nickname" maxlength="25" />
@@ -234,7 +230,6 @@ h1 {
 
 .form-container,
 .profile-details {
-  z-index: 1;
   background-color: #ffffff; /* 카드 배경 흰색 */
   color: #000000; /* 텍스트 색상 */
   padding: 20px;
@@ -276,6 +271,8 @@ h1 {
 .form-group input:focus {
   border-color: #E38E49; /* 포커스 상태 테두리 색상 */
 }
+
+
 
 .detail-row {
   display: flex;

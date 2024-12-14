@@ -3,6 +3,7 @@
     <Navbar />
   </header>
   <div class="game-container">
+
     <!-- Sidebar Section -->
     <aside class="sidebar">
       <!-- 기존 사이드바 콘텐츠 유지 -->
@@ -87,9 +88,18 @@
 
       <!-- Additional Buttons -->
       <div class="button-group">
-        <button @click="goToExchangeRateCalculator" class="btn">
+        <!-- <button @click="goToExchangeRateCalculator" class="btn">
           환율 계산기
-        </button>
+        </button> -->
+
+        <!-- 환율 계산기 버튼 -->
+        <button @click="openModal" class="btn primary-btn">환율 계산기 열기</button>
+        <!-- 환율 계산기 모달 -->
+        <Modal :isOpen="isModalOpen" @close="closeModal">
+          <ExchangeRateAlert />
+        </Modal>
+
+
         <button @click="goToLeaderboard" class="btn">
           랭킹 보기
         </button>
@@ -189,6 +199,9 @@ import { useRouter, RouterView } from 'vue-router';
 import axios from 'axios';
 import Chart from 'chart.js/auto';
 import Navbar from '@/components/Navbar.vue';
+import Modal from "@/components/Modal.vue";
+import ExchangeRateAlert from "@/components/ExchangeRateAlert.vue";
+
 /* --------------------------- State --------------------------- */
 const stockStore = useStockStore();
 const router = useRouter();
@@ -783,6 +796,24 @@ tradeVolume.value = 0;
  
 console.log('tradePattern@@@@@@@@@@@@@@', tradePattern.value);
 } // executeTrade 함수 끝
+
+
+// 모달 관련 시작 -----------------
+// 상태 관리
+const isModalOpen = ref(false);
+
+// 모달 열기
+const openModal = () => {
+  isModalOpen.value = true;
+};
+
+// 모달 닫기
+const closeModal = () => {
+  isModalOpen.value = false;
+};
+// 모달 관련 끝 -----------------
+
+
 </script>
 
 <style scoped>

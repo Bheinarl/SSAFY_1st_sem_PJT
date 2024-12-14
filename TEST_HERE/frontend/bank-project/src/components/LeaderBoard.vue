@@ -206,10 +206,11 @@ onMounted(fetchLeaderboard);
 .leaderboard-container {
   padding: 20px;
   width: 800px;
-  margin: 20px auto;
+  margin: 10Px auto;
   background-color: #f4f9ff;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  overflow-y: auto; /* 스크롤 추가 */
 }
 
 /* 헤더 */
@@ -301,12 +302,14 @@ h3 {
   width: 100%;
   border-collapse: collapse;
   background-color: #fff;
+  text-align: center; /* 헤더와 본문 모두 가운데 정렬 */
 }
 
 .leaderboard-table th {
   background-color: #004aad;
   color: white;
   padding: 10px;
+  text-align: center; /* 헤더와 본문 모두 가운데 정렬 */
 }
 
 .leaderboard-table td {
@@ -380,7 +383,7 @@ h3 {
   font-size: 0.9rem;
   font-weight: bold;
   color: #e38e49;
-  animation: scrollText 20s linear infinite; /* 10초 동안 텍스트가 한 번 흐르고 반복 */
+  animation: scrollText 15s linear infinite; /* 10초 동안 텍스트가 한 번 흐르고 반복 */
 }
 
 </style>

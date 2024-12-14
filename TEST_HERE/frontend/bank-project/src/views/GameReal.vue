@@ -532,16 +532,38 @@ async function fetchRandomDate() {
 }
 
 // 주식 데이터 업데이트
-async function updateStockUrl() {
-  const stockCode = stockStore.stockMapping[selectedStock.value];
-  if (stockCode) {
-    // 주식 데이터 API 호출 backend/stocks/views.py find_stock_data
-    const apiUrl = `http://127.0.0.1:8000/api/stocks/find_stock_data/${stockCode}/?start_date=${startDate.value}`;
-    console.log("apiUrl : ",apiUrl)
+// async function updateStockUrl() {
+//   const stockCode = stockStore.stockMapping[selectedStock.value];
+//   if (stockCode) {
+//     // 주식 데이터 API 호출 backend/stocks/views.py find_stock_data
+//     const apiUrl = `http://127.0.0.1:8000/api/stocks/find_stock_data/${stockCode}/?start_date=${startDate.value}`;
+//     console.log("apiUrl : ",apiUrl)
 
-    fetchStockData(apiUrl);
+//     fetchStockData(apiUrl);
+//   }
+// }
+import debounce from 'lodash/debounce';
+
+const debouncedUpdateStockUrl = debounce(async () => {
+  const stockCode = stockStore.stockMapping[selectedStock.value];
+  if (!stockCode) {
+    console.error("Stock code not found for:", selectedStock.value);
+    return;
   }
+
+  const apiUrl = `http://127.0.0.1:8000/api/stocks/find_stock_data/${stockCode}/?start_date=${startDate.value}`;
+  try {
+    await fetchStockData(apiUrl);
+  } catch (error) {
+    console.error("Error in debouncedUpdateStockUrl:", error);
+  }
+}, 300); // 300ms 대기 후 실행
+
+// updateStockUrl 함수에서 Debounce 호출
+function updateStockUrl() {
+  debouncedUpdateStockUrl();
 }
+
 
 // 주식 데이터 가져오기
 async function fetchStockData(apiUrl) {

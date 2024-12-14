@@ -6,12 +6,16 @@
 
     <!-- Sidebar Section -->
     <aside class="sidebar">
-      <!-- 기존 사이드바 콘텐츠 유지 -->
-      <h2 class="game-title">모의 투자 게임📈📉</h2>
-      <h6>시드머니 천만원이 나에게 주어진다면?</h6>
-
+      <div>
+        <h2 class="game-title">모의 투자 게임📈📉</h2>
+        <h6>1000만원이 실제로 주어진다면? <br>  
+          10일 동안 현실처럼 투자해보세요! <br>  
+          당신의 투자 방식이 맞춤형 금융 추천으로 이어집니다!</h6>
+      </div>
       <!-- Day Counter -->
       <div class="day-container">
+        
+        <!-- 10일 진행 중-->
         <div v-if="currentDay < 11" class="progress-container">
           <div class="day-counter">
             <p class="dayyy" v-if="currentDay < 11">Day <span>{{ currentDay }}</span> / 10</p>
@@ -24,29 +28,32 @@
           <br />
 
           <button v-if="currentDay < 11" @click="nextDay" class="next-day-btn">다음 날로 넘어가기 ⏩</button>
-          <!--✅⏩ -->
         </div>
 
         <!-- Final Results -->
-        <div v-if="currentDay > 10" class="final-results">
-          <div class="result-item">💰최종 자산: <span>₩{{ finalTotalValue }}</span></div>
-          <div class="result-item">👤투자자 유형:
-            <span>{{ investorType }}</span>
-            <span v-if="investorType === '안정 추구형'">😌</span>
-            <span v-if="investorType === '균형 투자형'">🧐</span>
-            <span v-if="investorType === '공격 투자형'">😏</span>
-            <span v-if="investorType === '투기형'">🤑</span>
-          </div>
-          <div class="result-item">
-            📆실제 주식 데이터 기간:
-            <p>{{ startDateValue }} ~ {{ endDateValue }}</p>
+        <div v-else class="final-results">
+          <div>
+            <div class="result-item">
+              💰최종 자산 : <span>₩{{ finalTotalValue }}</span></div>
+            <div class="result-item">👤투자자 유형 :
+              <span>{{ investorType }}</span>
+              <span v-if="investorType === '안정 추구형'">😌</span>
+              <span v-if="investorType === '균형 투자형'">🧐</span>
+              <span v-if="investorType === '공격 투자형'">😏</span>
+              <span v-if="investorType === '투기형'">🤑</span>
+            </div>
+            <div class="result-item">
+              📆실제 주식 데이터 기간:<br>
+              {{ startDateValue }} ~ {{ endDateValue }}
+            </div>
           </div>
           <div class="result-buttons">
             <button @click="goFinanceRecommend" class="btn recommend-btn">펀드 상품 추천 바로가기</button>
             <button @click="restartGame" class="btn restart-btn">게임 다시 시작</button>
           </div>
         </div>
-      </div>
+
+      </div> <!--daycontainer-->
 
       <!-- Portfolio Overview -->
       <table class="table portfolio-overview">
@@ -164,9 +171,11 @@
                 <th>수익률</th>
               </tr>
             </thead>
+
+
             <tbody>
               <template v-for="key in Object.keys(portfolio)" :key="key">
-                <tr v-if="totalQuantity[key] !== 0">
+                <tr v-if="totalQuantity[key] !== 0" @click="selectStock(key)" class="clickable-row">
                   <td>{{ key }}</td>
                   <td>
                     <span v-if="keyBeforePrice[key] > 0" class="positive">▲{{ keyBeforePrice[key] }}</span>
@@ -185,6 +194,9 @@
                 </tr>
               </template>
             </tbody>
+
+
+
           </table>
         </div>
       </div>
@@ -497,6 +509,11 @@ const endDateValue = computed(() =>
 );
 
 /* --------------------------- Functions --------------------------- */
+// 보유 종목 창에서 행 클릭 시 바로 해당 주식 정보 볼 수 있도록 함
+function selectStock(stockName) {
+  selectedStock.value = stockName; // 선택된 종목 업데이트
+}
+
 
 // 랜덤한 시작 날짜 생성
 async function fetchRandomDate() {
@@ -849,13 +866,13 @@ const closeModal = () => {
   padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 30px; /* 요소 간 일정한 간격 */
+  gap: 20px; /* 요소 간 일정한 간격 */
   color: white;
   box-sizing: border-box;
   overflow-y: auto;
 }
 .sidebar h6 {
-  font-size: 1rem; /* 적절한 크기 */
+  font-size: 0.9rem; /* 적절한 크기 */
   font-weight: 400; /* 중간 정도의 두께 */
   color: #d4ebf8; /* 사이드바와 어울리는 밝은 텍스트 색 */
   text-align: center; /* 텍스트 가운데 정렬 */
@@ -1005,8 +1022,9 @@ const closeModal = () => {
   align-items: center;
   width: 100%;
   height: 100%; /* 동일한 높이 적용 */
+  gap: 20px; /* item과 버튼 사이 간격 */
   color: white;
-  font-size: 0.9rem;
+  font-size: 1rem;
 }
 
 .final-results .result-item {
@@ -1014,10 +1032,9 @@ const closeModal = () => {
 }
 
 .result-buttons {
-  font-size: 0.5rem;
   display: flex;
   gap: 10px; /* 버튼 간 간격 */
-  margin-top: 15px;
+  /* margin-top: 15px; */
 }
 
 .table {
@@ -1070,7 +1087,7 @@ const closeModal = () => {
 
 /* 메인 콘텐츠 */
 .main-content {
-  font-size: 0.9rem;
+  font-size: 1rem;
   flex: 1;
   display: flex;
   flex-direction: column;

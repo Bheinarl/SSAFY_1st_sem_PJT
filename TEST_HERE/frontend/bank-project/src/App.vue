@@ -19,10 +19,11 @@ console.log(showNavbar.value);
   padding: 0;
   display: flex;
   flex-direction: column;
-  min-height: 100vh; /* 화면 전체를 채우도록 설정 */
+  height: 100vh; /* 화면 높이를 고정 */
   background-color: #1F509A; /* home.vue와 일치 */
   position: relative; /* 자식 요소의 위치 제어 */
   overflow: hidden; /* 불필요한 스크롤 방지 */
 }
+
 
 </style>

@@ -1,4 +1,3 @@
-<!-- 배치 변경된 GameReal.vue -->
 <template>
   <header>
     <Navbar />
@@ -9,6 +8,8 @@
       <!-- 기존 사이드바 콘텐츠 유지 -->
       <h2 class="game-title">모의 투자 게임📈📉</h2>
       <h6>시드머니 천만원이 나에게 주어진다면?</h6>
+
+      <!-- Day Counter -->
       <div class="day-container">
         <div v-if="currentDay < 11" class="progress-container">
           <div class="day-counter">
@@ -20,9 +21,11 @@
             <div v-else class="progress" :style="{ width: 100 + '%' }"></div>
           </div>
           <br />
+
           <button v-if="currentDay < 11" @click="nextDay" class="btn next-day-btn">다음 날로</button>
         </div>
 
+        <!-- Final Results -->
         <div v-if="currentDay > 10" class="final-results">
           <div class="result-item">💰최종 자산: <span>₩{{ finalTotalValue }}</span></div>
           <div class="result-item">👤투자자 유형:
@@ -81,10 +84,22 @@
           </tr>
         </tbody>
       </table>
+
+      <!-- Additional Buttons -->
+      <div class="button-group">
+        <button @click="goToExchangeRateCalculator" class="btn">
+          환율 계산기
+        </button>
+        <button @click="goToLeaderboard" class="btn">
+          랭킹 보기
+        </button>
+      </div>
+
     </aside>
 
     <!-- Main Content Section -->
     <section class="main-content">
+      
       <!-- 뉴스와 차트: 1행 -->
       <div class="top-section">
         <div class="news-section">
@@ -897,11 +912,12 @@ console.log('tradePattern@@@@@@@@@@@@@@', tradePattern.value);
   font-size: 1rem;
 }
 
-/* 버튼 그룹 */
+/* 환율계산기 , 랭킹보기 버튼 그룹 */
 .button-group {
   display: flex;
-  flex-direction: column;
-  gap: 15px;
+  flex-direction: row; /* 버튼을 가로로 배치 */
+  gap: 15px; /* 버튼 간 간격 */
+  justify-content: center; /* 버튼을 가운데 정렬 */
 }
 
 .button-group .btn {
@@ -965,6 +981,7 @@ console.log('tradePattern@@@@@@@@@@@@@@', tradePattern.value);
 }
 
 .result-buttons {
+  font-size: 0.5rem;
   display: flex;
   gap: 10px; /* 버튼 간 간격 */
   margin-top: 15px;
@@ -977,6 +994,7 @@ console.log('tradePattern@@@@@@@@@@@@@@', tradePattern.value);
 
 .table th,
 .table td {
+  font-size: 0.9rem;
   padding: 10px;
   border: 1px solid #ddd;
   text-align: center;
@@ -1165,14 +1183,14 @@ console.log('tradePattern@@@@@@@@@@@@@@', tradePattern.value);
   min-height: 330px; /* 최소 높이 */
 }
 
-/* 테이블 최소 높이 설정 */
+/* 보유 종목 테이블 스타일 */
 .portfolio table {
   width: 100%;
   border-collapse: collapse;
   text-align: center;
   font-size: 0.9rem;
   margin-top: 15px; /* 제목과의 간격 */
-  min-height: 200px; /* 테이블 자체 최소 높이 */
+  table-layout: fixed; /* 각 셀의 너비를 균등하게 */
 }
 
 .portfolio th,

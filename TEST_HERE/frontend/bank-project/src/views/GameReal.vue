@@ -121,6 +121,7 @@
           </ul>
         </div>
         <div class="charts-section">
+          <h3>{{selectedStock}} 주식 차트</h3>
           <canvas id="chart"></canvas>
         </div>
       </div>
@@ -1126,6 +1127,7 @@ const closeModal = () => {
 /* 주식거래,보유종목 타이틀 스타일 */
 .news-section h3,
 .trading-panel h3,
+.charts-section h3,
 .portfolio h3 {
   font-size: 1.2rem;
   font-weight: bold;

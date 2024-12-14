@@ -9,8 +9,8 @@
     <div class="post-list">
       <div v-for="post in posts" :key="post.id" class="post-card">
         <router-link :to="`/posts/${post.id}`" class="post-title">{{ post.title }}</router-link>
-        <p class="post-author">작성자: {{ post.author }}</p>
-        <p class="post-likes">좋아요: {{ post.likes }}</p>
+        <p class="post-author">작성자 : {{ post.author }}</p>
+        <p class="post-likes">좋아요 : {{ post.likes }}</p>
       </div>
     </div>
   </div>
@@ -42,9 +42,14 @@ onMounted(() => {
 });
 </script>
 <style scoped>
+
 /* 전체 게시판 컨테이너 */
 .board-container {
   width: 800px;
+  min-height: calc(100vh - 100px); /* 화면 높이를 기준으로 계산 */
+  max-height: calc(100vh - 50px); /* 최대 높이도 설정 */
+  overflow: hidden; /* 내부 스크롤을 컨트롤 */
+  box-sizing: border-box; /* 패딩 포함 크기 계산 */
   margin: 20px auto;
   padding: 20px;
   background-color: #f9fbff;
@@ -89,10 +94,12 @@ onMounted(() => {
 /* 게시글 리스트: 3열 배치 */
 .post-list {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* 3열 */
+  grid-template-columns: repeat(2, 1fr); /* 2열 */
   gap: 20px; /* 카드 간격 */
   overflow-y: auto; /* 스크롤 가능 */
-  max-height: calc(100vh - 200px); /* 페이지 스크롤 */
+  height: calc(100vh - 300px); /* 부모 높이에 맞게 조정 */
+  box-sizing: border-box;
+
 }
 
 /* 게시글 카드 */

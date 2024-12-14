@@ -1,14 +1,6 @@
 <template>
   <header><Navbar /></header>
   <div class="profile">
-    <div class="background-shapes">
-      <div class="circle-large"></div>
-      <div class="circle-medium"></div>
-      <div class="circle-small"></div>
-      <div class="rectangle"></div>
-      <div class="triangle"></div>
-      <div class="ellipse"></div>
-    </div>
     <h1>User Profile</h1>
     <div v-if="loading" class="loading">Loading...</div>
     <div v-else>
@@ -22,49 +14,28 @@
 
       <!-- Editing Form -->
       <div v-if="isEditing" class="form-container">
-        <!-- 여기부터 -->
-      <form @submit.prevent="updateProfile">
-        <div class="form-group">
-          <label for="nickname">Nickname:</label>
-          <input type="text" v-model="profile.nickname" id="nickname" maxlength="25" />
-        </div>
-        <div class="form-group">
-          <label for="age">Age:</label>
-          <input type="number" v-model="profile.age" id="age" />
-        </div>
-        <div class="form-group">
-          <label for="profile_picture">Profile Picture:</label>
-          <input type="file" @change="handleFileUpload" id="profile_picture" />
-        </div>
-        <div class="button-group">
-          <button type="submit" class="btn save">Save Changes</button>
-          <button type="button" @click="cancelEdit" class="btn cancel">Cancel</button>
-        </div>
-      </form>
-
-      <!-- 여기까지 -->
-
-
-
-<!-- 
         <form @submit.prevent="updateProfile">
+          <div class="detail-row">
+            <span class="label">Username:</span>
+            <span class="value">{{ profile.username }}</span>
+          </div>
           <div class="form-group">
             <label for="nickname">Nickname:</label>
-            <input type="text" v-model="profile.nickname" id="nickname" maxlength="25"/>
+            <input type="text" v-model="profile.nickname" id="nickname" maxlength="25" />
           </div>
           <div class="form-group">
             <label for="age">Age:</label>
             <input type="number" v-model="profile.age" id="age" />
           </div>
           <div class="form-group">
-            <label for="max_score">Max Score:</label>
-            <input type="number" v-model="profile.max_score" id="max_score" disabled />
+            <label for="profile_picture">Profile Picture:</label>
+            <input type="file" @change="handleFileUpload" id="profile_picture" />
           </div>
           <div class="button-group">
             <button type="submit" class="btn save">Save Changes</button>
             <button type="button" @click="cancelEdit" class="btn cancel">Cancel</button>
           </div>
-        </form> -->
+        </form>
       </div>
       <!-- Profile Details -->
       <div v-else class="profile-details">
@@ -75,7 +46,7 @@
         <div class="detail-row">
           <span class="label">Nickname:</span>
           <span class="value" v-if="profile.nickname">{{ profile.nickname }}</span>
-          <span class="value" v-else>-</span>
+          <span class="nickname-notice" v-else>미설정 시 랭킹 및 게시판에 Username으로 기록됩니다</span>
         </div>
         <div class="detail-row">
           <span class="label">Age:</span>
@@ -222,13 +193,14 @@ onMounted(fetchProfile);
 </script>
 
 <style scoped>
+
 .highlight1 {
-  font-weight: bold;
+  /* font-weight: bold; */
 }
 
 .highlight2 {
   color: #e34949;
-  font-weight: bold;
+  /* font-weight: bold; */
 }
 
 .profile {
@@ -244,6 +216,16 @@ onMounted(fetchProfile);
   overflow: hidden; /* 강제로 스크롤 제거 */
 }
 
+.profile-pic {
+  width: 150px; /* 사진 너비 */
+  height: 150px; /* 사진 높이 */
+  object-fit: cover; /* 사진 비율 유지 */
+  border-radius: 50%; /* 원형으로 만들기 */
+  border: 3px solid #D4EBF8; /* 사진 테두리 색상 */
+  margin-bottom: 20px; /* 아래 여백 */
+}
+
+
 h1 {
   font-size: 2.5rem;
   margin-bottom: 20px;
@@ -252,7 +234,7 @@ h1 {
 
 .form-container,
 .profile-details {
-  z-index: 1; /* 도형보다 위에 표시 */
+  z-index: 1;
   background-color: #ffffff; /* 카드 배경 흰색 */
   color: #000000; /* 텍스트 색상 */
   padding: 20px;
@@ -310,6 +292,12 @@ h1 {
 .detail-row .value {
   text-align: right;
   color: #333333; /* 상세 보기 값 색상 */
+}
+
+.detail-row .nickname-notice{
+  text-align: right;
+  font-size: 0.8rem; /* 적절한 크기 */
+  color: #33333356; /* 상세 보기 값 색상 */
 }
 
 .button-group {

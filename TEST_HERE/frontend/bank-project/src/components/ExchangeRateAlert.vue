@@ -30,7 +30,7 @@
       </select>
       <br>
       <div class="target-rate">
-        <label for="rate-input">목표 환율:</label>
+        <label for="rate-input">목표 환율 : </label>
         <input id="rate-input" v-model="targetRate" type="number" class="input" :placeholder="placeholderText" />
         <button type="submit" class="button">알림 설정</button>
       </div>
@@ -225,6 +225,7 @@ const fetchExchangeRate = async () => {
 }
 
 .rate-card {
+  color: #000;
   background: #f9fbff;
   font-weight: bold;
   padding: 20px;
@@ -241,4 +242,7 @@ const fetchExchangeRate = async () => {
   margin-top: 10px;
 }
 
+.target-rate{
+  color:#000
+}
 </style>

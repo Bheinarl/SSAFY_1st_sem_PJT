@@ -240,7 +240,6 @@ onMounted(fetchProfile);
   background-color: #1F509A; /* 배경색 */
   color: #fff; /* 텍스트 색상 */
   text-align: center;
-  font-family: 'Arial', sans-serif;
   height: calc(100vh - 55px); /* Navbar 높이를 뺀 값 */
   overflow: hidden; /* 강제로 스크롤 제거 */
 }

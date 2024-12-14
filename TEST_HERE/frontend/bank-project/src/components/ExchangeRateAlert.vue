@@ -132,7 +132,6 @@ const fetchExchangeRate = async () => {
   background: #ffffff; /* 흰색 배경 */
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* 그림자 강조 */
-  font-family: 'Arial', sans-serif;
   border: 2px solid #004aad; /* 테두리 추가 */
 }
 

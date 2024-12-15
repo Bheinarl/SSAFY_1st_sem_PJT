@@ -710,8 +710,8 @@ function restartGame() {
  location.reload();  // 새로고침
 }
 
-function goToExchangeRateCalculator() {
-  router.push('/exchange-rate-alert');  // finances 페이지로 이동
+function goFinanceRecommend() {
+  router.push('/finances');  // finances 페이지로 이동
 }
 
 function goToLeaderboard() {

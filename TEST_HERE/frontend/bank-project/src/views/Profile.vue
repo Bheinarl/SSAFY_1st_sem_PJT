@@ -25,7 +25,7 @@
           </div>
           <div class="form-group">
             <label for="profile_picture">Profile Picture:</label>
-            <input type="file" @change="handleFileUpload" id="profile_picture" />
+            <input type="file" @change="handleFileUpload" id="profile_picture" class="inputfile"/>
           </div>
           <div class="form-group">
             <label for="email">Email:</label>
@@ -258,6 +258,8 @@ h1 {
   align-items: center;
   gap: 10px; /* 레이블과 입력 필드 간격 */
   margin : 15px;
+  position: relative;
+  overflow: hidden; /* 부모 요소를 넘지 않게 */
 }
 
 .form-group label {
@@ -283,7 +285,17 @@ h1 {
   border-color: #E38E49; /* 포커스 상태 테두리 색상 */
 }
 
-
+/* 파일 입력 필드의 크기와 여백 조정 */
+.form-group input[type="file"] {
+  display: block; /* 한 줄에 표시 */
+  width: 100%; /* 부모 컨테이너에 맞춤 */
+  height: 35px; /* 입력 필드 높이 지정 */
+  border: 1px solid #D4EBF8; /* 테두리 색상 */
+  box-sizing: border-box; /* 패딩 포함 크기 계산 */
+  margin: 0;
+  padding: 5px; /* 내부 여백 */
+  font-size: 0.9rem; /* 글꼴 크기 */
+}
 
 .detail-row {
   display: flex;

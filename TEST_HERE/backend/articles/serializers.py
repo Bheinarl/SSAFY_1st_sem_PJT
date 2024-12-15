@@ -22,7 +22,7 @@ class PostSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
     def get_author_profile_picture(self, obj):
-        request = self.context.get('request')  # 요청 객체 가져오기
+        request = self.context.get('request', None)  # 요청 객체 가져오기
         if obj.author.profile_picture:
             return request.build_absolute_uri(obj.author.profile_picture.url)
         return request.build_absolute_uri('/static/images/default-user.png')

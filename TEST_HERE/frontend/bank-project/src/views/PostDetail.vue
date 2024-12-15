@@ -5,7 +5,10 @@
   <div class="post-detail-container">
     <h1 class="post-title">{{ post.title }}</h1>
     <p class="post-meta">
-      <span class="post-author">작성자: {{ post.author }}</span>
+      <div class="post-author">
+        <img :src="post.author_profile_picture" alt="Author's profile picture" class="author-profile-pic" @error="handleImageError" />
+        <span>작성자: {{ post.author }}</span>
+      </div>
       <span class="post-likes">좋아요: {{ post.likes }}</span>
     </p>
     <p class="post-content">{{ post.content }}</p>
@@ -147,6 +150,11 @@ const toggleLike = async () => {
   }
 };
 
+const handleImageError = (event) => {
+  console.log("Image failed to load:", event.target.src);  // 이미지 URL 출력
+  event.target.src = '/static/images/default-user.png';   // 이미지가 없을 경우 기본 이미지로 대체
+};
+
 // 컴포넌트가 마운트되면 게시글 로드
 onMounted(() => {
   loadCurrentUser();  // 로그인된 사용자 정보 로드
@@ -263,5 +271,15 @@ onMounted(() => {
 
 .back-link:hover {
   text-decoration: underline;
+}
+
+/* 프로필 사진 */
+.author-profile-pic {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%; /* 원형 */
+  object-fit: cover; /* 비율 유지 및 잘림 */
+  margin-right: 8px; /* 텍스트와 간격 */
+  vertical-align: middle; /* 텍스트와 정렬 */
 }
 </style>

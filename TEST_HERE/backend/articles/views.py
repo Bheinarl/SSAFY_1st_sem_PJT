@@ -40,7 +40,7 @@ def post_create(request):
 @permission_classes([IsAuthenticated])
 def post_detail(request, post_id):
     post = get_object_or_404(Post, id=post_id)  # 해당 id의 게시글이 없으면 404 에러
-    serializer = PostSerializer(post)
+    serializer = PostSerializer(post , context={'request': request})
     return Response(serializer.data)
 
 # 게시글 수정

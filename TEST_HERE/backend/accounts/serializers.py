@@ -40,10 +40,11 @@ class CustomUserDetailsSerializer(serializers.ModelSerializer):  # UserDetailsSe
     username = serializers.CharField(read_only=True)  # username 필드를 읽기 전용으로 설정
     max_score = serializers.IntegerField(read_only=True)  # max_score 필드를 읽기 전용으로 설정
     profile_picture = serializers.SerializerMethodField()  # URL로 반환
+    email = serializers.EmailField(required=True)
 
     class Meta:
         model = CustomUser
-        fields = ('username', 'nickname', 'age','my_investor_type', 'max_score','profile_picture')  # 필요한 필드를 직접 지정
+        fields = ('username', 'nickname', 'age','my_investor_type', 'max_score','profile_picture', 'email')  # 필요한 필드를 직접 지정
 
     def validate_nickname(self, value):  # nickname 필드에 대한 유효성 검사
         if len(value) > 25:  # 최대 글자수 제한

@@ -27,6 +27,10 @@
             <label for="profile_picture">Profile Picture:</label>
             <input type="file" @change="handleFileUpload" id="profile_picture" />
           </div>
+          <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" v-model="profile.email" id="email" placeholder="Enter your email" required>
+          </div>
           <div class="button-group">
             <button type="submit" class="btn save">Save Changes</button>
             <button type="button" @click="cancelEdit" class="btn cancel">Cancel</button>
@@ -65,6 +69,11 @@
           <span class="label">Max Score:</span>
           <span class="value">{{ profile.max_score }}</span>
         </div>
+        <div class="detail-row">
+          <span class="label">Email:</span>
+          <span class="value">{{ profile.email }}</span>
+        </div>
+
         <button @click="enableEdit" class="btn edit">Edit Profile</button>
       </div>
     </div>
@@ -83,6 +92,7 @@ const profile = ref({
   my_investor_type: '',
   max_score: 0,
   profile_picture: '', // 프로필 사진 URL
+  email: '',
 });
 const defaultProfileImage = 'http://127.0.0.1:8000/static/images/default-user.png';
 
@@ -133,6 +143,7 @@ const updateProfile = async () => {
   const formData = new FormData();
   formData.append('nickname', profile.value.nickname);
   formData.append('age', profile.value.age);
+  formData.append('email', profile.value.email);
 
   // 사용자가 파일을 선택했을 경우만 추가
   console.log(profilePicture.value)

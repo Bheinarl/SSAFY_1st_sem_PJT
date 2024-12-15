@@ -16,7 +16,7 @@ from rest_framework.response import Response
 def post_list(request):
     if request.method == 'GET':
         posts = Post.objects.all().order_by('-created_at')  # 모든 게시글 조회
-        serializer = PostSerializer(posts, many=True)  
+        serializer = PostSerializer(posts, many=True, context={'request': request})  # context 전달
         return JsonResponse(serializer.data, safe=False)
 
 # 게시글 작성

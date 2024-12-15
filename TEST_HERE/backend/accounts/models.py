@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 
+from PIL import Image
 
 class CurrencyAlert(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)  # 유저가 삭제되면 알람도 삭제

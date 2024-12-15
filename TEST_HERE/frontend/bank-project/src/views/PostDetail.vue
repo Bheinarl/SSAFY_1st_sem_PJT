@@ -4,13 +4,13 @@
   </header>
   <div class="post-detail-container">
     <h1 class="post-title">{{ post.title }}</h1>
-    <p class="post-meta">
+    <div class="post-meta">
       <div class="post-author">
-        <img :src="post.author_profile_picture" alt="Author's profile picture" class="author-profile-pic" @error="handleImageError" />
+        <img :src="post.author_profile_picture" alt="Author's profile picture" class="author-profile-pic2" @error="handleImageError" />
         <span>작성자: {{ post.author }}</span>
       </div>
       <span class="post-likes">좋아요: {{ post.likes }}</span>
-    </p>
+    </div>
     <p class="post-content">{{ post.content }}</p>
 
     <div class="button-group">
@@ -19,7 +19,21 @@
       </button>
       <button v-if="isAuthor"@click="deletePost" class="delete-button">삭제</button>
       <button v-if="isAuthor"@click="editPost" class="edit-button">수정</button>
-      
+    </div>
+
+    <div class="comments-section">
+      <h3>댓글</h3>
+      <ul>
+        <li v-for="comment in comments" :key="comment.id">
+          <img :src="comment.author_profile_picture" alt="Author's profile picture" class="author-profile-pic2" @error="handleImageError" />          <p><strong>{{ comment.author }}</strong>: {{ comment.content }}</p>
+        </li>
+      </ul>
+
+      <!-- 댓글 작성 폼 -->
+      <div class="comment-form">
+        <textarea v-model="newComment" placeholder="댓글을 입력하세요"></textarea>
+        <button @click="submitComment(post.id)">댓글 작성</button>
+      </div>
     </div>
 
     <router-link to="/posts" class="back-link">뒤로가기</router-link>
@@ -31,6 +45,7 @@
 import Navbar from '@/components/Navbar.vue';
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import axios from 'axios'
 
 const route = useRoute();
 const router = useRouter();
@@ -41,6 +56,10 @@ const currentUser = ref(localStorage.getItem('username')); // 현재 사용자
 // 작성자 확인
 const isAuthor = ref(false);
 const isLiked = ref(false);
+
+// 댓글
+const comments = ref([]);
+const newComment = ref('');
 
 // 데이터 로드
 const loadPost = async () => {
@@ -102,6 +121,32 @@ const loadCurrentUser = async () => {
   }
 };
 
+const fetchComments = async (postId) => {
+  try {
+    const response = await axios.get(
+      `http://127.0.0.1:8000/api/posts/${postId}/comments/`,
+      { headers: { Authorization: `Token ${localStorage.getItem('token')}` } }
+    );
+    comments.value = response.data;
+  } catch (error) {
+    console.error('Error fetching comments:', error);
+  }
+};
+
+const submitComment = async (postId) => {
+  try {
+    const response = await axios.post(
+      `http://127.0.0.1:8000/api/posts/${postId}/comments/create/`,
+      { content: newComment.value },
+      { headers: { Authorization: `Token ${localStorage.getItem('token')}` } }
+    );
+    comments.value.push(response.data);
+    newComment.value = '';
+  } catch (error) {
+    console.error('Error creating comment:', error);
+  }
+};
+
 // 게시글 삭제 함수
 const deletePost = async () => {
   try {
@@ -158,6 +203,7 @@ const handleImageError = (event) => {
 // 컴포넌트가 마운트되면 게시글 로드
 onMounted(() => {
   loadCurrentUser();  // 로그인된 사용자 정보 로드
+  fetchComments(route.params.id);  // 댓글 불러오기
 });
 </script>
 
@@ -274,7 +320,7 @@ onMounted(() => {
 }
 
 /* 프로필 사진 */
-.author-profile-pic {
+.author-profile-pic2 {
   width: 30px;
   height: 30px;
   border-radius: 50%; /* 원형 */
@@ -282,4 +328,46 @@ onMounted(() => {
   margin-right: 8px; /* 텍스트와 간격 */
   vertical-align: middle; /* 텍스트와 정렬 */
 }
+
+/* 댓글 */
+
+.comments-section {
+  margin-top: 20px;
+}
+
+.comments-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.comments-section li {
+  border-bottom: 1px solid #ccc;
+  padding: 10px 0;
+}
+
+.comment-form textarea {
+  width: 100%;
+  height: 80px;
+  margin-top: 10px;
+  padding: 10px;
+  box-sizing: border-box;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.comment-form button {
+  margin-top: 10px;
+  padding: 8px 15px;
+  background-color: #004aad;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.comment-form button:hover {
+  background-color: #00337c;
+}
+
+
 </style>

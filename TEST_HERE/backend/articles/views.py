@@ -1,5 +1,5 @@
 from .models import Post
-from .serializers import PostSerializer
+from .serializers import PostSerializer, CommentSerializer
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 import json
@@ -87,3 +87,23 @@ def post_like(request, post_id):
     post.liked_users.add(user)  # 좋아요 추가 (좋아요 누른 사용자에 추가)
     post.save()
     return Response({"message": "좋아요가 추가되었습니다."}, status=status.HTTP_200_OK)
+
+
+# 댓글 기능
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def comment_create(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    serializer = CommentSerializer(data=request.data, context={'request': request})
+    if serializer.is_valid():
+        serializer.save(post=post, author=request.user)  # 댓글 작성자와 게시물 설정
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])  # 인증된 사용자만 접근 가능
+def comment_list(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    comments = post.comments.all()  # 게시물에 속한 모든 댓글
+    serializer = CommentSerializer(comments, many=True, context={'request': request})
+    return Response(serializer.data)

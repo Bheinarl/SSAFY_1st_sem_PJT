@@ -1,5 +1,20 @@
 from rest_framework import serializers
-from .models import Post
+from .models import Post, Comment
+
+class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.StringRelatedField()  # 댓글 작성자 이름 표시
+    author_profile_picture = serializers.SerializerMethodField()  # 작성자 프로필 사진 표시
+
+    class Meta:
+        model = Comment
+        fields = ['id', 'author', 'author_profile_picture', 'content', 'created_at']
+
+    def get_author_profile_picture(self, obj):
+        request = self.context.get('request', None)
+        if obj.author.profile_picture and request:
+            return request.build_absolute_uri(obj.author.profile_picture.url)
+        return request.build_absolute_uri('/static/images/default-user.png')  # 기본 이미지 URL 반환
+
 
 class PostSerializer(serializers.ModelSerializer):
     author = serializers.StringRelatedField()  # 작성자 이름 표시

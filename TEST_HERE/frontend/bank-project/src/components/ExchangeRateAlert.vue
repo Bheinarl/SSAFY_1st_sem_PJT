@@ -1,5 +1,5 @@
 <template>
-  <header> <Navbar /> </header>
+  <!-- <header> <Navbar /> </header> -->
   <div class="exchange-container">
     <h2 class="title">환율 알림 설정</h2>
     <form @submit.prevent="setAlert" class="alert-form">
@@ -30,7 +30,7 @@
       </select>
       <br>
       <div class="target-rate">
-        <label for="rate-input">목표 환율:</label>
+        <label for="rate-input">목표 환율 : </label>
         <input id="rate-input" v-model="targetRate" type="number" class="input" :placeholder="placeholderText" />
         <button type="submit" class="button">알림 설정</button>
       </div>
@@ -132,7 +132,6 @@ const fetchExchangeRate = async () => {
   background: #ffffff; /* 흰색 배경 */
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* 그림자 강조 */
-  font-family: 'Arial', sans-serif;
   border: 2px solid #004aad; /* 테두리 추가 */
 }
 
@@ -226,6 +225,7 @@ const fetchExchangeRate = async () => {
 }
 
 .rate-card {
+  color: #000;
   background: #f9fbff;
   font-weight: bold;
   padding: 20px;
@@ -242,4 +242,7 @@ const fetchExchangeRate = async () => {
   margin-top: 10px;
 }
 
+.target-rate{
+  color:#000
+}
 </style>

@@ -5,7 +5,20 @@
   <div class="leaderboard-container">
     <div class="leaderboard-header">
       <h1>🏆 랭킹 보드 🏆</h1>
-      <h6 id="notice">초기 Nickname 미설정 시 Username으로 기록됩니다!</h6>
+      <!-- <h6 id="notice">
+        📢 이벤트 안내 (2024.12.16 00:00 ~ 2024.12.23 23:59)<br>
+        🎁 1위에게는 특별 기프티콘 증정!<br>
+        🎉 추첨을 통해 추가 1인에게 기프티콘을 드립니다!<br>
+        📨 당첨자는 이메일로 개별 안내드립니다.<br>
+        많은 참여 부탁드립니다! 😊
+      </h6> -->
+
+      <div class="notice-container">
+        <div class="notice-text">
+          📢 이벤트 안내 (2024.12.16 00:00 ~ 2024.12.23 23:59) 🎁 1위에게는 특별 기프티콘 증정! 🎉 추첨을 통해 추가 1인에게 기프티콘을 드립니다! 📨 당첨자는 이메일로 개별 안내드립니다. 많은 참여 부탁드립니다! 😊
+        </div>
+      </div>
+
     </div>
 
     <!-- 상위 3명 -->
@@ -192,12 +205,12 @@ onMounted(fetchLeaderboard);
 /* 컨테이너 */
 .leaderboard-container {
   padding: 20px;
-  max-width: 900px;
-  margin: auto;
+  width: 800px;
+  margin: 10Px auto;
   background-color: #f4f9ff;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  font-family: "Arial", sans-serif;
+  overflow-y: auto; /* 스크롤 추가 */
 }
 
 /* 헤더 */
@@ -210,7 +223,8 @@ onMounted(fetchLeaderboard);
 }
 
 .leaderboard-header h6 {
-  text-align: center;
+  margin-left: 20%;
+  text-align: left;
   font-size: 0.9rem;
   color: #e38e49;
 }
@@ -283,67 +297,19 @@ h3 {
 }
 
 
-/* 컨테이너 */
-.leaderboard-container {
-  padding: 20px;
-  max-width: 900px;
-  margin: 20px auto;
-  background-color: #f4f9ff;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  font-family: "Arial", sans-serif;
-}
-
-/* 헤더 */
-.leaderboard-header h1 {
-  font-size: 2rem;
-  font-weight: bold;
-  color: #004aad;
-  text-align: center;
-  margin-bottom: 15px;
-}
-
-.leaderboard-header h6 {
-  text-align: center;
-  font-size: 0.9rem;
-  color: #e38e49;
-}
-
-/* 상위 3명 */
-.top-three-section {
-  background-color: #f0f4ff;
-  padding: 15px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-}
-
-.top-three-section ul {
-  list-style: none;
-  padding: 0;
-}
-
-.top-three-section li {
-  font-size: 1rem;
-  margin: 5px 0;
-  color: #333;
-}
-
-.top-rank {
-  font-weight: bold;
-  color: #e38e49;
-}
-
 /* 표 */
 .leaderboard-table {
   width: 100%;
   border-collapse: collapse;
   background-color: #fff;
+  text-align: center; /* 헤더와 본문 모두 가운데 정렬 */
 }
 
 .leaderboard-table th {
   background-color: #004aad;
   color: white;
   padding: 10px;
+  text-align: center; /* 헤더와 본문 모두 가운데 정렬 */
 }
 
 .leaderboard-table td {
@@ -388,4 +354,36 @@ h3 {
   font-weight: bold;
   color: #333;
 }
+
+
+
+
+@keyframes scrollText {
+  0% {
+    transform: translateX(100%); /* 텍스트가 오른쪽 밖에서 시작 */
+  }
+  100% {
+    transform: translateX(-100%); /* 텍스트가 왼쪽 밖으로 나감 */
+  }
+}
+
+.notice-container {
+  overflow: hidden; /* 텍스트가 컨테이너 밖으로 나가지 않도록 설정 */
+  white-space: nowrap; /* 텍스트가 줄바꿈되지 않도록 설정 */
+  box-sizing: border-box; /* 패딩 포함 크기 계산 */
+  border: 1px solid #e38e49; /* 경계선 추가 */
+  padding: 10px;
+  background-color: #fff; /* 배경 흰색 */
+  border-radius: 5px;
+  margin-bottom: 15px;
+}
+
+.notice-text {
+  display: inline-block; /* 애니메이션에 필요한 인라인 블록 설정 */
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: #e38e49;
+  animation: scrollText 15s linear infinite; /* 10초 동안 텍스트가 한 번 흐르고 반복 */
+}
+
 </style>

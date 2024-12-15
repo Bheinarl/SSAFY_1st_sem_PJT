@@ -145,7 +145,6 @@ button {
   background-color: #1F509A; /* 메인 배경색 */
   color: #fff;
   text-align: center;
-  font-family: 'Arial', sans-serif;
   overflow: hidden;
 }
 

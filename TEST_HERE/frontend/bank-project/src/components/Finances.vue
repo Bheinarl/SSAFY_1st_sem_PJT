@@ -450,8 +450,8 @@ const searchInMap = (keyword) => {
   padding: 20px;
   background-color: #1F509A; /* 메인 배경색 */
   color: #fff; /* 기본 텍스트 색상 */
-  font-family: 'Arial', sans-serif;
-  min-height: 100vh;
+  height: 100vh; /* 화면 높이 고정 */
+  overflow-y: auto; /* 세로 스크롤 활성화 */
 }
 
 .top-section {

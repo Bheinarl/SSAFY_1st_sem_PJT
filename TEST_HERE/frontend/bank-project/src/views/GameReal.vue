@@ -1,52 +1,59 @@
 <template>
-  <header> 
+  <header>
     <Navbar />
   </header>
   <div class="game-container">
+
     <!-- Sidebar Section -->
     <aside class="sidebar">
-      <h2 class="game-title">모의 투자 게임📈📉</h2>
-      <h6>시드머니 천만원이 나에게 주어진다면?</h6> <!-- 이거 h6도 통일성 있게 이쁘게 해줘 gpt야!!!!!!!!!!! -->
-
+      <div>
+        <h2 class="game-title">모의 투자 게임📈📉</h2>
+        <h6>1000만원이 실제로 주어진다면? <br>  
+          10일 동안 현실처럼 투자해보세요! <br>  
+          당신의 투자 방식이 맞춤형 금융 추천으로 이어집니다!</h6>
+      </div>
       <!-- Day Counter -->
       <div class="day-container">
-          <div v-if="currentDay < 11" class="progress-container">
-            <div class="day-counter" >
+        
+        <!-- 10일 진행 중-->
+        <div v-if="currentDay < 11" class="progress-container">
+          <div class="day-counter">
             <p class="dayyy" v-if="currentDay < 11">Day <span>{{ currentDay }}</span> / 10</p>
             <p class="dayyy" v-else>Day <span>10</span> / 10</p>
           </div>
           <div class="progress-bar">
-            <div v-if="currentDay < 11"class="progress":style="{ width: (currentDay / 10) * 100 + '%' }"></div>
-            <div v-elseclass="progress":style="{ width: 100 + '%' }"></div>
+            <div v-if="currentDay < 11" class="progress" :style="{ width: (currentDay / 10) * 100 + '%' }"></div>
+            <div v-else class="progress" :style="{ width: 100 + '%' }"></div>
           </div>
-          <br>
+          <br />
 
-          <button v-if="currentDay < 11" @click="nextDay"class="btn next-day-btn">다음 날로</button>
+          <button v-if="currentDay < 11" @click="nextDay" class="next-day-btn">다음 날로 넘어가기 ⏩</button>
         </div>
 
         <!-- Final Results -->
-        <div v-if="currentDay > 10" class="final-results">
-          <div class="result-item">💰최종 자산: <span>₩{{ finalTotalValue }}</span></div>
-          <div class="result-item">👤투자자 유형:
-            <span>{{ investorType }}</span>
-            <!-- 😌🧐😏🤑 -->
-            <span v-if="investorType ==='안정 추구형'">😌</span>
-            <span v-if="investorType ==='균형 투자형'">🧐</span>
-            <span v-if="investorType ==='공격 투자형'">😏</span>
-            <span v-if="investorType ==='투기형'">🤑</span>
-          </div>
-          <div class="result-item">
-            📆실제 주식 데이터 기간:
-            <p>{{ startDateValue }} ~ {{ endDateValue }}</p>
+        <div v-else class="final-results">
+          <div>
+            <div class="result-item">
+              💰최종 자산 : <span>₩{{ finalTotalValue }}</span></div>
+            <div class="result-item">👤투자자 유형 :
+              <span>{{ investorType }}</span>
+              <span v-if="investorType === '안정 추구형'">😌</span>
+              <span v-if="investorType === '균형 투자형'">🧐</span>
+              <span v-if="investorType === '공격 투자형'">😏</span>
+              <span v-if="investorType === '투기형'">🤑</span>
+            </div>
+            <div class="result-item">
+              📆실제 주식 데이터 기간:<br>
+              {{ startDateValue }} ~ {{ endDateValue }}
+            </div>
           </div>
           <div class="result-buttons">
-            <button @click="goFinanceRecommend" class="btn recommend-btn">
-              펀드 상품 추천 바로가기
-            </button>
+            <button @click="goFinanceRecommend" class="btn recommend-btn">펀드 상품 추천 바로가기</button>
             <button @click="restartGame" class="btn restart-btn">게임 다시 시작</button>
           </div>
         </div>
-      </div>
+
+      </div> <!--daycontainer-->
 
       <!-- Portfolio Overview -->
       <table class="table portfolio-overview">
@@ -58,23 +65,13 @@
         <tbody>
           <tr>
             <th>전체 수익률</th>
-            <td
-              :class="{
-                'positive': totalEarningRate > 0,
-                'negative': totalEarningRate < 0
-              }"
-            >
+            <td :class="{ 'positive': totalEarningRate > 0, 'negative': totalEarningRate < 0 }">
               {{ totalEarningRate.toFixed(2) }}%
             </td>
           </tr>
           <tr>
             <th>평가 손익</th>
-            <td
-              :class="{
-                'positive': totalEvaluationProfit > 0,
-                'negative': totalEvaluationProfit < 0
-              }"
-            >
+            <td :class="{ 'positive': totalEvaluationProfit > 0, 'negative': totalEvaluationProfit < 0 }">
               {{ totalEvaluationProfit }}
             </td>
           </tr>
@@ -99,75 +96,75 @@
 
       <!-- Additional Buttons -->
       <div class="button-group">
-        <button @click="goToExchangeRateCalculator" class="btn">
+        <!-- <button @click="goToExchangeRateCalculator" class="btn">
           환율 계산기
-        </button>
+        </button> -->
+
+        <!-- 환율 계산기 버튼 -->
+        <button @click="openModal" class="btn primary-btn">환율 계산기 열기🔢</button>
+        <!-- 환율 계산기 모달 -->
+        <Modal :isOpen="isModalOpen" @close="closeModal">
+          <ExchangeRateAlert />
+        </Modal>
+
+
         <button @click="goToLeaderboard" class="btn">
-          랭킹 보기
+          랭킹 보러가기➰
         </button>
       </div>
 
     </aside>
 
-    <!-- Main Content -->
+    <!-- Main Content Section -->
     <section class="main-content">
-
-      <!-- News Section -->
-      <div class="news-section">
-        <h3>뉴스</h3>
-        <ul>
-          <li v-for="(title, index) in newsTitles" :key="index">{{ title }}</li>
-          <h5 v-if="newsTitles.length === 0">해당 날짜의 뉴스를 로딩 중입니다.</h5>
-        </ul>
+      
+      <!-- 뉴스와 차트: 1행 -->
+      <div class="top-section">
+        <div class="news-section">
+          <h3>뉴스</h3>
+          <ul>
+            <li v-for="(title, index) in newsTitles" :key="index">{{ title }}</li>
+            <h5 v-if="newsTitles.length === 0">해당 날짜의 뉴스를 로딩 중입니다.</h5>
+          </ul>
+        </div>
+        <div class="charts-section">
+          <h3>{{selectedStock}} 주식 차트</h3>
+          <canvas id="chart"></canvas>
+        </div>
       </div>
 
-      <!-- Chart Section -->
-      <div class="charts-section">
-        <canvas id="chart"></canvas>
-      </div>
-
-      <!-- Trading and Portfolio Section -->
-      <div class="trade-and-holdings">
-        <!-- Trading Panel -->
+      <!-- 주식 거래 창과 보유 종목: 2행 -->
+      <div class="bottom-section">
         <div class="trading-panel">
           <h3>주식 거래</h3>
           <select v-model="selectedStock" @change="updateStockUrl">
-            <option v-for="stock in Object.keys(stockData)" :key="stock" :value="stock">
-              {{ stock }}
-            </option>
+            <option v-for="stock in Object.keys(stockData)" :key="stock" :value="stock">{{ stock }}</option>
           </select>
           <p>
-              현재가: ₩
-              <span>{{ currentPrice }}
-                <span v-if="beforePrice > 0" class="positive">▲ {{ beforePrice }}</span>
-                <span v-if="beforePrice === 0">---</span>
-                <span v-if="beforePrice < 0" class="negative">▼ {{ -beforePrice }}</span>
-              </span>
+            현재가: ₩
+            <span>
+              {{ currentPrice }}
+              <span v-if="beforePrice > 0" class="positive">▲ {{ beforePrice }}</span>
+              <span v-if="beforePrice === 0">---</span>
+              <span v-if="beforePrice < 0" class="negative">▼ {{ -beforePrice }}</span>
+            </span>
           </p>
           <p v-if="currentDay < 11">최대 매수 가능 수량: {{ maxBuyableShares }}</p>
-          <p v-if="currentDay < 11">최대 매도 가능 수량: {{ maxSellableShares  || 0 }}</p>
-          <input
-            type="number"
-            v-model.number="tradeVolume"
-            @input="validateInput"
-            placeholder="수량 입력"
-          />
+          <p v-if="currentDay < 11">최대 매도 가능 수량: {{ maxSellableShares || 0 }}</p>
+          <input type="number" v-model.number="tradeVolume" @input="validateInput" placeholder="수량 입력" />
           <div class="button-group2">
             <button @click="executeTrade('buy')" class="buy-btn">매수(BUY)</button>
             <button @click="executeTrade('sell')" class="sell-btn">매도(SELL)</button>
           </div>
         </div>
-
-        <!-- Portfolio Section -->
         <div class="portfolio">
           <h3>보유 종목</h3>
           <table class="table">
-
             <thead>
               <tr>
-                <th>종목</th>
+                <th class="wide-column">종목</th>
                 <th>전날 대비</th>
-                <th>보유량</th>
+                <th class="narrow-column">보유량</th>
                 <th>매입 단가</th>
                 <th>평가 금액</th>
                 <th>평가 손익</th>
@@ -175,26 +172,38 @@
               </tr>
             </thead>
 
+
             <tbody>
               <template v-for="key in Object.keys(portfolio)" :key="key">
-                  <tr v-if="totalQuantity[key] !== 0">
-                    <td>{{ key }}</td>
-                    <td><span v-if="keyBeforePrice[key] > 0" class="positive">▲{{ keyBeforePrice[key] }}</span><span v-if="keyBeforePrice[key] === 0">--</span><span v-if="keyBeforePrice[key] < 0" class="negative">▼{{ -keyBeforePrice[key] }}</span></td>
-                    <td>{{ totalQuantity[key] }}</td>
-                    <td>{{ purchasePrice[key].toFixed(0) }}</td>
-                    <td>{{ evaluationPrice[key].toFixed(0) }}</td>
-                    <td :class="{'positive': evaluationProfit[key] > 0, 'negative': evaluationProfit[key] < 0}">{{ evaluationProfit[key].toFixed(0) }}</td>
-                    <td :class="{'positive': earningRate[key] > 0, 'negative': earningRate[key] < 0}">{{ earningRate[key].toFixed(2) }}</td>
-                  </tr>
+                <tr v-if="totalQuantity[key] !== 0" @click="selectStock(key)" class="clickable-row">
+                  <td>{{ key }}</td>
+                  <td>
+                    <span v-if="keyBeforePrice[key] > 0" class="positive">▲{{ keyBeforePrice[key] }}</span>
+                    <span v-if="keyBeforePrice[key] === 0">--</span>
+                    <span v-if="keyBeforePrice[key] < 0" class="negative">▼{{ -keyBeforePrice[key] }}</span>
+                  </td>
+                  <td>{{ totalQuantity[key] }}</td>
+                  <td>{{ purchasePrice[key].toFixed(0) }}</td>
+                  <td>{{ evaluationPrice[key].toFixed(0) }}</td>
+                  <td :class="{ positive: evaluationProfit[key] > 0, negative: evaluationProfit[key] < 0 }">
+                    {{ evaluationProfit[key].toFixed(0) }}
+                  </td>
+                  <td :class="{ positive: earningRate[key] > 0, negative: earningRate[key] < 0 }">
+                    {{ earningRate[key].toFixed(2) }}
+                  </td>
+                </tr>
               </template>
             </tbody>
-            
+
+
+
           </table>
         </div>
       </div>
     </section>
   </div>
 </template>
+
 
 <script setup>
 /* --------------------------- Imports --------------------------- */
@@ -204,6 +213,9 @@ import { useRouter, RouterView } from 'vue-router';
 import axios from 'axios';
 import Chart from 'chart.js/auto';
 import Navbar from '@/components/Navbar.vue';
+import Modal from "@/components/Modal.vue";
+import ExchangeRateAlert from "@/components/ExchangeRateAlert.vue";
+
 /* --------------------------- State --------------------------- */
 const stockStore = useStockStore();
 const router = useRouter();
@@ -497,6 +509,11 @@ const endDateValue = computed(() =>
 );
 
 /* --------------------------- Functions --------------------------- */
+// 보유 종목 창에서 행 클릭 시 바로 해당 주식 정보 볼 수 있도록 함
+function selectStock(stockName) {
+  selectedStock.value = stockName; // 선택된 종목 업데이트
+}
+
 
 // 랜덤한 시작 날짜 생성
 async function fetchRandomDate() {
@@ -798,6 +815,24 @@ tradeVolume.value = 0;
  
 console.log('tradePattern@@@@@@@@@@@@@@', tradePattern.value);
 } // executeTrade 함수 끝
+
+
+// 모달 관련 시작 -----------------
+// 상태 관리
+const isModalOpen = ref(false);
+
+// 모달 열기
+const openModal = () => {
+  isModalOpen.value = true;
+};
+
+// 모달 닫기
+const closeModal = () => {
+  isModalOpen.value = false;
+};
+// 모달 관련 끝 -----------------
+
+
 </script>
 
 <style scoped>
@@ -810,6 +845,20 @@ console.log('tradePattern@@@@@@@@@@@@@@', tradePattern.value);
   overflow: hidden;
 }
 
+/* 뉴스와 차트를 나란히 배치 */
+.top-section {
+  display: flex;
+  gap: 20px;
+  /* margin-bottom: 20px; */
+}
+
+/* 주식 거래 창과 보유 종목 창을 나란히 배치 */
+.bottom-section {
+  display: flex;
+  gap: 20px;
+}
+
+
 /* 사이드바 */
 .sidebar {
   width: 25%;
@@ -817,13 +866,13 @@ console.log('tradePattern@@@@@@@@@@@@@@', tradePattern.value);
   padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 30px; /* 요소 간 일정한 간격 */
+  gap: 20px; /* 요소 간 일정한 간격 */
   color: white;
   box-sizing: border-box;
   overflow-y: auto;
 }
 .sidebar h6 {
-  font-size: 1.1rem; /* 적절한 크기 */
+  font-size: 0.9rem; /* 적절한 크기 */
   font-weight: 400; /* 중간 정도의 두께 */
   color: #d4ebf8; /* 사이드바와 어울리는 밝은 텍스트 색 */
   text-align: center; /* 텍스트 가운데 정렬 */
@@ -840,7 +889,7 @@ console.log('tradePattern@@@@@@@@@@@@@@', tradePattern.value);
 
 /* Day Counter */
 .dayyy {
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   font-weight: 600;
   text-align: center;
 }
@@ -857,7 +906,7 @@ console.log('tradePattern@@@@@@@@@@@@@@', tradePattern.value);
   height: 10px;
   background-color: #e0e0e0;
   border-radius: 5px;
-  margin-top: 10px; /* Day 텍스트와 막대 사이 간격 */
+  margin-top: 3px; /* Day 텍스트와 막대 사이 간격 */
   overflow: hidden;
 }
 
@@ -870,8 +919,8 @@ console.log('tradePattern@@@@@@@@@@@@@@', tradePattern.value);
 
 .next-day-btn {
   align-self: center;
-  background-color: #ffb172;
-  color: #004aad;
+  background-color: #e38e49;
+  color: #fff;
   border: none;
   border-radius: 6px;
   padding: 10px 20px;
@@ -882,7 +931,7 @@ console.log('tradePattern@@@@@@@@@@@@@@', tradePattern.value);
 }
 
 .next-day-btn:hover {
-  background-color: #e38e49;
+  background-color: #ffb172;
   color: white;
 }
 
@@ -913,11 +962,12 @@ console.log('tradePattern@@@@@@@@@@@@@@', tradePattern.value);
   font-size: 1rem;
 }
 
-/* 버튼 그룹 */
+/* 환율계산기 , 랭킹보기 버튼 그룹 */
 .button-group {
   display: flex;
-  flex-direction: column;
-  gap: 15px;
+  flex-direction: row; /* 버튼을 가로로 배치 */
+  gap: 15px; /* 버튼 간 간격 */
+  justify-content: center; /* 버튼을 가운데 정렬 */
 }
 
 .button-group .btn {
@@ -926,7 +976,7 @@ console.log('tradePattern@@@@@@@@@@@@@@', tradePattern.value);
   color: white;
   border: none;
   border-radius: 6px;
-  font-size: 1rem;
+  font-size: 0.9rem;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
@@ -972,6 +1022,7 @@ console.log('tradePattern@@@@@@@@@@@@@@', tradePattern.value);
   align-items: center;
   width: 100%;
   height: 100%; /* 동일한 높이 적용 */
+  gap: 20px; /* item과 버튼 사이 간격 */
   color: white;
   font-size: 1rem;
 }
@@ -983,7 +1034,7 @@ console.log('tradePattern@@@@@@@@@@@@@@', tradePattern.value);
 .result-buttons {
   display: flex;
   gap: 10px; /* 버튼 간 간격 */
-  margin-top: 15px;
+  /* margin-top: 15px; */
 }
 
 .table {
@@ -993,6 +1044,7 @@ console.log('tradePattern@@@@@@@@@@@@@@', tradePattern.value);
 
 .table th,
 .table td {
+  font-size: 0.9rem;
   padding: 10px;
   border: 1px solid #ddd;
   text-align: center;
@@ -1012,7 +1064,7 @@ console.log('tradePattern@@@@@@@@@@@@@@', tradePattern.value);
   color: white;
   border: none;
   border-radius: 5px;
-  font-size: 1rem;
+  font-size: 0.9rem;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
@@ -1035,6 +1087,7 @@ console.log('tradePattern@@@@@@@@@@@@@@', tradePattern.value);
 
 /* 메인 콘텐츠 */
 .main-content {
+  font-size: 1rem;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -1046,6 +1099,8 @@ console.log('tradePattern@@@@@@@@@@@@@@', tradePattern.value);
 }
 
 .news-section {
+  font-size: 0.9rem;
+  flex : 1;
   width: 100%;
   background-color: #fefefe;
   padding: 20px;
@@ -1054,6 +1109,7 @@ console.log('tradePattern@@@@@@@@@@@@@@', tradePattern.value);
 }
 
 .charts-section {
+  flex : 1;
   background-color: #f0f4ff;
   padding: 20px;
   border-radius: 10px;
@@ -1073,7 +1129,7 @@ console.log('tradePattern@@@@@@@@@@@@@@', tradePattern.value);
 
 /* 개별 섹션 스타일 */
 .trading-panel{
-  flex: 1;
+  /* flex: 1; */
   background-color: #f9fbff; /* 부드러운 흰색 배경 */
   padding: 20px;
   border-radius: 10px;
@@ -1088,6 +1144,7 @@ console.log('tradePattern@@@@@@@@@@@@@@', tradePattern.value);
 /* 주식거래,보유종목 타이틀 스타일 */
 .news-section h3,
 .trading-panel h3,
+.charts-section h3,
 .portfolio h3 {
   font-size: 1.2rem;
   font-weight: bold;
@@ -1177,14 +1234,14 @@ console.log('tradePattern@@@@@@@@@@@@@@', tradePattern.value);
   min-height: 330px; /* 최소 높이 */
 }
 
-/* 테이블 최소 높이 설정 */
+/* 보유 종목 테이블 스타일 */
 .portfolio table {
   width: 100%;
   border-collapse: collapse;
   text-align: center;
   font-size: 0.9rem;
   margin-top: 15px; /* 제목과의 간격 */
-  min-height: 200px; /* 테이블 자체 최소 높이 */
+  table-layout: fixed; /* 각 셀의 너비를 균등하게 */
 }
 
 .portfolio th,
@@ -1199,6 +1256,16 @@ console.log('tradePattern@@@@@@@@@@@@@@', tradePattern.value);
   font-weight: bold;
 }
 
+.portfolio th.wide-column,
+.portfolio td.wide-column {
+  width: 20%; /* 종목 열 너비 */
+}
+
+.portfolio th.narrow-column,
+.portfolio td.narrow-column {
+  width: 10%; /* 보유량 열 너비 */
+}
+
 /* 데이터가 없을 때 */
 .portfolio .no-data {
   text-align: center;
@@ -1206,7 +1273,6 @@ console.log('tradePattern@@@@@@@@@@@@@@', tradePattern.value);
   font-size: 1rem;
   color: #999; /* 회색 텍스트 */
 }
-
 
 .portfolio .positive {
   color: red; /* 상승 표시 */

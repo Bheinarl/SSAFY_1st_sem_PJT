@@ -52,7 +52,6 @@ const login = async () => {
   height: 100vh;
   background-color: #1F509A; /* 메인 배경색 */
   color: #fff; /* 기본 텍스트 색상 */
-  font-family: 'Arial', sans-serif;
   text-align: center;
   overflow: hidden; /* 도형이 화면 밖으로 넘어가지 않도록 */
 }

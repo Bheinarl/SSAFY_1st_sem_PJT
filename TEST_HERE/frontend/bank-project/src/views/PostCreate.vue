@@ -79,7 +79,6 @@ const createPost = async () => {
   background-color: #f9fbff;
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  font-family: 'Arial', sans-serif;
   color: #333;
 }
 

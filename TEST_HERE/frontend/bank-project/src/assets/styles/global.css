@@ -1,11 +1,13 @@
 /* src/assets/styles/global.css */
 header {
+  font-family: 'Paperlogy-8ExtraBold', sans-serif;
   margin: 0;
   padding: 0;
   background-color: #f8f9fa;
 }
 
 nav {
+  font-family: 'Paperlogy-8ExtraBold', sans-serif;
   display: flex;
   justify-content: flex-start;
   padding: 10px 20px;
@@ -14,7 +16,19 @@ nav {
 
 nav a,
 nav button {
+  font-family: 'Paperlogy-8ExtraBold', sans-serif;
   margin-right: 10px;
   color: #007bff;
   text-decoration: none;
+}
+
+@font-face {
+  font-family: 'Paperlogy-8ExtraBold';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-8ExtraBold.woff2') format('woff2');
+  font-weight: 800;
+  font-style: normal;
+}
+
+body {
+  font-family: 'Paperlogy-8ExtraBold', sans-serif;
 }

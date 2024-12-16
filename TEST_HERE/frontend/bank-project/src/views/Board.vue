@@ -41,7 +41,7 @@ const fetchPosts = async () => {
 
 const handleImageError = (event) => {
   console.log("Image failed to load:", event.target.src);  // 이미지 URL 출력
-  event.target.src = '/static/images/default-user.png';   // 이미지가 없을 경우 기본 이미지로 대체
+  event.target.src = '/default-user.png';   // 이미지가 없을 경우 기본 이미지로 대체
 };
 
 // 컴포넌트가 마운트될 때 게시글을 가져옴

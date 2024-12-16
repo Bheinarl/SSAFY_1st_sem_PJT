@@ -24,10 +24,24 @@
     <div class="comments-section">
       <h3>댓글</h3>
       <ul>
-        <li v-for="comment in comments" :key="comment.id">
-          <img :src="comment.author_profile_picture" alt="Author's profile picture" class="author-profile-pic2" @error="handleImageError" />          <p><strong>{{ comment.author }}</strong>: {{ comment.content }}</p>
+        <li v-for="comment in comments" :key="comment.id" class="comment-item">
+          <img :src="comment.author_profile_picture" alt="Author's profile picture" class="author-profile-pic2" @error="handleImageError" />
+          <div class="comment-content">
+            <p><strong>{{ comment.author }}</strong>: {{ comment.content }}</p>
+          </div>
+
+          <div v-if="comment.author_username === currentUser" class="comment-actions">
+            <button @click="editComment(comment)" class="btn edit">수정</button>
+            <button @click="deleteComment(comment.id)" class="btn delete">삭제</button>
+          </div>
+          <div v-if="editingComment === comment.id" class="comment-edit-form">
+            <textarea v-model="editingContent" placeholder="댓글을 수정하세요"></textarea>
+            <button @click="submitEditComment">수정 완료</button>
+            <button @click="cancelEditComment">취소</button>
+          </div>
         </li>
       </ul>
+      
 
       <!-- 댓글 작성 폼 -->
       <div class="comment-form">
@@ -51,7 +65,7 @@ const route = useRoute();
 const router = useRouter();
 
 const post = ref({});
-const currentUser = ref(localStorage.getItem('username')); // 현재 사용자
+const currentUser = ref(localStorage.getItem('username')?.trim());
 
 // 작성자 확인
 const isAuthor = ref(false);
@@ -60,6 +74,9 @@ const isLiked = ref(false);
 // 댓글
 const comments = ref([]);
 const newComment = ref('');
+
+const editingComment = ref(null); // 현재 수정 중인 댓글 ID
+const editingContent = ref('');   // 수정할 댓글 내용
 
 // 데이터 로드
 const loadPost = async () => {
@@ -147,6 +164,51 @@ const submitComment = async (postId) => {
   }
 };
 
+// 댓글 삭제 함수
+const deleteComment = async (commentId) => {
+  try {
+    await axios.delete(`http://127.0.0.1:8000/api/posts/${post.value.id}/comments/${commentId}/delete/`, {
+      headers: { Authorization: `Token ${localStorage.getItem('token')}` },
+    });
+    comments.value = comments.value.filter(comment => comment.id !== commentId); // 삭제된 댓글 제외
+    alert('댓글이 삭제되었습니다.');
+  } catch (error) {
+    console.error('Error deleting comment:', error.response?.data || error.message);
+  }
+};
+
+// 댓글 수정 활성화
+const editComment = (comment) => {
+  console.log('Editing comment:', comment);
+  editingComment.value = comment.id;
+  editingContent.value = comment.content;
+};
+
+// 수정된 댓글 제출
+const submitEditComment = async () => {
+  try {
+    const response = await axios.put(
+      `http://127.0.0.1:8000/api/posts/${post.value.id}/comments/${editingComment.value}/edit/`,
+      { content: editingContent.value },
+      { headers: { Authorization: `Token ${localStorage.getItem('token')}` } }
+    );
+    // 수정된 댓글 반영
+    const updatedCommentIndex = comments.value.findIndex(comment => comment.id === editingComment.value);
+    comments.value[updatedCommentIndex].content = response.data.content;
+    alert('댓글이 수정되었습니다.');
+    cancelEditComment();
+  } catch (error) {
+    console.error('Error editing comment:', error.response?.data || error.message);
+  }
+};
+
+// 댓글 수정 취소
+const cancelEditComment = () => {
+  editingComment.value = null;
+  editingContent.value = '';
+};
+
+
 // 게시글 삭제 함수
 const deletePost = async () => {
   try {
@@ -199,6 +261,7 @@ const handleImageError = (event) => {
   console.log("Image failed to load:", event.target.src);  // 이미지 URL 출력
   event.target.src = '/static/images/default-user.png';   // 이미지가 없을 경우 기본 이미지로 대체
 };
+
 
 // 컴포넌트가 마운트되면 게시글 로드
 onMounted(() => {
@@ -370,4 +433,53 @@ onMounted(() => {
 }
 
 
+.comment-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.comment-actions .btn {
+  padding: 5px 10px;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.comment-actions .edit {
+  background-color: #ffc107;
+  color: white;
+}
+
+.comment-actions .delete {
+  background-color: #dc3545;
+  color: white;
+}
+
+.comment-edit-form {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.comment-edit-form textarea {
+  width: 100%;
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+}
+
+.comment-edit-form button {
+  padding: 8px 10px;
+  border: none;
+  border-radius: 5px;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+}
+
+.comment-edit-form button:hover {
+  background-color: #0056b3;
+}
 </style>

@@ -3,11 +3,15 @@ from .models import Post, Comment
 
 class CommentSerializer(serializers.ModelSerializer):
     author = serializers.StringRelatedField()  # 댓글 작성자 이름 표시
+    author_username = serializers.SerializerMethodField()  # 댓글 작성자의 username
     author_profile_picture = serializers.SerializerMethodField()  # 작성자 프로필 사진 표시
 
     class Meta:
         model = Comment
-        fields = ['id', 'author', 'author_profile_picture', 'content', 'created_at']
+        fields = ['id', 'author', 'author_username', 'author_profile_picture', 'content', 'created_at']
+    
+    def get_author_username(self, obj):
+        return obj.author.username
 
     def get_author_profile_picture(self, obj):
         request = self.context.get('request', None)

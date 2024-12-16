@@ -107,7 +107,7 @@ const loadPost = async () => {
 
     // 사용자가 이미 좋아요를 눌렀는지 확인
     isLiked.value = data.liked_users.includes(currentUser.value);
-    console.log(data.liked_users);
+    console.log(data.liked_users);  
     console.log(currentUser.value);
     console.log(isLiked.value);
 
@@ -266,7 +266,7 @@ const toggleLike = async () => {
 
 const handleImageError = (event) => {
   console.log("Image failed to load:", event.target.src);  // 이미지 URL 출력
-  event.target.src = '/static/images/default-user.png';   // 이미지가 없을 경우 기본 이미지로 대체
+  event.target.src = '/default-user.png';   // 이미지가 없을 경우 기본 이미지로 대체
 };
 
 

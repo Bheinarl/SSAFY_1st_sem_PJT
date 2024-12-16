@@ -50,7 +50,7 @@ def post_edit(request, post_id):
     if post.author != request.user:  # 작성자가 아니면 수정 권한 없음
         return Response({"error": "수정 권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
     
-    serializer = PostSerializer(post, data=request.data, partial=True)  # partial=True로 지정하면 일부 필드만 업데이트 가능
+    serializer = PostSerializer(post, data=request.data, partial=True, context={'request': request})  # partial=True로 지정하면 일부 필드만 업데이트 가능
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data)

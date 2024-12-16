@@ -17,8 +17,8 @@
       <button @click="toggleLike" class="like-button">
         {{ isLiked ? '좋아요 취소' : '좋아요' }}
       </button>
-      <button v-if="isAuthor"@click="deletePost" class="delete-button">삭제</button>
       <button v-if="isAuthor"@click="editPost" class="edit-button">수정</button>
+      <button v-if="isAuthor"@click="deletePost" class="delete-button">삭제</button>
     </div>
 
     <div class="comments-section">
@@ -30,7 +30,7 @@
             <p><strong>{{ comment.author }}</strong>: {{ comment.content }}</p>
           </div>
 
-          <div v-if="comment.author_username === currentUser" class="comment-actions">
+          <div v-if="comment.author === currentUser" class="comment-actions">
             <button @click="editComment(comment)" class="btn edit">수정</button>
             <button @click="deleteComment(comment.id)" class="btn delete">삭제</button>
           </div>
@@ -71,6 +71,9 @@ const currentUser = ref(localStorage.getItem('username')?.trim());
 const isAuthor = ref(false);
 const isLiked = ref(false);
 
+console.log('Post Author:', post.value.author);
+console.log('Current User:', currentUser.value);
+
 // 댓글
 const comments = ref([]);
 const newComment = ref('');
@@ -94,9 +97,13 @@ const loadPost = async () => {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const data = await response.json();
+    console.log('API 응답 데이터:', data);  // 디버깅용 출력
     post.value = data;
 
-    isAuthor.value = post.value.author === currentUser.value;  // 작성자 확인
+    if (currentUser.value && post.value.author) {
+      isAuthor.value = post.value.author === currentUser.value;
+      console.log('isAuthor:', isAuthor.value);
+    }
 
     // 사용자가 이미 좋아요를 눌렀는지 확인
     isLiked.value = data.liked_users.includes(currentUser.value);
@@ -130,7 +137,7 @@ const loadCurrentUser = async () => {
     }
 
     const data = await response.json();
-    currentUser.value = data.username;  // 로그인된 사용자 정보 저장
+    currentUser.value = data.nickname;  // 로그인된 사용자 정보 저장
     loadPost();  // 사용자 정보를 불러온 후 게시글을 로드
 
   } catch (error) {
@@ -264,8 +271,9 @@ const handleImageError = (event) => {
 
 
 // 컴포넌트가 마운트되면 게시글 로드
-onMounted(() => {
-  loadCurrentUser();  // 로그인된 사용자 정보 로드
+onMounted(async () => {
+  await loadCurrentUser();  // currentUser를 먼저 로드
+  await loadPost();         // 그 후 post 데이터를 불러옴
   fetchComments(route.params.id);  // 댓글 불러오기
 });
 </script>

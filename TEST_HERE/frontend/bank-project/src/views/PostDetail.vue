@@ -4,19 +4,50 @@
   </header>
   <div class="post-detail-container">
     <h1 class="post-title">{{ post.title }}</h1>
-    <p class="post-meta">
-      <span class="post-author">작성자: {{ post.author }}</span>
+    <div class="post-meta">
+      <div class="post-author">
+        <img :src="post.author_profile_picture" alt="Author's profile picture" class="author-profile-pic2" @error="handleImageError" />
+        <span>작성자: {{ post.author }}</span>
+      </div>
       <span class="post-likes">좋아요: {{ post.likes }}</span>
-    </p>
+    </div>
     <p class="post-content">{{ post.content }}</p>
 
     <div class="button-group">
       <button @click="toggleLike" class="like-button">
         {{ isLiked ? '좋아요 취소' : '좋아요' }}
       </button>
-      <button v-if="isAuthor"@click="deletePost" class="delete-button">삭제</button>
       <button v-if="isAuthor"@click="editPost" class="edit-button">수정</button>
+      <button v-if="isAuthor"@click="deletePost" class="delete-button">삭제</button>
+    </div>
+
+    <div class="comments-section">
+      <h3>댓글</h3>
+      <ul>
+        <li v-for="comment in comments" :key="comment.id" class="comment-item">
+          <img :src="comment.author_profile_picture" alt="Author's profile picture" class="author-profile-pic2" @error="handleImageError" />
+          <div class="comment-content">
+            <p><strong>{{ comment.author }}</strong>: {{ comment.content }}</p>
+          </div>
+
+          <div v-if="comment.author === currentUser" class="comment-actions">
+            <button @click="editComment(comment)" class="btn edit">수정</button>
+            <button @click="deleteComment(comment.id)" class="btn delete">삭제</button>
+          </div>
+          <div v-if="editingComment === comment.id" class="comment-edit-form">
+            <textarea v-model="editingContent" placeholder="댓글을 수정하세요"></textarea>
+            <button @click="submitEditComment">수정 완료</button>
+            <button @click="cancelEditComment">취소</button>
+          </div>
+        </li>
+      </ul>
       
+
+      <!-- 댓글 작성 폼 -->
+      <div class="comment-form">
+        <textarea v-model="newComment" placeholder="댓글을 입력하세요"></textarea>
+        <button @click="submitComment(post.id)">댓글 작성</button>
+      </div>
     </div>
 
     <router-link to="/posts" class="back-link">뒤로가기</router-link>
@@ -28,16 +59,27 @@
 import Navbar from '@/components/Navbar.vue';
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import axios from 'axios'
 
 const route = useRoute();
 const router = useRouter();
 
 const post = ref({});
-const currentUser = ref(localStorage.getItem('username')); // 현재 사용자
+const currentUser = ref(localStorage.getItem('username')?.trim());
 
 // 작성자 확인
 const isAuthor = ref(false);
 const isLiked = ref(false);
+
+console.log('Post Author:', post.value.author);
+console.log('Current User:', currentUser.value);
+
+// 댓글
+const comments = ref([]);
+const newComment = ref('');
+
+const editingComment = ref(null); // 현재 수정 중인 댓글 ID
+const editingContent = ref('');   // 수정할 댓글 내용
 
 // 데이터 로드
 const loadPost = async () => {
@@ -55,9 +97,13 @@ const loadPost = async () => {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const data = await response.json();
+    console.log('API 응답 데이터:', data);  // 디버깅용 출력
     post.value = data;
 
-    isAuthor.value = post.value.author === currentUser.value;  // 작성자 확인
+    if (currentUser.value && post.value.author) {
+      isAuthor.value = post.value.author === currentUser.value;
+      console.log('isAuthor:', isAuthor.value);
+    }
 
     // 사용자가 이미 좋아요를 눌렀는지 확인
     isLiked.value = data.liked_users.includes(currentUser.value);
@@ -91,13 +137,84 @@ const loadCurrentUser = async () => {
     }
 
     const data = await response.json();
-    currentUser.value = data.username;  // 로그인된 사용자 정보 저장
+    currentUser.value = data.nickname;  // 로그인된 사용자 정보 저장
     loadPost();  // 사용자 정보를 불러온 후 게시글을 로드
 
   } catch (error) {
     console.error('사용자 정보를 불러오는 중 오류가 발생했습니다:', error);
   }
 };
+
+const fetchComments = async (postId) => {
+  try {
+    const response = await axios.get(
+      `http://127.0.0.1:8000/api/posts/${postId}/comments/`,
+      { headers: { Authorization: `Token ${localStorage.getItem('token')}` } }
+    );
+    comments.value = response.data;
+  } catch (error) {
+    console.error('Error fetching comments:', error);
+  }
+};
+
+const submitComment = async (postId) => {
+  try {
+    const response = await axios.post(
+      `http://127.0.0.1:8000/api/posts/${postId}/comments/create/`,
+      { content: newComment.value },
+      { headers: { Authorization: `Token ${localStorage.getItem('token')}` } }
+    );
+    comments.value.push(response.data);
+    newComment.value = '';
+  } catch (error) {
+    console.error('Error creating comment:', error);
+  }
+};
+
+// 댓글 삭제 함수
+const deleteComment = async (commentId) => {
+  try {
+    await axios.delete(`http://127.0.0.1:8000/api/posts/${post.value.id}/comments/${commentId}/delete/`, {
+      headers: { Authorization: `Token ${localStorage.getItem('token')}` },
+    });
+    comments.value = comments.value.filter(comment => comment.id !== commentId); // 삭제된 댓글 제외
+    alert('댓글이 삭제되었습니다.');
+  } catch (error) {
+    console.error('Error deleting comment:', error.response?.data || error.message);
+  }
+};
+
+// 댓글 수정 활성화
+const editComment = (comment) => {
+  console.log('Editing comment:', comment);
+  editingComment.value = comment.id;
+  editingContent.value = comment.content;
+};
+
+// 수정된 댓글 제출
+const submitEditComment = async () => {
+  try {
+    const response = await axios.put(
+      `http://127.0.0.1:8000/api/posts/${post.value.id}/comments/${editingComment.value}/edit/`,
+      { content: editingContent.value },
+      { headers: { Authorization: `Token ${localStorage.getItem('token')}` } }
+    );
+    // 수정된 댓글 반영
+    const updatedCommentIndex = comments.value.findIndex(comment => comment.id === editingComment.value);
+    comments.value[updatedCommentIndex].content = response.data.content;
+    alert('댓글이 수정되었습니다.');
+    cancelEditComment();
+  } catch (error) {
+    console.error('Error editing comment:', error.response?.data || error.message);
+  }
+};
+
+// 댓글 수정 취소
+const cancelEditComment = () => {
+  editingComment.value = null;
+  editingContent.value = '';
+};
+
 
 // 게시글 삭제 함수
 const deletePost = async () => {
@@ -147,9 +264,17 @@ const toggleLike = async () => {
   }
 };
 
+const handleImageError = (event) => {
+  console.log("Image failed to load:", event.target.src);  // 이미지 URL 출력
+  event.target.src = '/static/images/default-user.png';   // 이미지가 없을 경우 기본 이미지로 대체
+};
+
+
 // 컴포넌트가 마운트되면 게시글 로드
-onMounted(() => {
-  loadCurrentUser();  // 로그인된 사용자 정보 로드
+onMounted(async () => {
+  await loadCurrentUser();  // currentUser를 먼저 로드
+  await loadPost();         // 그 후 post 데이터를 불러옴
+  fetchComments(route.params.id);  // 댓글 불러오기
 });
 </script>
 
@@ -263,5 +388,106 @@ onMounted(() => {
 
 .back-link:hover {
   text-decoration: underline;
+}
+
+/* 프로필 사진 */
+.author-profile-pic2 {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%; /* 원형 */
+  object-fit: cover; /* 비율 유지 및 잘림 */
+  margin-right: 8px; /* 텍스트와 간격 */
+  vertical-align: middle; /* 텍스트와 정렬 */
+}
+
+/* 댓글 */
+
+.comments-section {
+  margin-top: 20px;
+}
+
+.comments-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.comments-section li {
+  border-bottom: 1px solid #ccc;
+  padding: 10px 0;
+}
+
+.comment-form textarea {
+  width: 100%;
+  height: 80px;
+  margin-top: 10px;
+  padding: 10px;
+  box-sizing: border-box;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.comment-form button {
+  margin-top: 10px;
+  padding: 8px 15px;
+  background-color: #004aad;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.comment-form button:hover {
+  background-color: #00337c;
+}
+
+
+.comment-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.comment-actions .btn {
+  padding: 5px 10px;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.comment-actions .edit {
+  background-color: #ffc107;
+  color: white;
+}
+
+.comment-actions .delete {
+  background-color: #dc3545;
+  color: white;
+}
+
+.comment-edit-form {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.comment-edit-form textarea {
+  width: 100%;
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+}
+
+.comment-edit-form button {
+  padding: 8px 10px;
+  border: none;
+  border-radius: 5px;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+}
+
+.comment-edit-form button:hover {
+  background-color: #0056b3;
 }
 </style>

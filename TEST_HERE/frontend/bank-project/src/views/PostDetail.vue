@@ -6,7 +6,7 @@
     <h1 class="post-title">{{ post.title }}</h1>
     <div class="post-meta">
       <div class="post-author">
-        <img :src="post.author_profile_picture" alt="Author's profile picture" class="author-profile-pic2" @error="handleImageError" />
+        <img :src="post.author_profile_picture || '/default-user.png'" alt="Author's profile picture" class="author-profile-pic2" @error="handleImageError" />
         <span>작성자: {{ post.author }}</span>
       </div>
       <span class="post-likes">좋아요: {{ post.likes }}</span>
@@ -25,7 +25,7 @@
       <h3>댓글</h3>
       <ul>
         <li v-for="comment in comments" :key="comment.id" class="comment-item">
-          <img :src="comment.author_profile_picture" alt="Author's profile picture" class="author-profile-pic2" @error="handleImageError" />
+          <img :src="comment.author_profile_picture || '/default-user.png'" alt="Author's profile picture" class="author-profile-pic2" @error="handleImageError" />
           <div class="comment-content">
             <p><strong>{{ comment.author }}</strong>: {{ comment.content }}</p>
           </div>
@@ -71,9 +71,6 @@ const currentUser = ref(localStorage.getItem('username')?.trim());
 const isAuthor = ref(false);
 const isLiked = ref(false);
 
-console.log('Post Author:', post.value.author);
-console.log('Current User:', currentUser.value);
-
 // 댓글
 const comments = ref([]);
 const newComment = ref('');
@@ -107,9 +104,9 @@ const loadPost = async () => {
 
     // 사용자가 이미 좋아요를 눌렀는지 확인
     isLiked.value = data.liked_users.includes(currentUser.value);
-    console.log(data.liked_users);  
-    console.log(currentUser.value);
-    console.log(isLiked.value);
+    console.log('data:', data.liked_users);
+    console.log('currentUser', currentUser.value);
+    console.log('isLiked', isLiked.value);
 
   } catch (error) {
     console.error('게시글을 불러오는 중 오류가 발생했습니다:', error);
@@ -137,7 +134,8 @@ const loadCurrentUser = async () => {
     }
 
     const data = await response.json();
-    currentUser.value = data.nickname;  // 로그인된 사용자 정보 저장
+    console.log('여기여기', data)
+    currentUser.value = data.nickname ? data.nickname : data.username; // nickname이 존재하면 nickname, 없으면 username
     loadPost();  // 사용자 정보를 불러온 후 게시글을 로드
 
   } catch (error) {
@@ -257,7 +255,7 @@ const toggleLike = async () => {
       isLiked.value = !isLiked.value; // 좋아요 상태 토글
       post.value.likes += isLiked.value ? 1 : -1; // 좋아요 수 업데이트
     } else {
-      console.error(result);
+      console.error('좋아요 오류', result);
     }
   } catch (error) {
     console.error('좋아요 처리 중 오류가 발생했습니다:', error);
